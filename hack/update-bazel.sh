@@ -13,11 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-GO111MODULE=on go mod tidy
-GO111MODULE=on go mod vendor
-GO111MODULE=on go mod verify
-
-# clean vendor directory from bazel BUILD file
-# and let gazelle regenerate them
-find vendor -name 'BUILD' -type f -delete
-find vendor -name 'BUILD.bazel' -type f -delete
+bazel run //:gazelle
+bazel run //:gazelle -- update-repos -from_file=go.mod
