@@ -31,6 +31,198 @@ load("@io_bazel_rules_docker//go:image.bzl", _go_image_repos = "repositories")
 
 _go_image_repos()
 
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
 
 gazelle_dependencies()
+
+go_repository(
+    name = "co_honnef_go_tools",
+    commit = "c2f93a96b099",
+    importpath = "honnef.co/go/tools",
+)
+
+go_repository(
+    name = "com_github_burntsushi_toml",
+    importpath = "github.com/BurntSushi/toml",
+    tag = "v0.3.1",
+)
+
+go_repository(
+    name = "com_github_client9_misspell",
+    importpath = "github.com/client9/misspell",
+    tag = "v0.3.4",
+)
+
+go_repository(
+    name = "com_github_ghodss_yaml",
+    importpath = "github.com/ghodss/yaml",
+    tag = "v1.0.0",
+)
+
+go_repository(
+    name = "com_github_go_sql_driver_mysql",
+    importpath = "github.com/go-sql-driver/mysql",
+    tag = "v1.4.1",
+)
+
+go_repository(
+    name = "com_github_golang_glog",
+    commit = "23def4e6c14b",
+    importpath = "github.com/golang/glog",
+)
+
+go_repository(
+    name = "com_github_golang_mock",
+    importpath = "github.com/golang/mock",
+    tag = "v1.1.1",
+)
+
+go_repository(
+    name = "com_github_golang_protobuf",
+    importpath = "github.com/golang/protobuf",
+    tag = "v1.3.1",
+)
+
+go_repository(
+    name = "com_github_grpc_ecosystem_grpc_gateway",
+    importpath = "github.com/grpc-ecosystem/grpc-gateway",
+    tag = "v1.8.5",
+)
+
+go_repository(
+    name = "com_github_inconshreveable_mousetrap",
+    importpath = "github.com/inconshreveable/mousetrap",
+    tag = "v1.0.0",
+)
+
+go_repository(
+    name = "com_github_kr_pretty",
+    importpath = "github.com/kr/pretty",
+    tag = "v0.1.0",
+)
+
+go_repository(
+    name = "com_github_kr_pty",
+    importpath = "github.com/kr/pty",
+    tag = "v1.1.1",
+)
+
+go_repository(
+    name = "com_github_kr_text",
+    importpath = "github.com/kr/text",
+    tag = "v0.1.0",
+)
+
+go_repository(
+    name = "com_github_rogpeppe_fastuuid",
+    commit = "6724a57986af",
+    importpath = "github.com/rogpeppe/fastuuid",
+)
+
+go_repository(
+    name = "com_github_spf13_cobra",
+    importpath = "github.com/spf13/cobra",
+    tag = "v0.0.3",
+)
+
+go_repository(
+    name = "com_github_spf13_pflag",
+    importpath = "github.com/spf13/pflag",
+    tag = "v1.0.3",
+)
+
+go_repository(
+    name = "com_google_cloud_go",
+    importpath = "cloud.google.com/go",
+    tag = "v0.26.0",
+)
+
+go_repository(
+    name = "in_gopkg_check_v1",
+    commit = "788fd7840127",
+    importpath = "gopkg.in/check.v1",
+)
+
+go_repository(
+    name = "in_gopkg_resty_v1",
+    importpath = "gopkg.in/resty.v1",
+    tag = "v1.12.0",
+)
+
+go_repository(
+    name = "in_gopkg_yaml_v2",
+    commit = "eb3733d160e7",
+    importpath = "gopkg.in/yaml.v2",
+)
+
+go_repository(
+    name = "org_golang_google_appengine",
+    importpath = "google.golang.org/appengine",
+    tag = "v1.4.0",
+)
+
+go_repository(
+    name = "org_golang_google_genproto",
+    commit = "357c62f0e4bb",
+    importpath = "google.golang.org/genproto",
+)
+
+go_repository(
+    name = "org_golang_google_grpc",
+    importpath = "google.golang.org/grpc",
+    tag = "v1.20.1",
+)
+
+go_repository(
+    name = "org_golang_x_crypto",
+    commit = "c2843e01d9a2",
+    importpath = "golang.org/x/crypto",
+)
+
+go_repository(
+    name = "org_golang_x_exp",
+    commit = "509febef88a4",
+    importpath = "golang.org/x/exp",
+)
+
+go_repository(
+    name = "org_golang_x_lint",
+    commit = "d0100b6bd8b3",
+    importpath = "golang.org/x/lint",
+)
+
+go_repository(
+    name = "org_golang_x_net",
+    commit = "d8887717615a",
+    importpath = "golang.org/x/net",
+)
+
+go_repository(
+    name = "org_golang_x_oauth2",
+    commit = "d2e6202438be",
+    importpath = "golang.org/x/oauth2",
+)
+
+go_repository(
+    name = "org_golang_x_sync",
+    commit = "e225da77a7e6",
+    importpath = "golang.org/x/sync",
+)
+
+go_repository(
+    name = "org_golang_x_sys",
+    commit = "d0b11bdaac8a",
+    importpath = "golang.org/x/sys",
+)
+
+go_repository(
+    name = "org_golang_x_text",
+    importpath = "golang.org/x/text",
+    tag = "v0.3.0",
+)
+
+go_repository(
+    name = "org_golang_x_tools",
+    commit = "11955173bddd",
+    importpath = "golang.org/x/tools",
+)

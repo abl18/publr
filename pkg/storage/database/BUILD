@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["connections.go"],
+    importpath = "github.com/prksu/publr/pkg/storage/database",
+    visibility = ["//visibility:public"],
+    deps = ["//vendor/github.com/go-sql-driver/mysql:go_default_library"],
+)
