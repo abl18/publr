@@ -1,0 +1,45 @@
+# Copyright 2019 Publr Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# 	http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+apiVersion: skaffold/v1beta9
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+  - image: http-proxy
+    bazel:
+      target: //cmd/http-proxy:image.tar
+      args:
+      - "--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
+  - image: posts
+    bazel:
+      target: //cmd/service/posts:image.tar
+      args:
+      - "--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
+  - image: sites
+    bazel:
+      target: //cmd/service/sites:image.tar
+      args:
+      - "--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
+  - image: users
+    bazel:
+      target: //cmd/service/users:image.tar
+      args:
+      - "--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
+deploy:
+  kubectl:
+    manifests:
+    - deployment/kubernetes/publr/http-proxy/*.yaml
+    - deployment/kubernetes/publr/service/*/*.yaml
