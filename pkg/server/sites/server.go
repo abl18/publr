@@ -16,6 +16,7 @@ package sites
 
 import (
 	"context"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
@@ -33,28 +34,63 @@ var (
 
 // Server implement sitesv1alpha1.SiteServiceServer.
 type Server struct {
-	DS SiteDatastore
+	Site SiteDatastore
 }
 
 // NewServer create new sites service server.
 // returns sitesv1alpha1.SiteServiceServer.
 func NewServer() sitesv1alpha1.SiteServiceServer {
 	server := new(Server)
-	server.DS = NewDatastore()
+	server.Site = NewSiteDatastore()
 	return server
 }
 
 // CreateSite handler method.
 func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha1.CreateSiteRequest) (*sitesv1alpha1.Site, error) {
-	return nil, status.Error(codes.Unimplemented, "not implement yet")
+	site := req.Site
+
+	if site.Title == "" {
+		return nil, status.Error(codes.InvalidArgument, "title is required")
+	}
+
+	if site.Domain == "" {
+		return nil, status.Error(codes.InvalidArgument, "domain is required")
+	}
+
+	sitedomain := site.Domain
+	if err := s.Site.Create(site); err != nil {
+		return nil, err
+	}
+
+	res, err := s.Site.Get(sitedomain)
+	if err != nil {
+		return nil, err
+	}
+
+	res.Name = strings.Join([]string{"sites", sitedomain}, "/")
+	return res, nil
 }
 
 // GetSite handler method.
 func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha1.GetSiteRequest) (*sitesv1alpha1.Site, error) {
-	return nil, status.Error(codes.Unimplemented, "not implement yet")
+	name := req.Name
+	sitedomain := strings.Split(name, "/")[1]
+	res, err := s.Site.Get(sitedomain)
+	if err != nil {
+		return nil, err
+	}
+
+	res.Name = name
+	return res, nil
 }
 
 // DeleteSite handler method.
 func (s *Server) DeleteSite(ctx context.Context, req *sitesv1alpha1.DeleteSiteRequest) (*empty.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "not implement yet")
+	name := req.Name
+	sitedomain := strings.Split(name, "/")[1]
+	if err := s.Site.Delete(sitedomain); err != nil {
+		return nil, err
+	}
+
+	return new(empty.Empty), nil
 }

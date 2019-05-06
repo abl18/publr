@@ -17,6 +17,11 @@ package sites
 import (
 	"database/sql"
 
+	"github.com/go-sql-driver/mysql"
+	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	sitesv1alpha1 "github.com/prksu/publr/pkg/api/sites/v1alpha1"
 	"github.com/prksu/publr/pkg/storage/database"
 )
@@ -33,15 +38,58 @@ type datastore struct {
 	DB *sql.DB
 }
 
-// NewDatastore create new sites service datastore instance
-func NewDatastore() SiteDatastore {
+// NewSiteDatastore create new sites service datastore instance
+func NewSiteDatastore() SiteDatastore {
 	ds := new(datastore)
 	ds.DB = database.NewDatabase().Connect()
 	return ds
 }
 
-func (ds *datastore) Create(site *sitesv1alpha1.Site) error { return nil }
+func (ds *datastore) Create(site *sitesv1alpha1.Site) error {
+	stmt, err := ds.DB.Prepare("INSERT INTO sites (title, domain) VALUES (?, ?)")
+	if err != nil {
+		return err
+	}
 
-func (ds *datastore) Get(sitedomain string) (*sitesv1alpha1.Site, error) { return nil, nil }
+	if _, err = stmt.Exec(site.Title, site.Domain); err != nil {
+		if err.(*mysql.MySQLError).Number == 1062 {
+			return status.Error(codes.AlreadyExists, "site already exists")
+		}
+		return err
+	}
 
-func (ds *datastore) Delete(sitedomain string) error { return nil }
+	return nil
+}
+
+func (ds *datastore) Get(sitedomain string) (*sitesv1alpha1.Site, error) {
+	site := new(sitesv1alpha1.Site)
+	var createTime mysql.NullTime
+	var updateTime mysql.NullTime
+	if err := ds.DB.QueryRow("SELECT title, domain, createtime, updatetime FROM sites WHERE domain=?", sitedomain).
+		Scan(&site.Title, &site.Domain, &createTime, &updateTime); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Error(codes.NotFound, "site not found")
+		}
+		return nil, err
+	}
+
+	site.CreateTime, _ = ptypes.TimestampProto(createTime.Time)
+	site.UpdateTime, _ = ptypes.TimestampProto(updateTime.Time)
+	return site, nil
+}
+
+func (ds *datastore) Delete(sitedomain string) error {
+	result, err := ds.DB.Exec("DELETE FROM sites WHERE domain=?", sitedomain)
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected, err := result.RowsAffected(); rowsAffected < 1 || err != nil {
+		if err == nil {
+			return status.Error(codes.NotFound, "site not found")
+		}
+		return err
+	}
+
+	return nil
+}
