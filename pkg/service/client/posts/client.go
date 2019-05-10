@@ -20,11 +20,11 @@ import (
 	"google.golang.org/grpc"
 
 	postsv1alpha1 "github.com/prksu/publr/pkg/api/posts/v1alpha1"
-	"github.com/prksu/publr/pkg/server/posts"
+	"github.com/prksu/publr/pkg/service/server/posts"
 )
 
-// NewClient create new posts service client.
-func NewClient() (postsv1alpha1.PostServiceClient, error) {
+// NewServiceClient create new posts service client.
+func NewServiceClient() (postsv1alpha1.PostServiceClient, error) {
 	host, port, err := net.SplitHostPort(posts.ServiceAddress)
 	if err != nil {
 		return nil, err

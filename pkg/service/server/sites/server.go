@@ -37,9 +37,9 @@ type Server struct {
 	Site SiteDatastore
 }
 
-// NewServer create new sites service server.
+// NewServiceServer create new sites service server.
 // returns sitesv1alpha1.SiteServiceServer.
-func NewServer() sitesv1alpha1.SiteServiceServer {
+func NewServiceServer() sitesv1alpha1.SiteServiceServer {
 	server := new(Server)
 	server.Site = NewSiteDatastore()
 	return server

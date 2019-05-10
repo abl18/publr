@@ -6,10 +6,11 @@ go_library(
         "datastore.go",
         "server.go",
     ],
-    importpath = "github.com/prksu/publr/pkg/server/sites",
+    importpath = "github.com/prksu/publr/pkg/service/server/posts",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/api/sites/v1alpha1:go_default_library",
+        "//pkg/api/posts/v1alpha1:go_default_library",
+        "//pkg/service/util:go_default_library",
         "//pkg/storage/database:go_default_library",
         "//vendor/github.com/go-sql-driver/mysql:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes:go_default_library",

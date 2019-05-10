@@ -12,25 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package users
+package sites
 
 import (
 	"net"
 
 	"google.golang.org/grpc"
 
-	usersv1alpha1 "github.com/prksu/publr/pkg/api/users/v1alpha1"
-	"github.com/prksu/publr/pkg/server/users"
+	sitesv1alpha1 "github.com/prksu/publr/pkg/api/sites/v1alpha1"
+	"github.com/prksu/publr/pkg/service/server/sites"
 )
 
-// NewClient create new users service client.
-func NewClient() (usersv1alpha1.UserServiceClient, error) {
-	host, port, err := net.SplitHostPort(users.ServiceAddress)
+// NewServiceClient create new sites service client.
+func NewServiceClient() (sitesv1alpha1.SiteServiceClient, error) {
+	host, port, err := net.SplitHostPort(sites.ServiceAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	host = users.ServiceName
+	host = sites.ServiceName
 	address := net.JoinHostPort(host, port)
 
 	opts := []grpc.DialOption{
@@ -42,7 +42,7 @@ func NewClient() (usersv1alpha1.UserServiceClient, error) {
 		return nil, err
 	}
 
-	client := usersv1alpha1.NewUserServiceClient(conn)
+	client := sitesv1alpha1.NewSiteServiceClient(conn)
 
 	return client, nil
 }

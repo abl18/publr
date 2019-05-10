@@ -23,7 +23,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	postsv1alpha1 "github.com/prksu/publr/pkg/api/posts/v1alpha1"
-	"github.com/prksu/publr/pkg/util"
+	"github.com/prksu/publr/pkg/service/util"
 )
 
 // Posts service
@@ -39,9 +39,9 @@ type Server struct {
 	PageToken util.PageToken
 }
 
-// NewServer create new users service server.
+// NewServiceServer create new users service server.
 // returns postsv1alpha1.PostServiceServer
-func NewServer() postsv1alpha1.PostServiceServer {
+func NewServiceServer() postsv1alpha1.PostServiceServer {
 	server := new(Server)
 	server.Post = NewPostDatastore()
 	server.PageToken = util.NewPageToken()

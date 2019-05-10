@@ -24,7 +24,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	usersv1alpha1 "github.com/prksu/publr/pkg/api/users/v1alpha1"
-	"github.com/prksu/publr/pkg/util"
+	"github.com/prksu/publr/pkg/service/util"
 )
 
 // Users service
@@ -40,9 +40,9 @@ type Server struct {
 	PageToken util.PageToken
 }
 
-// NewServer create new users service server.
+// NewServiceServer create new users service server.
 // returns usersv1alpha1.SiteServiceServer
-func NewServer() usersv1alpha1.UserServiceServer {
+func NewServiceServer() usersv1alpha1.UserServiceServer {
 	server := new(Server)
 	server.User = NewUserDatastore()
 	server.PageToken = util.NewPageToken()
