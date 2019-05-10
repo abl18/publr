@@ -74,7 +74,7 @@ go_repository(
 go_repository(
     name = "com_github_golang_mock",
     importpath = "github.com/golang/mock",
-    tag = "v1.1.1",
+    tag = "v1.3.0",
 )
 
 go_repository(
@@ -158,7 +158,7 @@ go_repository(
 go_repository(
     name = "org_golang_google_appengine",
     importpath = "google.golang.org/appengine",
-    tag = "v1.4.0",
+    tag = "v1.5.0",
 )
 
 go_repository(
@@ -175,7 +175,7 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_crypto",
-    commit = "c2843e01d9a2",
+    commit = "c05e17bb3b2d",
     importpath = "golang.org/x/crypto",
 )
 
@@ -193,7 +193,7 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_net",
-    commit = "d8887717615a",
+    commit = "a4d6f7feada5",
     importpath = "golang.org/x/net",
 )
 
@@ -205,24 +205,30 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_sync",
-    commit = "e225da77a7e6",
+    commit = "112230192c58",
     importpath = "golang.org/x/sync",
 )
 
 go_repository(
     name = "org_golang_x_sys",
-    commit = "d0b11bdaac8a",
+    commit = "a5b02f93d862",
     importpath = "golang.org/x/sys",
 )
 
 go_repository(
     name = "org_golang_x_text",
     importpath = "golang.org/x/text",
-    tag = "v0.3.0",
+    tag = "v0.3.2",
 )
 
 go_repository(
     name = "org_golang_x_tools",
-    commit = "11955173bddd",
+    commit = "36563e24a262",
     importpath = "golang.org/x/tools",
+)
+
+go_repository(
+    name = "com_github_data_dog_go_sqlmock",
+    importpath = "github.com/DATA-DOG/go-sqlmock",
+    tag = "v1.3.3",
 )
