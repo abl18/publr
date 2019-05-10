@@ -16,12 +16,14 @@ package posts
 
 import (
 	"context"
+	"strings"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	postsv1alpha1 "github.com/prksu/publr/pkg/api/posts/v1alpha1"
+	"github.com/prksu/publr/pkg/util"
 )
 
 // Posts service
@@ -33,30 +35,121 @@ var (
 
 // Server implement postsv1alpha1.PostServiceServer.
 type Server struct {
-	DS PostDatastore
+	Post      PostDatastore
+	PageToken util.PageToken
 }
 
 // NewServer create new users service server.
 // returns postsv1alpha1.PostServiceServer
 func NewServer() postsv1alpha1.PostServiceServer {
 	server := new(Server)
-	server.DS = NewDatastore()
+	server.Post = NewPostDatastore()
+	server.PageToken = util.NewPageToken()
 	return server
 }
 
 // ListPost handler method
 func (s *Server) ListPost(ctx context.Context, req *postsv1alpha1.ListPostRequest) (*postsv1alpha1.PostList, error) {
-	return nil, status.Error(codes.Unimplemented, "not implement yet")
+	parent := req.Parent
+	sparent := strings.Split(parent, "/")
+
+	start, err := s.PageToken.Parse(req.PageToken)
+	if err != nil {
+		return nil, err
+	}
+	offset := int(req.PageSize)
+	if offset == 0 {
+		offset = 10
+	}
+
+	var sitedomain string
+	var author string
+
+	sitedomain = sparent[1]
+	switch len(sparent) {
+	case 3:
+		author = sparent[3]
+	}
+
+	posts, err := s.Post.List(sitedomain, author, start, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, i := range posts {
+		i.Name = strings.Join([]string{parent, "posts", i.Slug}, "/")
+	}
+
+	var nextPageToken string
+	if len(posts) == offset {
+		nextPageToken = s.PageToken.Generate(start + offset)
+	}
+
+	res := new(postsv1alpha1.PostList)
+	res.Posts = posts
+	res.NextPageToken = nextPageToken
+	return res, nil
 }
 
 // CreatePost handler method
 func (s *Server) CreatePost(ctx context.Context, req *postsv1alpha1.CreatePostRequest) (*postsv1alpha1.Post, error) {
-	return nil, status.Error(codes.Unimplemented, "not implement yet")
+	parent := req.Parent
+	post := req.Post
+
+	if post.Title == "" {
+		return nil, status.Error(codes.InvalidArgument, "title is required")
+	}
+
+	if post.Slug == "" {
+		return nil, status.Error(codes.InvalidArgument, "slug is required")
+	}
+
+	if post.Html == "" {
+		return nil, status.Error(codes.InvalidArgument, "html is required")
+	}
+
+	sitedomain := strings.Split(parent, "/")[1]
+	author := strings.Split(parent, "/")[3]
+
+	slug := strings.ToLower(strings.Replace(post.Slug, " ", "-", -1))
+	if err := s.Post.Create(sitedomain, author, post); err != nil {
+		return nil, err
+	}
+
+	res, err := s.Post.Get(sitedomain, author, slug)
+	if err != nil {
+		return nil, err
+	}
+
+	res.Name = strings.Join([]string{parent, "posts", slug}, "/")
+	return res, nil
 }
 
 // GetPost handler method
 func (s *Server) GetPost(ctx context.Context, req *postsv1alpha1.GetPostRequest) (*postsv1alpha1.Post, error) {
-	return nil, status.Error(codes.Unimplemented, "not implement yet")
+	name := req.Name
+	sname := strings.Split(name, "/")
+
+	var sitedomain string
+	var author string
+	var slug string
+
+	sitedomain = sname[1]
+	switch len(sname) {
+	case 4:
+		slug = sname[3]
+	case 6:
+		author = sname[3]
+		slug = sname[5]
+	}
+
+	res, err := s.Post.Get(sitedomain, author, slug)
+	if err != nil {
+		return nil, err
+	}
+
+	res.Name = name
+	return res, nil
 }
 
 // UpdatePost handler method
@@ -66,7 +159,23 @@ func (s *Server) UpdatePost(ctx context.Context, req *postsv1alpha1.UpdatePostRe
 
 // DeletePost handler method
 func (s *Server) DeletePost(ctx context.Context, req *postsv1alpha1.DeletePostRequest) (*empty.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "not implement yet")
+	name := req.Name
+	sname := strings.Split(name, "/")
+
+	sitedomain := sname[1]
+	author := sname[3]
+	slug := sname[5]
+
+	// just check if the posts is exist
+	if _, err := s.Post.Get(sitedomain, author, slug); err != nil {
+		return nil, err
+	}
+
+	if err := s.Post.Delete(sitedomain, author, slug); err != nil {
+		return nil, err
+	}
+
+	return new(empty.Empty), nil
 }
 
 // SearchPost handler method

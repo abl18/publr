@@ -11,6 +11,9 @@ go_library(
     deps = [
         "//pkg/api/posts/v1alpha1:go_default_library",
         "//pkg/storage/database:go_default_library",
+        "//pkg/util:go_default_library",
+        "//vendor/github.com/go-sql-driver/mysql:go_default_library",
+        "//vendor/github.com/golang/protobuf/ptypes:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/empty:go_default_library",
         "//vendor/google.golang.org/grpc/codes:go_default_library",
         "//vendor/google.golang.org/grpc/status:go_default_library",
