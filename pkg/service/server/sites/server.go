@@ -49,6 +49,10 @@ func NewServiceServer() sitesv1alpha1.SiteServiceServer {
 func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha1.CreateSiteRequest) (*sitesv1alpha1.Site, error) {
 	site := req.Site
 
+	if site == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
 	if site.Title == "" {
 		return nil, status.Error(codes.InvalidArgument, "title is required")
 	}
@@ -88,6 +92,11 @@ func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha1.GetSiteRequest)
 func (s *Server) DeleteSite(ctx context.Context, req *sitesv1alpha1.DeleteSiteRequest) (*empty.Empty, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
+
+	if _, err := s.Site.Get(sitedomain); err != nil {
+		return nil, err
+	}
+
 	if err := s.Site.Delete(sitedomain); err != nil {
 		return nil, err
 	}

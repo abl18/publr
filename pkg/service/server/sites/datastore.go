@@ -79,15 +79,7 @@ func (ds *datastore) Get(sitedomain string) (*sitesv1alpha1.Site, error) {
 }
 
 func (ds *datastore) Delete(sitedomain string) error {
-	result, err := ds.DB.Exec("DELETE FROM sites WHERE domain=?", sitedomain)
-	if err != nil {
-		return err
-	}
-
-	if rowsAffected, err := result.RowsAffected(); rowsAffected < 1 || err != nil {
-		if err == nil {
-			return status.Error(codes.NotFound, "site not found")
-		}
+	if _, err := ds.DB.Exec("DELETE FROM sites WHERE domain=?", sitedomain); err != nil {
 		return err
 	}
 

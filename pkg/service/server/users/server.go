@@ -68,7 +68,7 @@ func (s *Server) ListUser(ctx context.Context, req *usersv1alpha1.ListUserReques
 	}
 
 	for _, i := range users {
-		i.Name = strings.Join([]string{parent, "users", i.Username}, "/")
+		i.Name = strings.Join([]string{"sites", sitedomain, "users", i.Username}, "/")
 	}
 
 	var nextPageToken string
@@ -86,6 +86,10 @@ func (s *Server) ListUser(ctx context.Context, req *usersv1alpha1.ListUserReques
 func (s *Server) CreateUser(ctx context.Context, req *usersv1alpha1.CreateUserRequest) (*usersv1alpha1.User, error) {
 	parent := req.Parent
 	user := req.User
+
+	if user == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
 
 	if user.Username == "" {
 		return nil, status.Error(codes.InvalidArgument, "username is required")
@@ -113,7 +117,7 @@ func (s *Server) CreateUser(ctx context.Context, req *usersv1alpha1.CreateUserRe
 		return nil, err
 	}
 
-	res.Name = strings.Join([]string{parent, "users", username}, "/")
+	res.Name = strings.Join([]string{"sites", sitedomain, "users", res.Username}, "/")
 	return res, nil
 }
 
@@ -169,6 +173,10 @@ func (s *Server) DeleteUser(ctx context.Context, req *usersv1alpha1.DeleteUserRe
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
+
+	if _, err := s.User.Get(sitedomain, username); err != nil {
+		return nil, err
+	}
 
 	if err := s.User.Delete(sitedomain, username); err != nil {
 		return nil, err

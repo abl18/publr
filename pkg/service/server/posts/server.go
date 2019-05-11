@@ -96,6 +96,10 @@ func (s *Server) CreatePost(ctx context.Context, req *postsv1alpha1.CreatePostRe
 	parent := req.Parent
 	post := req.Post
 
+	if post == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
 	if post.Title == "" {
 		return nil, status.Error(codes.InvalidArgument, "title is required")
 	}
@@ -121,7 +125,7 @@ func (s *Server) CreatePost(ctx context.Context, req *postsv1alpha1.CreatePostRe
 		return nil, err
 	}
 
-	res.Name = strings.Join([]string{parent, "posts", slug}, "/")
+	res.Name = strings.Join([]string{"sites", sitedomain, "authors", author, "posts", slug}, "/")
 	return res, nil
 }
 
