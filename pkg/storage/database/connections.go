@@ -31,22 +31,45 @@ var (
 	Name     = "publr"
 )
 
-// Database implement database
-type Database struct {
-	DSN string
+// Database interface
+type Database interface {
+	WithDriver(driver string) Database
+	WithDSN(dsn string) Database
+	Connect() *sql.DB
+}
+
+// Options implement database
+type Options struct {
+	DSN    string
+	Driver string
 }
 
 // NewDatabase create new database configuration
-func NewDatabase() *Database {
-	database := new(Database)
+func NewDatabase() Database {
+	database := new(Options)
 	database.DSN = fmt.Sprintf("%s:%s@tcp(%s)/%s?autocommit=true&parseTime=true", User, Password, Host, Name)
 	return database
 }
 
+// WithDriver set database driver.
+func (o *Options) WithDriver(driver string) Database {
+	o.Driver = driver
+	return o
+}
+
+// WithDSN set database driver, This method will be overide the DSN from database configuration variable.
+func (o *Options) WithDSN(dsn string) Database {
+	o.DSN = dsn
+	return o
+}
+
 // Connect open database connection.
-func (d *Database) Connect() *sql.DB {
+func (o *Options) Connect() *sql.DB {
 	// Open sql connection
-	database, err := sql.Open("mysql", d.DSN)
+	if o.Driver == "" {
+		o.Driver = "mysql"
+	}
+	database, err := sql.Open(o.Driver, o.DSN)
 	if err != nil {
 		log.Fatal(err)
 	}
