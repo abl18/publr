@@ -41,10 +41,15 @@ type datastore struct {
 	DB *sql.DB
 }
 
-// NewUserDatastore create new users service datastore instance
+// NewUserDatastore create new users service datastore instance with configured database connection
 func NewUserDatastore() UserDatastore {
+	return NewUserDatastoreWithDB(database.NewDatabase().Connect())
+}
+
+// NewUserDatastoreWithDB create new users service datastore instance with sql.DB params.
+func NewUserDatastoreWithDB(database *sql.DB) UserDatastore {
 	ds := new(datastore)
-	ds.DB = database.NewDatabase().Connect()
+	ds.DB = database
 	return ds
 }
 
