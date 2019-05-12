@@ -38,10 +38,15 @@ type datastore struct {
 	DB *sql.DB
 }
 
-// NewSiteDatastore create new sites service datastore instance
+// NewSiteDatastore create new sites service datastore instance with configured database connection.
 func NewSiteDatastore() SiteDatastore {
+	return NewSiteDatastoreWithDB(database.NewDatabase().Connect())
+}
+
+// NewSiteDatastoreWithDB create new sites service datastore instance with sql.DB params.
+func NewSiteDatastoreWithDB(database *sql.DB) SiteDatastore {
 	ds := new(datastore)
-	ds.DB = database.NewDatabase().Connect()
+	ds.DB = database
 	return ds
 }
 
