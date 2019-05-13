@@ -2,6 +2,9 @@
 
 Microservices Publishing Platform.
 
+[![Build Status](https://travis-ci.com/prksu/publr.svg?branch=master)](https://travis-ci.com/prksu/publr)
+[![codecov](https://codecov.io/gh/prksu/publr/branch/master/graph/badge.svg)](https://codecov.io/gh/prksu/publr)
+
 ## Getting Started
 
 ### Prerequisites
