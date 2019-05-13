@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ---
-apiVersion: skaffold/v1beta9
+apiVersion: skaffold/v1beta10
 kind: Config
 build:
   tagPolicy:
