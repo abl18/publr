@@ -1,0 +1,25 @@
+dist: xenial
+sudo: required
+language: go
+go:
+- 1.11.x
+services:
+  - mysql
+env:
+  global:
+    - OS=linux
+    - BAZEL_VERSION=0.18.0
+before_install:
+  - |
+    wget -O install.sh "https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-installer-${OS}-x86_64.sh"
+    chmod +x install.sh
+    ./install.sh --user
+    rm -f install.sh
+install:
+  - hack/update-gomod.sh && hack/update-bazel.sh
+before_script:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS publr_test'
+script:
+  - bazel test //... --test_output=all
+  - bazel coverage //... 
+  - bazel build //...
