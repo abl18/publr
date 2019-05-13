@@ -66,8 +66,7 @@ func (s *Server) ListPost(ctx context.Context, req *postsv1alpha1.ListPostReques
 	var author string
 
 	sitedomain = sparent[1]
-	switch len(sparent) {
-	case 3:
+	if len(sparent) > 3 {
 		author = sparent[3]
 	}
 
