@@ -20,6 +20,7 @@ install:
 before_script:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS publr_test'
 script:
-  - bazel test //... --test_output=all
-  - bazel coverage //... 
-  - bazel build //...
+  - bazel test //... --test_output=errors
+  - go test -v -covermode=atomic -coverprofile=coverage.txt ./...
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
