@@ -170,7 +170,104 @@ func TestServer_CreatePost(t *testing.T) {
 		want    *postsv1alpha1.Post
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Test create posts",
+			args: args{
+				context.Background(),
+				&postsv1alpha1.CreatePostRequest{
+					Parent: "sites/mysites.site/authors/authordemo",
+					Post: &postsv1alpha1.Post{
+						Title:     "My Awesome Posts",
+						Slug:      "my-awesome-posts",
+						Html:      "<p>My Awesome Posts</p>",
+						Image:     "myawesomepost.png",
+						Published: true,
+					},
+				},
+			},
+			want: &postsv1alpha1.Post{
+				Name:      "sites/mysites.site/authors/authordemo/posts/my-awesome-posts",
+				Title:     "My Awesome Posts",
+				Slug:      "my-awesome-posts",
+				Html:      "<p>My Awesome Posts</p>",
+				Image:     "myawesomepost.png",
+				Published: true,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Test create posts with already existing slug",
+			args: args{
+				context.Background(),
+				&postsv1alpha1.CreatePostRequest{
+					Parent: "sites/mysites.site/authors/authordemo",
+					Post: &postsv1alpha1.Post{
+						Title:     "My Awesome Posts",
+						Slug:      "my-awesome-posts",
+						Html:      "<p>My Awesome Posts</p>",
+						Image:     "myawesomepost.png",
+						Published: true,
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test create posts with null post request",
+			args: args{
+				context.Background(),
+				&postsv1alpha1.CreatePostRequest{},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test create posts with empty title post",
+			args: args{
+				context.Background(),
+				&postsv1alpha1.CreatePostRequest{
+					Parent: "sites/mysites.site/authors/authordemo",
+					Post: &postsv1alpha1.Post{
+						Slug:      "my-awesome-posts",
+						Html:      "<p>My Awesome Posts</p>",
+						Image:     "myawesomepost.png",
+						Published: true,
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test create posts with empty slug post",
+			args: args{
+				context.Background(),
+				&postsv1alpha1.CreatePostRequest{
+					Parent: "sites/mysites.site/authors/authordemo",
+					Post: &postsv1alpha1.Post{
+						Title:     "My Awesome Posts",
+						Html:      "<p>My Awesome Posts</p>",
+						Image:     "myawesomepost.png",
+						Published: true,
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test create posts with empty html body post",
+			args: args{
+				context.Background(),
+				&postsv1alpha1.CreatePostRequest{
+					Parent: "sites/mysites.site/authors/authordemo",
+					Post: &postsv1alpha1.Post{
+						Title:     "My Awesome Posts",
+						Slug:      "my-awesome-posts",
+						Image:     "myawesomepost.png",
+						Published: true,
+					},
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -179,6 +276,13 @@ func TestServer_CreatePost(t *testing.T) {
 				t.Errorf("Server.CreatePost() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
+			if got != nil {
+				tt.want.CreateTime = got.CreateTime
+				tt.want.PublishTime = got.PublishTime
+				tt.want.UpdateTime = got.UpdateTime
+			}
+
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Server.CreatePost() = %v, want %v", got, tt.want)
 			}
