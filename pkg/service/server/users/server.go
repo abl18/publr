@@ -52,17 +52,19 @@ func NewServiceServer() usersv1alpha1.UserServiceServer {
 // ListUser handler method
 func (s *Server) ListUser(ctx context.Context, req *usersv1alpha1.ListUserRequest) (*usersv1alpha1.UserList, error) {
 	parent := req.Parent
+
 	start, err := s.PageToken.Parse(req.PageToken)
 	if err != nil {
 		return nil, err
 	}
-	offset := int(req.PageSize)
-	if offset == 0 {
-		offset = 10
+
+	limit := int(req.PageSize)
+	if limit == 0 {
+		limit = 10
 	}
 
 	sitedomain := strings.Split(parent, "/")[1]
-	users, err := s.User.List(sitedomain, start, offset)
+	users, totalSize, err := s.User.List(sitedomain, start, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +74,8 @@ func (s *Server) ListUser(ctx context.Context, req *usersv1alpha1.ListUserReques
 	}
 
 	var nextPageToken string
-	if len(users) == offset {
-		nextPageToken = s.PageToken.Generate(start + offset)
+	if (start + limit) < totalSize {
+		nextPageToken = s.PageToken.Generate(start + limit)
 	}
 
 	res := new(usersv1alpha1.UserList)

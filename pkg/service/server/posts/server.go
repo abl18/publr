@@ -57,9 +57,10 @@ func (s *Server) ListPost(ctx context.Context, req *postsv1alpha1.ListPostReques
 	if err != nil {
 		return nil, err
 	}
-	offset := int(req.PageSize)
-	if offset == 0 {
-		offset = 10
+
+	limit := int(req.PageSize)
+	if limit == 0 {
+		limit = 10
 	}
 
 	var sitedomain string
@@ -70,7 +71,7 @@ func (s *Server) ListPost(ctx context.Context, req *postsv1alpha1.ListPostReques
 		author = sparent[3]
 	}
 
-	posts, err := s.Post.List(sitedomain, author, start, offset)
+	posts, totalSize, err := s.Post.List(sitedomain, author, start, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +81,8 @@ func (s *Server) ListPost(ctx context.Context, req *postsv1alpha1.ListPostReques
 	}
 
 	var nextPageToken string
-	if len(posts) == offset {
-		nextPageToken = s.PageToken.Generate(start + offset)
+	if (start + limit) < totalSize {
+		nextPageToken = s.PageToken.Generate(start + limit)
 	}
 
 	res := new(postsv1alpha1.PostList)

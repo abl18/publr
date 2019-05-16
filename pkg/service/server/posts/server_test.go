@@ -129,6 +129,54 @@ func TestServer_ListPost(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "Test list posts with page size",
+			args: args{
+				context.Background(),
+				&postsv1alpha1.ListPostRequest{
+					Parent:   "sites/mysites.site",
+					PageSize: 1,
+				},
+			},
+			want: &postsv1alpha1.PostList{
+				Posts: []*postsv1alpha1.Post{
+					{
+						Name:      "sites/mysites.site/posts/my-first-posts",
+						Title:     "My First Post",
+						Slug:      "my-first-posts",
+						Html:      "<p>My First Post</p>",
+						Image:     "image.png",
+						Published: true,
+					},
+				},
+				NextPageToken: server.PageToken.Generate(1),
+			},
+			wantErr: false,
+		},
+		{
+			name: "Test list posts with next page token",
+			args: args{
+				context.Background(),
+				&postsv1alpha1.ListPostRequest{
+					Parent:    "sites/mysites.site",
+					PageSize:  1,
+					PageToken: server.PageToken.Generate(1),
+				},
+			},
+			want: &postsv1alpha1.PostList{
+				Posts: []*postsv1alpha1.Post{
+					{
+						Name:      "sites/mysites.site/posts/my-second-posts",
+						Title:     "My Second Post",
+						Slug:      "my-second-posts",
+						Html:      "<p>My Second Post</p>",
+						Image:     "image.png",
+						Published: true,
+					},
+				},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

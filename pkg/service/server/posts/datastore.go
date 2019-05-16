@@ -28,7 +28,7 @@ import (
 
 // PostDatastore interface
 type PostDatastore interface {
-	List(sitedomain, author string, start, offset int) ([]*postsv1alpha1.Post, error)
+	List(sitedomain, author string, start, limit int) ([]*postsv1alpha1.Post, int, error)
 	Create(sitedomain, author string, post *postsv1alpha1.Post) error
 	Get(sitedomain, author, slug string) (*postsv1alpha1.Post, error)
 	Update(sitedomain, author, slug string, post *postsv1alpha1.Post) error
@@ -53,48 +53,40 @@ func NewPostDatastoreWithDB(database *sql.DB) PostDatastore {
 	return ds
 }
 
-func (ds *datastore) List(sitedomain, author string, start, offset int) ([]*postsv1alpha1.Post, error) {
+func (ds *datastore) List(sitedomain, author string, start, limit int) ([]*postsv1alpha1.Post, int, error) {
 	var posts []*postsv1alpha1.Post
-	var sqlrows *sql.Rows
-	var err error
+	var foundRows int
 
-	if author == "" {
-		sqlquery := `
-			SELECT p.title, p.slug, p.html, p.image, p.published, p.createtime, p.publishtime, p.updatetime
-			FROM posts AS p
-			LEFT JOIN post_sites AS ps on p.slug=ps.post_slug
-			WHERE ps.site_domain=?
-			LIMIT ?, ?
-		`
-		sqlrows, err = ds.DB.Query(sqlquery, sitedomain, start, offset)
-		if err != nil {
-			return nil, err
-		}
+	sqlrows := `
+		SELECT p.title, p.slug, p.html, p.image, p.published, p.createtime, p.publishtime, p.updatetime
+		FROM posts AS p
+		LEFT JOIN post_sites AS ps on p.slug=ps.post_slug
+		LEFT JOIN post_authors AS pa on p.slug=pa.post_slug
+		WHERE ps.site_domain = ? AND ( NULLIF(?, '') IS NULL OR pa.author_username = ? )
+		LIMIT ?, ?
+	`
 
-	} else {
-		sqlquery := `
-			SELECT p.title, p.slug, p.html, p.image, p.published, p.createtime, p.publishtime, p.updatetime
-			FROM posts AS p
-			LEFT JOIN post_sites AS ps on p.slug=ps.post_slug
-			LEFT JOIN post_authors AS pa on p.slug=pa.post_slug
-			WHERE ps.site_domain=? AND pa.author_username=?
-			LIMIT ?, ?
-		`
-		sqlrows, err = ds.DB.Query(sqlquery, sitedomain, author, start, offset)
-		if err != nil {
-			return nil, err
-		}
+	sqlcount := `
+		SELECT COUNT(*)
+		FROM posts AS p
+		LEFT JOIN post_sites AS ps on p.slug=ps.post_slug
+		LEFT JOIN post_authors AS pa on p.slug=pa.post_slug
+		WHERE ps.site_domain = ? AND ( NULLIF(?, '') IS NULL OR pa.author_username = ? )
+	`
 
+	rows, err := ds.DB.Query(sqlrows, sitedomain, author, author, start, limit)
+	if err != nil {
+		return nil, 0, err
 	}
 
-	defer sqlrows.Close()
-	for sqlrows.Next() {
+	defer rows.Close()
+	for rows.Next() {
 		var post postsv1alpha1.Post
 		var createTime mysql.NullTime
 		var publishTime mysql.NullTime
 		var updateTime mysql.NullTime
-		if err := sqlrows.Scan(&post.Title, &post.Slug, &post.Html, &post.Image, &post.Published, &createTime, &publishTime, &updateTime); err != nil {
-			return nil, err
+		if err := rows.Scan(&post.Title, &post.Slug, &post.Html, &post.Image, &post.Published, &createTime, &publishTime, &updateTime); err != nil {
+			return nil, 0, err
 		}
 
 		post.CreateTime, _ = ptypes.TimestampProto(createTime.Time)
@@ -103,7 +95,11 @@ func (ds *datastore) List(sitedomain, author string, start, offset int) ([]*post
 		posts = append(posts, &post)
 	}
 
-	return posts, nil
+	if err := ds.DB.QueryRow(sqlcount, sitedomain, author, author).Scan(&foundRows); err != nil {
+		return nil, 0, err
+	}
+
+	return posts, foundRows, nil
 }
 
 func (ds *datastore) Create(sitedomain, author string, post *postsv1alpha1.Post) error {
@@ -161,25 +157,15 @@ func (ds *datastore) Get(sitedomain, author, slug string) (*postsv1alpha1.Post, 
 	post := new(postsv1alpha1.Post)
 	var sqlrow *sql.Row
 
-	if author == "" {
-		sqlquery := `
-			SELECT p.title, p.slug, p.html, p.image, p.published, p.createtime, p.publishtime, p.updatetime
-			FROM posts AS p
-			LEFT JOIN post_sites AS ps on p.slug=ps.post_slug
-			WHERE ps.site_domain=? AND p.slug=?
-		`
-		sqlrow = ds.DB.QueryRow(sqlquery, sitedomain, slug)
+	sqlquery := `
+		SELECT p.title, p.slug, p.html, p.image, p.published, p.createtime, p.publishtime, p.updatetime
+		FROM posts AS p
+		LEFT JOIN post_sites AS ps on p.slug=ps.post_slug
+		LEFT JOIN post_authors AS pa on p.slug=pa.post_slug
+		WHERE ps.site_domain=? AND p.slug=? AND ( NULLIF(?, '') IS NULL OR pa.author_username = ? )
+	`
 
-	} else {
-		sqlquery := `
-			SELECT p.title, p.slug, p.html, p.image, p.published, p.createtime, p.publishtime, p.updatetime
-			FROM posts AS p
-			LEFT JOIN post_sites AS ps on p.slug=ps.post_slug
-			LEFT JOIN post_authors AS pa on p.slug=pa.post_slug
-			WHERE ps.site_domain=? AND pa.author_username=? AND p.slug=?
-		`
-		sqlrow = ds.DB.QueryRow(sqlquery, sitedomain, author, slug)
-	}
+	sqlrow = ds.DB.QueryRow(sqlquery, sitedomain, slug, author, author)
 
 	var createTime mysql.NullTime
 	var publishTime mysql.NullTime

@@ -28,7 +28,7 @@ import (
 
 // UserDatastore interface
 type UserDatastore interface {
-	List(sitedomain string, start, offset int) ([]*usersv1alpha1.User, error)
+	List(sitedomain string, start, offset int) ([]*usersv1alpha1.User, int, error)
 	Create(sitedomain string, user *usersv1alpha1.User) error
 	Get(sitedomain, username string) (*usersv1alpha1.User, error)
 	Update(sitedomain, username string, user *usersv1alpha1.User) error
@@ -53,10 +53,11 @@ func NewUserDatastoreWithDB(database *sql.DB) UserDatastore {
 	return ds
 }
 
-func (ds *datastore) List(sitedomain string, start, offset int) ([]*usersv1alpha1.User, error) {
+func (ds *datastore) List(sitedomain string, start, limit int) ([]*usersv1alpha1.User, int, error) {
 	var users []*usersv1alpha1.User
+	var foundRows int
 
-	sqlquery := `
+	sqlrows := `
 		SELECT u.email, u.username, u.fullname, su.role, u.createtime, u.updatetime
 		FROM users AS u 
 		LEFT JOIN site_users AS su on u.username=su.user_username
@@ -64,9 +65,16 @@ func (ds *datastore) List(sitedomain string, start, offset int) ([]*usersv1alpha
 		LIMIT ?, ?
 	`
 
-	rows, err := ds.DB.Query(sqlquery, sitedomain, start, offset)
+	sqlcount := `
+		SELECT COUNT(*)
+		FROM users AS u 
+		LEFT JOIN site_users AS su on u.username=su.user_username
+		WHERE su.site_domain=?
+	`
+
+	rows, err := ds.DB.Query(sqlrows, sitedomain, start, limit)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer rows.Close()
@@ -75,14 +83,18 @@ func (ds *datastore) List(sitedomain string, start, offset int) ([]*usersv1alpha
 		var createTime mysql.NullTime
 		var updateTime mysql.NullTime
 		if err := rows.Scan(&user.Email, &user.Username, &user.Fullname, &user.Role, &createTime, &updateTime); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		user.CreateTime, _ = ptypes.TimestampProto(createTime.Time)
 		user.UpdateTime, _ = ptypes.TimestampProto(updateTime.Time)
 		users = append(users, &user)
 	}
 
-	return users, nil
+	if err := ds.DB.QueryRow(sqlcount, sitedomain).Scan(&foundRows); err != nil {
+		return nil, 0, err
+	}
+
+	return users, foundRows, nil
 }
 
 func (ds *datastore) Create(sitedomain string, user *usersv1alpha1.User) error {

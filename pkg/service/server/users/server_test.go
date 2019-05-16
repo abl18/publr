@@ -98,6 +98,29 @@ func TestServer_ListUser(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "Test list user with page size",
+			args: args{
+				context.Background(),
+				&usersv1alpha1.ListUserRequest{
+					Parent:   "sites/mysites.site",
+					PageSize: 1,
+				},
+			},
+			want: &usersv1alpha1.UserList{
+				Users: []*usersv1alpha1.User{
+					{
+						Name:     "sites/mysites.site/users/userdemo",
+						Email:    "userdemo@mysites.site",
+						Username: "userdemo",
+						Fullname: "User Demo",
+						Role:     0,
+					},
+				},
+				NextPageToken: server.PageToken.Generate(1),
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
