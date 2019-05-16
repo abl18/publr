@@ -186,6 +186,51 @@ func TestServer_CreateUser(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "Test create user with empty username",
+			args: args{
+				context.Background(),
+				&usersv1alpha1.CreateUserRequest{
+					Parent: "sites/mysites.site",
+					User: &usersv1alpha1.User{
+						Email:    "testuser@mysites.site",
+						Password: "secret",
+						Fullname: "Test User",
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test create user with empty email",
+			args: args{
+				context.Background(),
+				&usersv1alpha1.CreateUserRequest{
+					Parent: "sites/mysites.site",
+					User: &usersv1alpha1.User{
+						Username: "testuser",
+						Password: "secret",
+						Fullname: "Test User",
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Test create user with empty email",
+			args: args{
+				context.Background(),
+				&usersv1alpha1.CreateUserRequest{
+					Parent: "sites/mysites.site",
+					User: &usersv1alpha1.User{
+						Username: "testuser",
+						Email:    "testuser@mysites.site",
+						Fullname: "Test User",
+					},
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
