@@ -471,3 +471,41 @@ func TestServer_DeletePost(t *testing.T) {
 		})
 	}
 }
+
+func TestServer_SearchPost(t *testing.T) {
+	server := new(Server)
+	server.Post = NewPostDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
+	server.PageToken = util.NewPageToken()
+
+	type args struct {
+		ctx context.Context
+		req *postsv1alpha1.SearchPostRequest
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *postsv1alpha1.PostList
+		wantErr bool
+	}{
+		{
+			name: "Test search post that not implement yet",
+			args: args{
+				context.Background(),
+				&postsv1alpha1.SearchPostRequest{},
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := server.SearchPost(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Server.SearchPost() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Server.SearchPost() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

@@ -94,6 +94,13 @@ func TestServer_ListUser(t *testing.T) {
 						Fullname: "Author Demo",
 						Role:     1,
 					},
+					{
+						Name:     "sites/mysites.site/users/ownerdemo",
+						Email:    "ownerdemo@mysites.site",
+						Username: "ownerdemo",
+						Fullname: "Owner Demo",
+						Role:     3,
+					},
 				},
 			},
 			wantErr: false,
@@ -374,6 +381,19 @@ func TestServer_UpdateUser(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "Test update user that have owner role",
+			args: args{
+				context.Background(),
+				&usersv1alpha1.UpdateUserRequest{
+					Name: "sites/mysites.site/users/ownerdemo",
+					User: &usersv1alpha1.User{
+						Role: 0,
+					},
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -441,6 +461,44 @@ func TestServer_DeleteUser(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Server.DeleteUser() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestServer_SearchUser(t *testing.T) {
+	server := new(Server)
+	server.User = NewUserDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
+	server.PageToken = util.NewPageToken()
+
+	type args struct {
+		ctx context.Context
+		req *usersv1alpha1.SearchUserRequest
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *usersv1alpha1.UserList
+		wantErr bool
+	}{
+		{
+			name: "Test search user that not implement yet",
+			args: args{
+				context.Background(),
+				&usersv1alpha1.SearchUserRequest{},
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := server.SearchUser(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Server.SearchUser() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Server.SearchUser() = %v, want %v", got, tt.want)
 			}
 		})
 	}

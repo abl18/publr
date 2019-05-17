@@ -25,3 +25,10 @@ INSERT INTO `users` (`email`, `username`, `fullname`) VALUES ("authordemo@mysite
 INSERT INTO `site_users` (user_username, site_domain, role) VALUES ("authordemo", "mysites.site", "1");
 
 COMMIT;
+
+START TRANSACTION;
+
+INSERT INTO `users` (`email`, `username`, `fullname`) VALUES ("ownerdemo@mysites.site", "ownerdemo", "Owner Demo");
+INSERT INTO `site_users` (user_username, site_domain, role) VALUES ("ownerdemo", "mysites.site", "3");
+
+COMMIT;
