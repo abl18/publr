@@ -43,3 +43,9 @@ deploy:
     manifests:
     - deployment/kubernetes/publr/http-proxy/*.yaml
     - deployment/kubernetes/publr/service/*/*.yaml
+profiles:
+- name: release
+  build:
+    tagPolicy:
+      envTemplate:
+        template: "{{.IMAGE_NAME}}:{{.RELEASE_TAG}}"
