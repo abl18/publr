@@ -5,3 +5,4 @@ bazel-out
 bazel-publr
 bazel-testlogs
 coverage.txt
+bazel-install.sh
