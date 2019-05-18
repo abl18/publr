@@ -26,6 +26,7 @@ function gen::bindata::testdata::format() {
   local testdata=${1}
   (cat ${TEMPLATE} && cat ${testdata}) > testdata.go && mv testdata.go ${testdata}
   sed -i -e 's/Sql/SQL/g' ${testdata}
+  gofmt -s -w ${testdata}
 }
  
 function gen::bindata::testdata() {

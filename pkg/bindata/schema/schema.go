@@ -240,12 +240,13 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
-	"data": &bintree{nil, map[string]*bintree{
-		"schema": &bintree{nil, map[string]*bintree{
-			"posts.sql": &bintree{dataSchemaPostsSQL, map[string]*bintree{}},
-			"sites.sql": &bintree{dataSchemaSitesSQL, map[string]*bintree{}},
-			"users.sql": &bintree{dataSchemaUsersSQL, map[string]*bintree{}},
+	"data": {nil, map[string]*bintree{
+		"schema": {nil, map[string]*bintree{
+			"posts.sql": {dataSchemaPostsSQL, map[string]*bintree{}},
+			"sites.sql": {dataSchemaSitesSQL, map[string]*bintree{}},
+			"users.sql": {dataSchemaUsersSQL, map[string]*bintree{}},
 		}},
 	}},
 }}
@@ -296,4 +297,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-

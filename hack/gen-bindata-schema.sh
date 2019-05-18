@@ -26,6 +26,7 @@ function gen::bindata::schema::format() {
   local schema=${1}
   (cat ${TEMPLATE} && cat ${schema}) > schema.go && mv schema.go ${schema}
   sed -i -e 's/Sql/SQL/g' ${schema}
+  gofmt -s -w ${schema}
 }
  
 function gen::bindata::schema() {

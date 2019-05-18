@@ -25,13 +25,12 @@ import (
 
 // NewServiceClient create new users service client.
 func NewServiceClient() (usersv1alpha2.UserServiceClient, error) {
-	host, port, err := net.SplitHostPort(users.ServiceAddress)
+	_, port, err := net.SplitHostPort(users.ServiceAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	host = users.ServiceName
-	address := net.JoinHostPort(host, port)
+	address := net.JoinHostPort(users.ServiceName, port)
 
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),

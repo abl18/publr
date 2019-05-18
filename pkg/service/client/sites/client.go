@@ -25,13 +25,12 @@ import (
 
 // NewServiceClient create new sites service client.
 func NewServiceClient() (sitesv1alpha2.SiteServiceClient, error) {
-	host, port, err := net.SplitHostPort(sites.ServiceAddress)
+	_, port, err := net.SplitHostPort(sites.ServiceAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	host = sites.ServiceName
-	address := net.JoinHostPort(host, port)
+	address := net.JoinHostPort(sites.ServiceName, port)
 
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),

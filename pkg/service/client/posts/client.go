@@ -25,13 +25,12 @@ import (
 
 // NewServiceClient create new posts service client.
 func NewServiceClient() (postsv1alpha2.PostServiceClient, error) {
-	host, port, err := net.SplitHostPort(posts.ServiceAddress)
+	_, port, err := net.SplitHostPort(posts.ServiceAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	host = posts.ServiceName
-	address := net.JoinHostPort(host, port)
+	address := net.JoinHostPort(posts.ServiceName, port)
 
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
