@@ -22,31 +22,31 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	sitesv1alpha1 "github.com/prksu/publr/pkg/api/sites/v1alpha1"
+	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
 )
 
 // Sites service
 var (
 	ServiceName    = "sites"
 	ServiceAddress = "0.0.0.0:9000"
-	ServiceVersion = "v1alpha1"
+	ServiceVersion = "v1alpha2"
 )
 
-// Server implement sitesv1alpha1.SiteServiceServer.
+// Server implement sitesv1alpha2.SiteServiceServer.
 type Server struct {
 	Site SiteDatastore
 }
 
 // NewServiceServer create new sites service server.
-// returns sitesv1alpha1.SiteServiceServer.
-func NewServiceServer() sitesv1alpha1.SiteServiceServer {
+// returns sitesv1alpha2.SiteServiceServer.
+func NewServiceServer() sitesv1alpha2.SiteServiceServer {
 	server := new(Server)
 	server.Site = NewSiteDatastore()
 	return server
 }
 
 // CreateSite handler method.
-func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha1.CreateSiteRequest) (*sitesv1alpha1.Site, error) {
+func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha2.CreateSiteRequest) (*sitesv1alpha2.Site, error) {
 	site := req.Site
 
 	if site == nil {
@@ -76,7 +76,7 @@ func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha1.CreateSiteRe
 }
 
 // GetSite handler method.
-func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha1.GetSiteRequest) (*sitesv1alpha1.Site, error) {
+func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha2.GetSiteRequest) (*sitesv1alpha2.Site, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	res, err := s.Site.Get(sitedomain)
@@ -89,7 +89,7 @@ func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha1.GetSiteRequest)
 }
 
 // DeleteSite handler method.
-func (s *Server) DeleteSite(ctx context.Context, req *sitesv1alpha1.DeleteSiteRequest) (*empty.Empty, error) {
+func (s *Server) DeleteSite(ctx context.Context, req *sitesv1alpha2.DeleteSiteRequest) (*empty.Empty, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 

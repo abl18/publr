@@ -22,7 +22,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	usersv1alpha1 "github.com/prksu/publr/pkg/api/users/v1alpha1"
+	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 	"github.com/prksu/publr/pkg/service/server/users"
 	"github.com/prksu/publr/pkg/storage/database"
 )
@@ -44,7 +44,7 @@ func run() error {
 	opts := []grpc.ServerOption{}
 	server := grpc.NewServer(opts...)
 
-	usersv1alpha1.RegisterUserServiceServer(server, users.NewServiceServer())
+	usersv1alpha2.RegisterUserServiceServer(server, users.NewServiceServer())
 	return server.Serve(listener)
 }
 

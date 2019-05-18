@@ -22,14 +22,14 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	sitesv1alpha1 "github.com/prksu/publr/pkg/api/sites/v1alpha1"
+	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
 	"github.com/prksu/publr/pkg/storage/database"
 )
 
 // SiteDatastore interface
 type SiteDatastore interface {
-	Create(site *sitesv1alpha1.Site) error
-	Get(sitedomain string) (*sitesv1alpha1.Site, error)
+	Create(site *sitesv1alpha2.Site) error
+	Get(sitedomain string) (*sitesv1alpha2.Site, error)
 	Delete(sitedomain string) error
 }
 
@@ -50,7 +50,7 @@ func NewSiteDatastoreWithDB(database *sql.DB) SiteDatastore {
 	return ds
 }
 
-func (ds *datastore) Create(site *sitesv1alpha1.Site) error {
+func (ds *datastore) Create(site *sitesv1alpha2.Site) error {
 	stmt, err := ds.DB.Prepare("INSERT INTO sites (title, domain) VALUES (?, ?)")
 	if err != nil {
 		return err
@@ -66,8 +66,8 @@ func (ds *datastore) Create(site *sitesv1alpha1.Site) error {
 	return nil
 }
 
-func (ds *datastore) Get(sitedomain string) (*sitesv1alpha1.Site, error) {
-	site := new(sitesv1alpha1.Site)
+func (ds *datastore) Get(sitedomain string) (*sitesv1alpha2.Site, error) {
+	site := new(sitesv1alpha2.Site)
 	var createTime mysql.NullTime
 	var updateTime mysql.NullTime
 	if err := ds.DB.QueryRow("SELECT title, domain, createtime, updatetime FROM sites WHERE domain=?", sitedomain).

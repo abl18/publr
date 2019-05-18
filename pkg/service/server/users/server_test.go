@@ -22,7 +22,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 
-	usersv1alpha1 "github.com/prksu/publr/pkg/api/users/v1alpha1"
+	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 	"github.com/prksu/publr/pkg/bindata/schema"
 	"github.com/prksu/publr/pkg/bindata/testdata"
 	"github.com/prksu/publr/pkg/service/util"
@@ -62,24 +62,24 @@ func TestServer_ListUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha1.ListUserRequest
+		req *usersv1alpha2.ListUserRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *usersv1alpha1.UserList
+		want    *usersv1alpha2.UserList
 		wantErr bool
 	}{
 		{
 			name: "Test list user",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.ListUserRequest{
+				&usersv1alpha2.ListUserRequest{
 					Parent: "sites/mysites.site",
 				},
 			},
-			want: &usersv1alpha1.UserList{
-				Users: []*usersv1alpha1.User{
+			want: &usersv1alpha2.UserList{
+				Users: []*usersv1alpha2.User{
 					{
 						Name:     "sites/mysites.site/users/userdemo",
 						Email:    "userdemo@mysites.site",
@@ -109,13 +109,13 @@ func TestServer_ListUser(t *testing.T) {
 			name: "Test list user with page size",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.ListUserRequest{
+				&usersv1alpha2.ListUserRequest{
 					Parent:   "sites/mysites.site",
 					PageSize: 1,
 				},
 			},
-			want: &usersv1alpha1.UserList{
-				Users: []*usersv1alpha1.User{
+			want: &usersv1alpha2.UserList{
+				Users: []*usersv1alpha2.User{
 					{
 						Name:     "sites/mysites.site/users/userdemo",
 						Email:    "userdemo@mysites.site",
@@ -161,21 +161,21 @@ func TestServer_CreateUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha1.CreateUserRequest
+		req *usersv1alpha2.CreateUserRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *usersv1alpha1.User
+		want    *usersv1alpha2.User
 		wantErr bool
 	}{
 		{
 			name: "Test create user",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.CreateUserRequest{
+				&usersv1alpha2.CreateUserRequest{
 					Parent: "sites/mysites.site",
-					User: &usersv1alpha1.User{
+					User: &usersv1alpha2.User{
 						Email:    "testuser@mysites.site",
 						Password: "secret",
 						Username: "testuser",
@@ -183,7 +183,7 @@ func TestServer_CreateUser(t *testing.T) {
 					},
 				},
 			},
-			want: &usersv1alpha1.User{
+			want: &usersv1alpha2.User{
 				Name:     "sites/mysites.site/users/testuser",
 				Email:    "testuser@mysites.site",
 				Username: "testuser",
@@ -196,9 +196,9 @@ func TestServer_CreateUser(t *testing.T) {
 			name: "Test create existing user",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.CreateUserRequest{
+				&usersv1alpha2.CreateUserRequest{
 					Parent: "sites/mysites.site",
-					User: &usersv1alpha1.User{
+					User: &usersv1alpha2.User{
 						Email:    "testuser@mysites.site",
 						Password: "secret",
 						Username: "testuser",
@@ -212,7 +212,7 @@ func TestServer_CreateUser(t *testing.T) {
 			name: "Test create user with null request",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.CreateUserRequest{},
+				&usersv1alpha2.CreateUserRequest{},
 			},
 			wantErr: true,
 		},
@@ -220,9 +220,9 @@ func TestServer_CreateUser(t *testing.T) {
 			name: "Test create user with empty username",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.CreateUserRequest{
+				&usersv1alpha2.CreateUserRequest{
 					Parent: "sites/mysites.site",
-					User: &usersv1alpha1.User{
+					User: &usersv1alpha2.User{
 						Email:    "testuser@mysites.site",
 						Password: "secret",
 						Fullname: "Test User",
@@ -235,9 +235,9 @@ func TestServer_CreateUser(t *testing.T) {
 			name: "Test create user with empty email",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.CreateUserRequest{
+				&usersv1alpha2.CreateUserRequest{
 					Parent: "sites/mysites.site",
-					User: &usersv1alpha1.User{
+					User: &usersv1alpha2.User{
 						Username: "testuser",
 						Password: "secret",
 						Fullname: "Test User",
@@ -250,9 +250,9 @@ func TestServer_CreateUser(t *testing.T) {
 			name: "Test create user with empty email",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.CreateUserRequest{
+				&usersv1alpha2.CreateUserRequest{
 					Parent: "sites/mysites.site",
-					User: &usersv1alpha1.User{
+					User: &usersv1alpha2.User{
 						Username: "testuser",
 						Email:    "testuser@mysites.site",
 						Fullname: "Test User",
@@ -289,23 +289,23 @@ func TestServer_GetUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha1.GetUserRequest
+		req *usersv1alpha2.GetUserRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *usersv1alpha1.User
+		want    *usersv1alpha2.User
 		wantErr bool
 	}{
 		{
 			name: "Test get user",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.GetUserRequest{
+				&usersv1alpha2.GetUserRequest{
 					Name: "sites/mysites.site/users/userdemo",
 				},
 			},
-			want: &usersv1alpha1.User{
+			want: &usersv1alpha2.User{
 				Name:     "sites/mysites.site/users/userdemo",
 				Email:    "userdemo@mysites.site",
 				Username: "userdemo",
@@ -318,7 +318,7 @@ func TestServer_GetUser(t *testing.T) {
 			name: "Test get not existing user",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.GetUserRequest{
+				&usersv1alpha2.GetUserRequest{
 					Name: "sites/mysites.site/users/notexists",
 				},
 			},
@@ -352,28 +352,28 @@ func TestServer_UpdateUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha1.UpdateUserRequest
+		req *usersv1alpha2.UpdateUserRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *usersv1alpha1.User
+		want    *usersv1alpha2.User
 		wantErr bool
 	}{
 		{
 			name: "Test update user",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.UpdateUserRequest{
+				&usersv1alpha2.UpdateUserRequest{
 					Name: "sites/mysites.site/users/testuser",
-					User: &usersv1alpha1.User{
+					User: &usersv1alpha2.User{
 						Email:    "updatetestuser@mysites.site",
 						Username: "updatetestuser",
 						Fullname: "Update Test User",
 					},
 				},
 			},
-			want: &usersv1alpha1.User{
+			want: &usersv1alpha2.User{
 				Name:     "sites/mysites.site/users/updatetestuser",
 				Email:    "updatetestuser@mysites.site",
 				Username: "updatetestuser",
@@ -385,9 +385,9 @@ func TestServer_UpdateUser(t *testing.T) {
 			name: "Test update user that have owner role",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.UpdateUserRequest{
+				&usersv1alpha2.UpdateUserRequest{
 					Name: "sites/mysites.site/users/ownerdemo",
-					User: &usersv1alpha1.User{
+					User: &usersv1alpha2.User{
 						Role: 0,
 					},
 				},
@@ -422,7 +422,7 @@ func TestServer_DeleteUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha1.DeleteUserRequest
+		req *usersv1alpha2.DeleteUserRequest
 	}
 	tests := []struct {
 		name    string
@@ -434,7 +434,7 @@ func TestServer_DeleteUser(t *testing.T) {
 			name: "Test delete user",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.DeleteUserRequest{
+				&usersv1alpha2.DeleteUserRequest{
 					Name: "sites/mysites.site/users/userdemo",
 				},
 			},
@@ -445,7 +445,7 @@ func TestServer_DeleteUser(t *testing.T) {
 			name: "Test delete not existing user",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.DeleteUserRequest{
+				&usersv1alpha2.DeleteUserRequest{
 					Name: "sites/mysites.site/users/userdemo",
 				},
 			},
@@ -473,19 +473,19 @@ func TestServer_SearchUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha1.SearchUserRequest
+		req *usersv1alpha2.SearchUserRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *usersv1alpha1.UserList
+		want    *usersv1alpha2.UserList
 		wantErr bool
 	}{
 		{
 			name: "Test search user that not implement yet",
 			args: args{
 				context.Background(),
-				&usersv1alpha1.SearchUserRequest{},
+				&usersv1alpha2.SearchUserRequest{},
 			},
 			wantErr: true,
 		},

@@ -22,18 +22,18 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	usersv1alpha1 "github.com/prksu/publr/pkg/api/users/v1alpha1"
+	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 	"github.com/prksu/publr/pkg/storage/database"
 )
 
 // UserDatastore interface
 type UserDatastore interface {
-	List(sitedomain string, start, offset int) ([]*usersv1alpha1.User, int, error)
-	Create(sitedomain string, user *usersv1alpha1.User) error
-	Get(sitedomain, username string) (*usersv1alpha1.User, error)
-	Update(sitedomain, username string, user *usersv1alpha1.User) error
+	List(sitedomain string, start, offset int) ([]*usersv1alpha2.User, int, error)
+	Create(sitedomain string, user *usersv1alpha2.User) error
+	Get(sitedomain, username string) (*usersv1alpha2.User, error)
+	Update(sitedomain, username string, user *usersv1alpha2.User) error
 	Delete(sitedomain, username string) error
-	Search(query string) ([]*usersv1alpha1.User, error)
+	Search(query string) ([]*usersv1alpha2.User, error)
 }
 
 // datastore implement users service datastore
@@ -53,8 +53,8 @@ func NewUserDatastoreWithDB(database *sql.DB) UserDatastore {
 	return ds
 }
 
-func (ds *datastore) List(sitedomain string, start, limit int) ([]*usersv1alpha1.User, int, error) {
-	var users []*usersv1alpha1.User
+func (ds *datastore) List(sitedomain string, start, limit int) ([]*usersv1alpha2.User, int, error) {
+	var users []*usersv1alpha2.User
 	var foundRows int
 
 	sqlrows := `
@@ -79,7 +79,7 @@ func (ds *datastore) List(sitedomain string, start, limit int) ([]*usersv1alpha1
 
 	defer rows.Close()
 	for rows.Next() {
-		var user usersv1alpha1.User
+		var user usersv1alpha2.User
 		var createTime mysql.NullTime
 		var updateTime mysql.NullTime
 		if err := rows.Scan(&user.Email, &user.Username, &user.Fullname, &user.Role, &createTime, &updateTime); err != nil {
@@ -97,7 +97,7 @@ func (ds *datastore) List(sitedomain string, start, limit int) ([]*usersv1alpha1
 	return users, foundRows, nil
 }
 
-func (ds *datastore) Create(sitedomain string, user *usersv1alpha1.User) error {
+func (ds *datastore) Create(sitedomain string, user *usersv1alpha2.User) error {
 	tx, err := ds.DB.Begin()
 	if err != nil {
 		return err
@@ -133,8 +133,8 @@ func (ds *datastore) Create(sitedomain string, user *usersv1alpha1.User) error {
 	return tx.Commit()
 }
 
-func (ds *datastore) Get(sitedomain, username string) (*usersv1alpha1.User, error) {
-	user := new(usersv1alpha1.User)
+func (ds *datastore) Get(sitedomain, username string) (*usersv1alpha2.User, error) {
+	user := new(usersv1alpha2.User)
 	var createTime mysql.NullTime
 	var updateTime mysql.NullTime
 	var sqlquery = `
@@ -156,7 +156,7 @@ func (ds *datastore) Get(sitedomain, username string) (*usersv1alpha1.User, erro
 	return user, nil
 }
 
-func (ds *datastore) Update(sitedomain, username string, user *usersv1alpha1.User) error {
+func (ds *datastore) Update(sitedomain, username string, user *usersv1alpha2.User) error {
 	var sqlquery = `
 		UPDATE users AS u LEFT JOIN site_users AS su on u.username=su.user_username
 		SET u.username=?, u.fullname=?, su.role=?
@@ -188,4 +188,4 @@ func (ds *datastore) Delete(sitedomain, username string) error {
 	return nil
 }
 
-func (ds *datastore) Search(query string) ([]*usersv1alpha1.User, error) { return nil, nil }
+func (ds *datastore) Search(query string) ([]*usersv1alpha2.User, error) { return nil, nil }

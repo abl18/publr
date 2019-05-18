@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	postsv1alpha1 "github.com/prksu/publr/pkg/api/posts/v1alpha1"
+	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
 	"github.com/prksu/publr/pkg/service/util"
 )
 
@@ -30,18 +30,18 @@ import (
 var (
 	ServiceName    = "posts"
 	ServiceAddress = "0.0.0.0:9000"
-	ServiceVersion = "v1alpha1"
+	ServiceVersion = "v1alpha2"
 )
 
-// Server implement postsv1alpha1.PostServiceServer.
+// Server implement postsv1alpha2.PostServiceServer.
 type Server struct {
 	Post      PostDatastore
 	PageToken util.PageToken
 }
 
 // NewServiceServer create new users service server.
-// returns postsv1alpha1.PostServiceServer
-func NewServiceServer() postsv1alpha1.PostServiceServer {
+// returns postsv1alpha2.PostServiceServer
+func NewServiceServer() postsv1alpha2.PostServiceServer {
 	server := new(Server)
 	server.Post = NewPostDatastore()
 	server.PageToken = util.NewPageToken()
@@ -49,7 +49,7 @@ func NewServiceServer() postsv1alpha1.PostServiceServer {
 }
 
 // ListPost handler method
-func (s *Server) ListPost(ctx context.Context, req *postsv1alpha1.ListPostRequest) (*postsv1alpha1.PostList, error) {
+func (s *Server) ListPost(ctx context.Context, req *postsv1alpha2.ListPostRequest) (*postsv1alpha2.PostList, error) {
 	parent := req.Parent
 	sparent := strings.Split(parent, "/")
 
@@ -85,14 +85,14 @@ func (s *Server) ListPost(ctx context.Context, req *postsv1alpha1.ListPostReques
 		nextPageToken = s.PageToken.Generate(start + limit)
 	}
 
-	res := new(postsv1alpha1.PostList)
+	res := new(postsv1alpha2.PostList)
 	res.Posts = posts
 	res.NextPageToken = nextPageToken
 	return res, nil
 }
 
 // CreatePost handler method
-func (s *Server) CreatePost(ctx context.Context, req *postsv1alpha1.CreatePostRequest) (*postsv1alpha1.Post, error) {
+func (s *Server) CreatePost(ctx context.Context, req *postsv1alpha2.CreatePostRequest) (*postsv1alpha2.Post, error) {
 	parent := req.Parent
 	post := req.Post
 
@@ -130,7 +130,7 @@ func (s *Server) CreatePost(ctx context.Context, req *postsv1alpha1.CreatePostRe
 }
 
 // GetPost handler method
-func (s *Server) GetPost(ctx context.Context, req *postsv1alpha1.GetPostRequest) (*postsv1alpha1.Post, error) {
+func (s *Server) GetPost(ctx context.Context, req *postsv1alpha2.GetPostRequest) (*postsv1alpha2.Post, error) {
 	name := req.Name
 	sname := strings.Split(name, "/")
 
@@ -157,12 +157,12 @@ func (s *Server) GetPost(ctx context.Context, req *postsv1alpha1.GetPostRequest)
 }
 
 // UpdatePost handler method
-func (s *Server) UpdatePost(ctx context.Context, req *postsv1alpha1.UpdatePostRequest) (*postsv1alpha1.Post, error) {
+func (s *Server) UpdatePost(ctx context.Context, req *postsv1alpha2.UpdatePostRequest) (*postsv1alpha2.Post, error) {
 	return nil, status.Error(codes.Unimplemented, "not implement yet")
 }
 
 // DeletePost handler method
-func (s *Server) DeletePost(ctx context.Context, req *postsv1alpha1.DeletePostRequest) (*empty.Empty, error) {
+func (s *Server) DeletePost(ctx context.Context, req *postsv1alpha2.DeletePostRequest) (*empty.Empty, error) {
 	name := req.Name
 	sname := strings.Split(name, "/")
 
@@ -183,6 +183,6 @@ func (s *Server) DeletePost(ctx context.Context, req *postsv1alpha1.DeletePostRe
 }
 
 // SearchPost handler method
-func (s *Server) SearchPost(ctx context.Context, req *postsv1alpha1.SearchPostRequest) (*postsv1alpha1.PostList, error) {
+func (s *Server) SearchPost(ctx context.Context, req *postsv1alpha2.SearchPostRequest) (*postsv1alpha2.PostList, error) {
 	return nil, status.Error(codes.Unimplemented, "not implement yet")
 }

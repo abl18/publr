@@ -22,18 +22,18 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	postsv1alpha1 "github.com/prksu/publr/pkg/api/posts/v1alpha1"
+	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
 	"github.com/prksu/publr/pkg/storage/database"
 )
 
 // PostDatastore interface
 type PostDatastore interface {
-	List(sitedomain, author string, start, limit int) ([]*postsv1alpha1.Post, int, error)
-	Create(sitedomain, author string, post *postsv1alpha1.Post) error
-	Get(sitedomain, author, slug string) (*postsv1alpha1.Post, error)
-	Update(sitedomain, author, slug string, post *postsv1alpha1.Post) error
+	List(sitedomain, author string, start, limit int) ([]*postsv1alpha2.Post, int, error)
+	Create(sitedomain, author string, post *postsv1alpha2.Post) error
+	Get(sitedomain, author, slug string) (*postsv1alpha2.Post, error)
+	Update(sitedomain, author, slug string, post *postsv1alpha2.Post) error
 	Delete(sitedomain, author, slug string) error
-	Search(query string) ([]*postsv1alpha1.Post, error)
+	Search(query string) ([]*postsv1alpha2.Post, error)
 }
 
 // datastore implement users service datastore
@@ -53,8 +53,8 @@ func NewPostDatastoreWithDB(database *sql.DB) PostDatastore {
 	return ds
 }
 
-func (ds *datastore) List(sitedomain, author string, start, limit int) ([]*postsv1alpha1.Post, int, error) {
-	var posts []*postsv1alpha1.Post
+func (ds *datastore) List(sitedomain, author string, start, limit int) ([]*postsv1alpha2.Post, int, error) {
+	var posts []*postsv1alpha2.Post
 	var foundRows int
 
 	sqlrows := `
@@ -81,7 +81,7 @@ func (ds *datastore) List(sitedomain, author string, start, limit int) ([]*posts
 
 	defer rows.Close()
 	for rows.Next() {
-		var post postsv1alpha1.Post
+		var post postsv1alpha2.Post
 		var createTime mysql.NullTime
 		var publishTime mysql.NullTime
 		var updateTime mysql.NullTime
@@ -102,7 +102,7 @@ func (ds *datastore) List(sitedomain, author string, start, limit int) ([]*posts
 	return posts, foundRows, nil
 }
 
-func (ds *datastore) Create(sitedomain, author string, post *postsv1alpha1.Post) error {
+func (ds *datastore) Create(sitedomain, author string, post *postsv1alpha2.Post) error {
 	tx, err := ds.DB.Begin()
 	if err != nil {
 		return err
@@ -153,8 +153,8 @@ func (ds *datastore) Create(sitedomain, author string, post *postsv1alpha1.Post)
 	return tx.Commit()
 }
 
-func (ds *datastore) Get(sitedomain, author, slug string) (*postsv1alpha1.Post, error) {
-	post := new(postsv1alpha1.Post)
+func (ds *datastore) Get(sitedomain, author, slug string) (*postsv1alpha2.Post, error) {
+	post := new(postsv1alpha2.Post)
 	var sqlrow *sql.Row
 
 	sqlquery := `
@@ -181,7 +181,7 @@ func (ds *datastore) Get(sitedomain, author, slug string) (*postsv1alpha1.Post, 
 	return post, nil
 }
 
-func (ds *datastore) Update(sitedomain, author, slug string, post *postsv1alpha1.Post) error {
+func (ds *datastore) Update(sitedomain, author, slug string, post *postsv1alpha2.Post) error {
 	return nil
 }
 
@@ -199,4 +199,4 @@ func (ds *datastore) Delete(sitedomain, author, slug string) error {
 	return nil
 }
 
-func (ds *datastore) Search(query string) ([]*postsv1alpha1.Post, error) { return nil, nil }
+func (ds *datastore) Search(query string) ([]*postsv1alpha2.Post, error) { return nil, nil }

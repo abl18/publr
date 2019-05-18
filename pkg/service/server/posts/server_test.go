@@ -22,7 +22,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 
-	postsv1alpha1 "github.com/prksu/publr/pkg/api/posts/v1alpha1"
+	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
 	"github.com/prksu/publr/pkg/bindata/schema"
 	"github.com/prksu/publr/pkg/bindata/testdata"
 	"github.com/prksu/publr/pkg/service/util"
@@ -61,24 +61,24 @@ func TestServer_ListPost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha1.ListPostRequest
+		req *postsv1alpha2.ListPostRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *postsv1alpha1.PostList
+		want    *postsv1alpha2.PostList
 		wantErr bool
 	}{
 		{
 			name: "Test list site posts",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.ListPostRequest{
+				&postsv1alpha2.ListPostRequest{
 					Parent: "sites/mysites.site",
 				},
 			},
-			want: &postsv1alpha1.PostList{
-				Posts: []*postsv1alpha1.Post{
+			want: &postsv1alpha2.PostList{
+				Posts: []*postsv1alpha2.Post{
 					{
 						Name:      "sites/mysites.site/posts/my-first-posts",
 						Title:     "My First Post",
@@ -103,12 +103,12 @@ func TestServer_ListPost(t *testing.T) {
 			name: "Test list author posts",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.ListPostRequest{
+				&postsv1alpha2.ListPostRequest{
 					Parent: "sites/mysites.site/authors/authordemo",
 				},
 			},
-			want: &postsv1alpha1.PostList{
-				Posts: []*postsv1alpha1.Post{
+			want: &postsv1alpha2.PostList{
+				Posts: []*postsv1alpha2.Post{
 					{
 						Name:      "sites/mysites.site/authors/authordemo/posts/my-first-posts",
 						Title:     "My First Post",
@@ -133,13 +133,13 @@ func TestServer_ListPost(t *testing.T) {
 			name: "Test list posts with page size",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.ListPostRequest{
+				&postsv1alpha2.ListPostRequest{
 					Parent:   "sites/mysites.site",
 					PageSize: 1,
 				},
 			},
-			want: &postsv1alpha1.PostList{
-				Posts: []*postsv1alpha1.Post{
+			want: &postsv1alpha2.PostList{
+				Posts: []*postsv1alpha2.Post{
 					{
 						Name:      "sites/mysites.site/posts/my-first-posts",
 						Title:     "My First Post",
@@ -157,14 +157,14 @@ func TestServer_ListPost(t *testing.T) {
 			name: "Test list posts with next page token",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.ListPostRequest{
+				&postsv1alpha2.ListPostRequest{
 					Parent:    "sites/mysites.site",
 					PageSize:  1,
 					PageToken: server.PageToken.Generate(1),
 				},
 			},
-			want: &postsv1alpha1.PostList{
-				Posts: []*postsv1alpha1.Post{
+			want: &postsv1alpha2.PostList{
+				Posts: []*postsv1alpha2.Post{
 					{
 						Name:      "sites/mysites.site/posts/my-second-posts",
 						Title:     "My Second Post",
@@ -210,21 +210,21 @@ func TestServer_CreatePost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha1.CreatePostRequest
+		req *postsv1alpha2.CreatePostRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *postsv1alpha1.Post
+		want    *postsv1alpha2.Post
 		wantErr bool
 	}{
 		{
 			name: "Test create posts",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.CreatePostRequest{
+				&postsv1alpha2.CreatePostRequest{
 					Parent: "sites/mysites.site/authors/authordemo",
-					Post: &postsv1alpha1.Post{
+					Post: &postsv1alpha2.Post{
 						Title:     "My Awesome Posts",
 						Slug:      "my-awesome-posts",
 						Html:      "<p>My Awesome Posts</p>",
@@ -233,7 +233,7 @@ func TestServer_CreatePost(t *testing.T) {
 					},
 				},
 			},
-			want: &postsv1alpha1.Post{
+			want: &postsv1alpha2.Post{
 				Name:      "sites/mysites.site/authors/authordemo/posts/my-awesome-posts",
 				Title:     "My Awesome Posts",
 				Slug:      "my-awesome-posts",
@@ -247,9 +247,9 @@ func TestServer_CreatePost(t *testing.T) {
 			name: "Test create posts with already existing slug",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.CreatePostRequest{
+				&postsv1alpha2.CreatePostRequest{
 					Parent: "sites/mysites.site/authors/authordemo",
-					Post: &postsv1alpha1.Post{
+					Post: &postsv1alpha2.Post{
 						Title:     "My Awesome Posts",
 						Slug:      "my-awesome-posts",
 						Html:      "<p>My Awesome Posts</p>",
@@ -264,7 +264,7 @@ func TestServer_CreatePost(t *testing.T) {
 			name: "Test create posts with null post request",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.CreatePostRequest{},
+				&postsv1alpha2.CreatePostRequest{},
 			},
 			wantErr: true,
 		},
@@ -272,9 +272,9 @@ func TestServer_CreatePost(t *testing.T) {
 			name: "Test create posts with empty title post",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.CreatePostRequest{
+				&postsv1alpha2.CreatePostRequest{
 					Parent: "sites/mysites.site/authors/authordemo",
-					Post: &postsv1alpha1.Post{
+					Post: &postsv1alpha2.Post{
 						Slug:      "my-awesome-posts",
 						Html:      "<p>My Awesome Posts</p>",
 						Image:     "myawesomepost.png",
@@ -288,9 +288,9 @@ func TestServer_CreatePost(t *testing.T) {
 			name: "Test create posts with empty slug post",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.CreatePostRequest{
+				&postsv1alpha2.CreatePostRequest{
 					Parent: "sites/mysites.site/authors/authordemo",
-					Post: &postsv1alpha1.Post{
+					Post: &postsv1alpha2.Post{
 						Title:     "My Awesome Posts",
 						Html:      "<p>My Awesome Posts</p>",
 						Image:     "myawesomepost.png",
@@ -304,9 +304,9 @@ func TestServer_CreatePost(t *testing.T) {
 			name: "Test create posts with empty html body post",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.CreatePostRequest{
+				&postsv1alpha2.CreatePostRequest{
 					Parent: "sites/mysites.site/authors/authordemo",
-					Post: &postsv1alpha1.Post{
+					Post: &postsv1alpha2.Post{
 						Title:     "My Awesome Posts",
 						Slug:      "my-awesome-posts",
 						Image:     "myawesomepost.png",
@@ -345,23 +345,23 @@ func TestServer_GetPost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha1.GetPostRequest
+		req *postsv1alpha2.GetPostRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *postsv1alpha1.Post
+		want    *postsv1alpha2.Post
 		wantErr bool
 	}{
 		{
 			name: "Test get post",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.GetPostRequest{
+				&postsv1alpha2.GetPostRequest{
 					Name: "sites/mysites.site/posts/my-first-posts",
 				},
 			},
-			want: &postsv1alpha1.Post{
+			want: &postsv1alpha2.Post{
 				Name:      "sites/mysites.site/posts/my-first-posts",
 				Title:     "My First Post",
 				Slug:      "my-first-posts",
@@ -375,11 +375,11 @@ func TestServer_GetPost(t *testing.T) {
 			name: "Test get author post",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.GetPostRequest{
+				&postsv1alpha2.GetPostRequest{
 					Name: "sites/mysites.site/authors/authordemo/posts/my-second-posts",
 				},
 			},
-			want: &postsv1alpha1.Post{
+			want: &postsv1alpha2.Post{
 				Name:      "sites/mysites.site/authors/authordemo/posts/my-second-posts",
 				Title:     "My Second Post",
 				Slug:      "my-second-posts",
@@ -393,7 +393,7 @@ func TestServer_GetPost(t *testing.T) {
 			name: "Test get not existing post",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.GetPostRequest{
+				&postsv1alpha2.GetPostRequest{
 					Name: "sites/mysites.site/posts/notexists",
 				},
 			},
@@ -428,7 +428,7 @@ func TestServer_DeletePost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha1.DeletePostRequest
+		req *postsv1alpha2.DeletePostRequest
 	}
 	tests := []struct {
 		name    string
@@ -440,7 +440,7 @@ func TestServer_DeletePost(t *testing.T) {
 			name: "Test delete  post",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.DeletePostRequest{
+				&postsv1alpha2.DeletePostRequest{
 					Name: "sites/mysites.site/authors/authordemo/posts/my-second-posts",
 				},
 			},
@@ -451,7 +451,7 @@ func TestServer_DeletePost(t *testing.T) {
 			name: "Test delete not existing post",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.DeletePostRequest{
+				&postsv1alpha2.DeletePostRequest{
 					Name: "sites/mysites.site/authors/authordemo/posts/my-second-posts",
 				},
 			},
@@ -479,19 +479,19 @@ func TestServer_SearchPost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha1.SearchPostRequest
+		req *postsv1alpha2.SearchPostRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *postsv1alpha1.PostList
+		want    *postsv1alpha2.PostList
 		wantErr bool
 	}{
 		{
 			name: "Test search post that not implement yet",
 			args: args{
 				context.Background(),
-				&postsv1alpha1.SearchPostRequest{},
+				&postsv1alpha2.SearchPostRequest{},
 			},
 			wantErr: true,
 		},

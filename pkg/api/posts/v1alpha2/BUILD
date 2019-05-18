@@ -3,10 +3,10 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = [
-        "users.pb.go",
-        "users.pb.gw.go",
+        "posts.pb.go",
+        "posts.pb.gw.go",
     ],
-    importpath = "github.com/prksu/publr/pkg/api/users/v1alpha1",
+    importpath = "github.com/prksu/publr/pkg/api/posts/v1alpha2",
     visibility = ["//visibility:public"],
     deps = [
         "//vendor/github.com/golang/protobuf/proto:go_default_library",

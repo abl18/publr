@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/prksu/publr/pkg/service/mock/posts",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/api/posts/v1alpha1:go_default_library",
+        "//pkg/api/posts/v1alpha2:go_default_library",
         "//vendor/github.com/golang/mock/gomock:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/empty:go_default_library",
         "//vendor/google.golang.org/grpc:go_default_library",

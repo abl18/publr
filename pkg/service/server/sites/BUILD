@@ -9,7 +9,7 @@ go_library(
     importpath = "github.com/prksu/publr/pkg/service/server/sites",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/api/sites/v1alpha1:go_default_library",
+        "//pkg/api/sites/v1alpha2:go_default_library",
         "//pkg/storage/database:go_default_library",
         "//vendor/github.com/go-sql-driver/mysql:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes:go_default_library",
@@ -24,7 +24,7 @@ go_test(
     srcs = ["server_test.go"],
     embed = [":go_default_library"],
     deps = [
-        "//pkg/api/sites/v1alpha1:go_default_library",
+        "//pkg/api/sites/v1alpha2:go_default_library",
         "//pkg/bindata/schema:go_default_library",
         "//pkg/bindata/testdata:go_default_library",
         "//pkg/storage/database:go_default_library",

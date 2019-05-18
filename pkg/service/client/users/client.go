@@ -19,12 +19,12 @@ import (
 
 	"google.golang.org/grpc"
 
-	usersv1alpha1 "github.com/prksu/publr/pkg/api/users/v1alpha1"
+	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 	"github.com/prksu/publr/pkg/service/server/users"
 )
 
 // NewServiceClient create new users service client.
-func NewServiceClient() (usersv1alpha1.UserServiceClient, error) {
+func NewServiceClient() (usersv1alpha2.UserServiceClient, error) {
 	host, port, err := net.SplitHostPort(users.ServiceAddress)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func NewServiceClient() (usersv1alpha1.UserServiceClient, error) {
 		return nil, err
 	}
 
-	client := usersv1alpha1.NewUserServiceClient(conn)
+	client := usersv1alpha2.NewUserServiceClient(conn)
 
 	return client, nil
 }

@@ -3,12 +3,13 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 go_library(
     name = "go_default_library",
     srcs = [
-        "posts.pb.go",
-        "posts.pb.gw.go",
+        "sites.pb.go",
+        "sites.pb.gw.go",
     ],
-    importpath = "github.com/prksu/publr/pkg/api/posts/v1alpha1",
+    importpath = "github.com/prksu/publr/pkg/api/sites/v1alpha2",
     visibility = ["//visibility:public"],
     deps = [
+        "//pkg/api/users/v1alpha2:go_default_library",
         "//vendor/github.com/golang/protobuf/proto:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/empty:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/timestamp:go_default_library",

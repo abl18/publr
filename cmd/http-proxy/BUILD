@@ -6,9 +6,9 @@ go_library(
     importpath = "github.com/prksu/publr/cmd/http-proxy",
     visibility = ["//visibility:private"],
     deps = [
-        "//pkg/api/posts/v1alpha1:go_default_library",
-        "//pkg/api/sites/v1alpha1:go_default_library",
-        "//pkg/api/users/v1alpha1:go_default_library",
+        "//pkg/api/posts/v1alpha2:go_default_library",
+        "//pkg/api/sites/v1alpha2:go_default_library",
+        "//pkg/api/users/v1alpha2:go_default_library",
         "//vendor/github.com/grpc-ecosystem/grpc-gateway/runtime:go_default_library",
         "//vendor/google.golang.org/grpc:go_default_library",
     ],

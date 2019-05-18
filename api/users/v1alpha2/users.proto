@@ -14,45 +14,45 @@
 
 syntax = "proto3";
 
-package publr.users.v1alpha1;
+package publr.users.v1alpha2;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/prksu/publr/pkg/api/users/v1alpha1;users";
+option go_package = "github.com/prksu/publr/pkg/api/users/v1alpha2;users";
 
 service UserService {
   rpc ListUser(ListUserRequest) returns (UserList) {
     option (google.api.http) = {
-      get: "/v1alpha1/{parent=sites/*}/users"
+      get: "/v1alpha2/{parent=sites/*}/users"
     };
   }
   rpc CreateUser(CreateUserRequest) returns (User) {
     option (google.api.http) = {
-      post: "/v1alpha1/{parent=sites/*}/users"
+      post: "/v1alpha2/{parent=sites/*}/users"
       body: "user"
     };
   }
   rpc GetUser(GetUserRequest) returns (User) {
     option (google.api.http) = {
-      get: "/v1alpha1/{name=sites/*/users/*}"
+      get: "/v1alpha2/{name=sites/*/users/*}"
     };
   }
   rpc UpdateUser(UpdateUserRequest) returns (User) {
     option (google.api.http) = {
-      patch: "/v1alpha1/{name=sites/*/users/*}"
+      patch: "/v1alpha2/{name=sites/*/users/*}"
       body: "user"
     };
   }
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1alpha1/{name=sites/*/users/*}"
+      delete: "/v1alpha2/{name=sites/*/users/*}"
     };
   }
   rpc SearchUser(SearchUserRequest) returns (UserList) {
     option (google.api.http) = {
-      get: "/v1alpha1/{parent=sites/*}/users:search"
+      get: "/v1alpha2/{parent=sites/*}/users:search"
     };
   }
 }

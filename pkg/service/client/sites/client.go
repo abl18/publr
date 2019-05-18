@@ -19,12 +19,12 @@ import (
 
 	"google.golang.org/grpc"
 
-	sitesv1alpha1 "github.com/prksu/publr/pkg/api/sites/v1alpha1"
+	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
 	"github.com/prksu/publr/pkg/service/server/sites"
 )
 
 // NewServiceClient create new sites service client.
-func NewServiceClient() (sitesv1alpha1.SiteServiceClient, error) {
+func NewServiceClient() (sitesv1alpha2.SiteServiceClient, error) {
 	host, port, err := net.SplitHostPort(sites.ServiceAddress)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func NewServiceClient() (sitesv1alpha1.SiteServiceClient, error) {
 		return nil, err
 	}
 
-	client := sitesv1alpha1.NewSiteServiceClient(conn)
+	client := sitesv1alpha2.NewSiteServiceClient(conn)
 
 	return client, nil
 }

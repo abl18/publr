@@ -23,7 +23,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	usersv1alpha1 "github.com/prksu/publr/pkg/api/users/v1alpha1"
+	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 	"github.com/prksu/publr/pkg/service/util"
 )
 
@@ -31,18 +31,18 @@ import (
 var (
 	ServiceName    = "users"
 	ServiceAddress = "0.0.0.0:9000"
-	ServiceVersion = "v1alpha1"
+	ServiceVersion = "v1alpha2"
 )
 
-// Server implement usersv1alpha1.UserServiceServer.
+// Server implement usersv1alpha2.UserServiceServer.
 type Server struct {
 	User      UserDatastore
 	PageToken util.PageToken
 }
 
 // NewServiceServer create new users service server.
-// returns usersv1alpha1.SiteServiceServer
-func NewServiceServer() usersv1alpha1.UserServiceServer {
+// returns usersv1alpha2.SiteServiceServer
+func NewServiceServer() usersv1alpha2.UserServiceServer {
 	server := new(Server)
 	server.User = NewUserDatastore()
 	server.PageToken = util.NewPageToken()
@@ -50,7 +50,7 @@ func NewServiceServer() usersv1alpha1.UserServiceServer {
 }
 
 // ListUser handler method
-func (s *Server) ListUser(ctx context.Context, req *usersv1alpha1.ListUserRequest) (*usersv1alpha1.UserList, error) {
+func (s *Server) ListUser(ctx context.Context, req *usersv1alpha2.ListUserRequest) (*usersv1alpha2.UserList, error) {
 	parent := req.Parent
 
 	start, err := s.PageToken.Parse(req.PageToken)
@@ -78,14 +78,14 @@ func (s *Server) ListUser(ctx context.Context, req *usersv1alpha1.ListUserReques
 		nextPageToken = s.PageToken.Generate(start + limit)
 	}
 
-	res := new(usersv1alpha1.UserList)
+	res := new(usersv1alpha2.UserList)
 	res.Users = users
 	res.NextPageToken = nextPageToken
 	return res, nil
 }
 
 // CreateUser handler method
-func (s *Server) CreateUser(ctx context.Context, req *usersv1alpha1.CreateUserRequest) (*usersv1alpha1.User, error) {
+func (s *Server) CreateUser(ctx context.Context, req *usersv1alpha2.CreateUserRequest) (*usersv1alpha2.User, error) {
 	parent := req.Parent
 	user := req.User
 
@@ -124,7 +124,7 @@ func (s *Server) CreateUser(ctx context.Context, req *usersv1alpha1.CreateUserRe
 }
 
 // GetUser handler method
-func (s *Server) GetUser(ctx context.Context, req *usersv1alpha1.GetUserRequest) (*usersv1alpha1.User, error) {
+func (s *Server) GetUser(ctx context.Context, req *usersv1alpha2.GetUserRequest) (*usersv1alpha2.User, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
@@ -138,7 +138,7 @@ func (s *Server) GetUser(ctx context.Context, req *usersv1alpha1.GetUserRequest)
 }
 
 // UpdateUser handler method
-func (s *Server) UpdateUser(ctx context.Context, req *usersv1alpha1.UpdateUserRequest) (*usersv1alpha1.User, error) {
+func (s *Server) UpdateUser(ctx context.Context, req *usersv1alpha2.UpdateUserRequest) (*usersv1alpha2.User, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
@@ -171,7 +171,7 @@ func (s *Server) UpdateUser(ctx context.Context, req *usersv1alpha1.UpdateUserRe
 }
 
 // DeleteUser handler method
-func (s *Server) DeleteUser(ctx context.Context, req *usersv1alpha1.DeleteUserRequest) (*empty.Empty, error) {
+func (s *Server) DeleteUser(ctx context.Context, req *usersv1alpha2.DeleteUserRequest) (*empty.Empty, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
@@ -188,6 +188,6 @@ func (s *Server) DeleteUser(ctx context.Context, req *usersv1alpha1.DeleteUserRe
 }
 
 // SearchUser handler method
-func (s *Server) SearchUser(ctx context.Context, req *usersv1alpha1.SearchUserRequest) (*usersv1alpha1.UserList, error) {
+func (s *Server) SearchUser(ctx context.Context, req *usersv1alpha2.SearchUserRequest) (*usersv1alpha2.UserList, error) {
 	return nil, status.Error(codes.Unimplemented, "not implement yet")
 }

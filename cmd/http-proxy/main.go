@@ -23,9 +23,9 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
 
-	postsv1alpha1 "github.com/prksu/publr/pkg/api/posts/v1alpha1"
-	sitesv1alpha1 "github.com/prksu/publr/pkg/api/sites/v1alpha1"
-	usersv1alpha1 "github.com/prksu/publr/pkg/api/users/v1alpha1"
+	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
+	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
+	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 )
 
 func run() error {
@@ -34,9 +34,9 @@ func run() error {
 		grpc.WithInsecure(),
 	}
 
-	postsv1alpha1.RegisterPostServiceHandlerFromEndpoint(context.Background(), mux, "posts:9000", opts)
-	sitesv1alpha1.RegisterSiteServiceHandlerFromEndpoint(context.Background(), mux, "sites:9000", opts)
-	usersv1alpha1.RegisterUserServiceHandlerFromEndpoint(context.Background(), mux, "users:9000", opts)
+	postsv1alpha2.RegisterPostServiceHandlerFromEndpoint(context.Background(), mux, "posts:9000", opts)
+	sitesv1alpha2.RegisterSiteServiceHandlerFromEndpoint(context.Background(), mux, "sites:9000", opts)
+	usersv1alpha2.RegisterUserServiceHandlerFromEndpoint(context.Background(), mux, "users:9000", opts)
 
 	return http.ListenAndServe(":8000", mux)
 }

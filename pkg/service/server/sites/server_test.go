@@ -22,7 +22,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 
-	sitesv1alpha1 "github.com/prksu/publr/pkg/api/sites/v1alpha1"
+	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
 	"github.com/prksu/publr/pkg/bindata/schema"
 	"github.com/prksu/publr/pkg/bindata/testdata"
 	"github.com/prksu/publr/pkg/storage/database"
@@ -57,26 +57,26 @@ func TestServer_CreateSite(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *sitesv1alpha1.CreateSiteRequest
+		req *sitesv1alpha2.CreateSiteRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *sitesv1alpha1.Site
+		want    *sitesv1alpha2.Site
 		wantErr bool
 	}{
 		{
 			name: "Test create site",
 			args: args{
 				context.Background(),
-				&sitesv1alpha1.CreateSiteRequest{
-					Site: &sitesv1alpha1.Site{
+				&sitesv1alpha2.CreateSiteRequest{
+					Site: &sitesv1alpha2.Site{
 						Title:  "My Sites",
 						Domain: "myawesome.site",
 					},
 				},
 			},
-			want: &sitesv1alpha1.Site{
+			want: &sitesv1alpha2.Site{
 				Name:   "sites/myawesome.site",
 				Title:  "My Sites",
 				Domain: "myawesome.site",
@@ -87,8 +87,8 @@ func TestServer_CreateSite(t *testing.T) {
 			name: "Test create already existing site",
 			args: args{
 				context.Background(),
-				&sitesv1alpha1.CreateSiteRequest{
-					Site: &sitesv1alpha1.Site{
+				&sitesv1alpha2.CreateSiteRequest{
+					Site: &sitesv1alpha2.Site{
 						Title:  "My Sites",
 						Domain: "myawesome.site",
 					},
@@ -100,7 +100,7 @@ func TestServer_CreateSite(t *testing.T) {
 			name: "Test create site with null request",
 			args: args{
 				context.Background(),
-				&sitesv1alpha1.CreateSiteRequest{},
+				&sitesv1alpha2.CreateSiteRequest{},
 			},
 			wantErr: true,
 		},
@@ -108,8 +108,8 @@ func TestServer_CreateSite(t *testing.T) {
 			name: "Test create site with empty title",
 			args: args{
 				context.Background(),
-				&sitesv1alpha1.CreateSiteRequest{
-					Site: &sitesv1alpha1.Site{
+				&sitesv1alpha2.CreateSiteRequest{
+					Site: &sitesv1alpha2.Site{
 						Domain: "myawesome.site",
 					},
 				},
@@ -120,8 +120,8 @@ func TestServer_CreateSite(t *testing.T) {
 			name: "Test create site with empty domain",
 			args: args{
 				context.Background(),
-				&sitesv1alpha1.CreateSiteRequest{
-					Site: &sitesv1alpha1.Site{
+				&sitesv1alpha2.CreateSiteRequest{
+					Site: &sitesv1alpha2.Site{
 						Title: "My Sites",
 					},
 				},
@@ -155,16 +155,16 @@ func TestServer_GetSite(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		request *sitesv1alpha1.GetSiteRequest
-		want    *sitesv1alpha1.Site
+		request *sitesv1alpha2.GetSiteRequest
+		want    *sitesv1alpha2.Site
 		wantErr bool
 	}{
 		{
 			name: "Test get site",
-			request: &sitesv1alpha1.GetSiteRequest{
+			request: &sitesv1alpha2.GetSiteRequest{
 				Name: "sites/mysites.site",
 			},
-			want: &sitesv1alpha1.Site{
+			want: &sitesv1alpha2.Site{
 				Name:   "sites/mysites.site",
 				Title:  "My Sites",
 				Domain: "mysites.site",
@@ -173,7 +173,7 @@ func TestServer_GetSite(t *testing.T) {
 		},
 		{
 			name: "Test get not existing site",
-			request: &sitesv1alpha1.GetSiteRequest{
+			request: &sitesv1alpha2.GetSiteRequest{
 				Name: "sites/notexist",
 			},
 			wantErr: true,
@@ -205,13 +205,13 @@ func TestServer_DeleteSite(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		request *sitesv1alpha1.DeleteSiteRequest
+		request *sitesv1alpha2.DeleteSiteRequest
 		want    *empty.Empty
 		wantErr bool
 	}{
 		{
 			name: "Test delete site",
-			request: &sitesv1alpha1.DeleteSiteRequest{
+			request: &sitesv1alpha2.DeleteSiteRequest{
 				Name: "sites/mysites.site",
 			},
 			want:    &empty.Empty{},
@@ -219,7 +219,7 @@ func TestServer_DeleteSite(t *testing.T) {
 		},
 		{
 			name: "Test delete not existing site",
-			request: &sitesv1alpha1.DeleteSiteRequest{
+			request: &sitesv1alpha2.DeleteSiteRequest{
 				Name: "sites/mysites.site",
 			},
 			wantErr: true,

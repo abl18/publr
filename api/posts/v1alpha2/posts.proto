@@ -14,53 +14,53 @@
 
 syntax = "proto3";
 
-package publr.posts.v1alpha1;
+package publr.posts.v1alpha2;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/prksu/publr/pkg/api/posts/v1alpha1;posts";
+option go_package = "github.com/prksu/publr/pkg/api/posts/v1alpha2;posts";
 
 service PostService {
   rpc ListPost(ListPostRequest) returns (PostList) {
     option (google.api.http) = {
-      get: "/v1alpha1/{parent=sites/*}/posts"
+      get: "/v1alpha2/{parent=sites/*}/posts"
       additional_bindings {
-        get: "/v1alpha1/{parent=sites/*/authors/*}/posts"
+        get: "/v1alpha2/{parent=sites/*/authors/*}/posts"
       }
     };
   }
   rpc CreatePost(CreatePostRequest) returns (Post) {
     option (google.api.http) = {
-      post: "/v1alpha1/{parent=sites/*/authors/*}/posts"
+      post: "/v1alpha2/{parent=sites/*/authors/*}/posts"
       body: "post"
     };
   }
   rpc GetPost(GetPostRequest) returns (Post) {
     option (google.api.http) = {
-      get: "/v1alpha1/{name=sites/*/posts/*}"
+      get: "/v1alpha2/{name=sites/*/posts/*}"
       additional_bindings {
-        get: "/v1alpha1/{name=sites/*/authors/*/posts/*}"
+        get: "/v1alpha2/{name=sites/*/authors/*/posts/*}"
       }
     };
   }
   rpc UpdatePost(UpdatePostRequest) returns (Post) {
     option (google.api.http) = {
-      patch: "/v1alpha1/{name=sites/*/authors/*/posts/*}"
+      patch: "/v1alpha2/{name=sites/*/authors/*/posts/*}"
       body: "post"
     };
   }
   rpc DeletePost(DeletePostRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1alpha1/{name=sites/*/authors/*/posts/*}"
+      delete: "/v1alpha2/{name=sites/*/authors/*/posts/*}"
     };
   }
   rpc SearchPost(SearchPostRequest) returns (PostList) {
     option (google.api.http) = {
-      get: "/v1alpha1/{parent=sites/*}/posts:search"
+      get: "/v1alpha2/{parent=sites/*}/posts:search"
       additional_bindings {
-        get: "/v1alpha1/{parent=sites/*/authors/*}/posts:search"
+        get: "/v1alpha2/{parent=sites/*/authors/*}/posts:search"
       }
     };
   }
