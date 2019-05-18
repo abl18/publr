@@ -16,6 +16,7 @@ package sites
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -23,6 +24,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
+	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	"github.com/prksu/publr/pkg/service/client/users"
 )
 
 // Sites service
@@ -34,14 +37,21 @@ var (
 
 // Server implement sitesv1alpha2.SiteServiceServer.
 type Server struct {
-	Site SiteDatastore
+	Site       SiteDatastore
+	UserClient usersv1alpha2.UserServiceClient
 }
 
 // NewServiceServer create new sites service server.
 // returns sitesv1alpha2.SiteServiceServer.
 func NewServiceServer() sitesv1alpha2.SiteServiceServer {
+	var err error
 	server := new(Server)
 	server.Site = NewSiteDatastore()
+	server.UserClient, err = users.NewServiceClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return server
 }
 
@@ -61,17 +71,26 @@ func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha2.CreateSiteRe
 		return nil, status.Error(codes.InvalidArgument, "domain is required")
 	}
 
+	owner := site.Owner
+	if owner == nil {
+		return nil, status.Error(codes.InvalidArgument, "owner is required")
+	}
+
 	sitedomain := site.Domain
 	if err := s.Site.Create(site); err != nil {
 		return nil, err
 	}
 
-	res, err := s.Site.Get(sitedomain)
+	owner.Role = 3
+	ownerres, err := s.UserClient.CreateUser(ctx, &usersv1alpha2.CreateUserRequest{Parent: strings.Join([]string{"sites", sitedomain}, "/"), User: owner})
 	if err != nil {
-		return nil, err
+		return nil, s.Site.Delete(sitedomain)
 	}
 
+	res := new(sitesv1alpha2.Site)
+	res = req.Site
 	res.Name = strings.Join([]string{"sites", sitedomain}, "/")
+	res.Owner = ownerres
 	return res, nil
 }
 

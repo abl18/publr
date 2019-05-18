@@ -10,6 +10,8 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/api/sites/v1alpha2:go_default_library",
+        "//pkg/api/users/v1alpha2:go_default_library",
+        "//pkg/service/client/users:go_default_library",
         "//pkg/storage/database:go_default_library",
         "//vendor/github.com/go-sql-driver/mysql:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes:go_default_library",
@@ -25,9 +27,13 @@ go_test(
     embed = [":go_default_library"],
     deps = [
         "//pkg/api/sites/v1alpha2:go_default_library",
+        "//pkg/api/users/v1alpha2:go_default_library",
         "//pkg/bindata/schema:go_default_library",
         "//pkg/bindata/testdata:go_default_library",
+        "//pkg/service/mock/users:go_default_library",
         "//pkg/storage/database:go_default_library",
+        "//vendor/github.com/golang/mock/gomock:go_default_library",
+        "//vendor/github.com/golang/protobuf/proto:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/empty:go_default_library",
     ],
 )

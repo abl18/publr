@@ -16,21 +16,43 @@ package sites
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
 
 	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
+	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 	"github.com/prksu/publr/pkg/bindata/schema"
 	"github.com/prksu/publr/pkg/bindata/testdata"
+	"github.com/prksu/publr/pkg/service/mock/users"
 	"github.com/prksu/publr/pkg/storage/database"
 )
 
 var (
 	DSN = "root:@/publr_test?autocommit=true&parseTime=true"
 )
+
+type rpcMsg struct {
+	msg proto.Message
+}
+
+func (r *rpcMsg) Matches(msg interface{}) bool {
+	m, ok := msg.(proto.Message)
+	if !ok {
+		return false
+	}
+	return proto.Equal(m, r.msg)
+}
+
+func (r *rpcMsg) String() string {
+	return fmt.Sprintf("is %s", r.msg)
+}
 
 func init() {
 	database := database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect()
@@ -42,18 +64,28 @@ func init() {
 		log.Fatal(err)
 	}
 
-	testdata, err := testdata.Asset("data/testdata/sites.sql")
+	sitetestdata, err := testdata.Asset("data/testdata/sites.sql")
+	if err != nil {
+		log.Fatal(err)
+	}
+	usertestdata, err := testdata.Asset("data/testdata/users.sql")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	database.Exec(string(schema))
-	database.Exec(string(testdata))
+	database.Exec(string(sitetestdata))
+	database.Exec(string(usertestdata))
 }
 
 func TestServer_CreateSite(t *testing.T) {
 	server := new(Server)
 	server.Site = NewSiteDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUserClient := users.NewMockUserServiceClient(ctrl)
+	server.UserClient = mockUserClient
 
 	type args struct {
 		ctx context.Context
@@ -71,15 +103,25 @@ func TestServer_CreateSite(t *testing.T) {
 				context.Background(),
 				&sitesv1alpha2.CreateSiteRequest{
 					Site: &sitesv1alpha2.Site{
-						Title:  "My Sites",
+						Title:  "My Awesome Sites",
 						Domain: "myawesome.site",
+						Owner: &usersv1alpha2.User{
+							Username: "ownertest",
+							Email:    "ownertest@myawesome.site",
+							Password: "secret",
+						},
 					},
 				},
 			},
 			want: &sitesv1alpha2.Site{
 				Name:   "sites/myawesome.site",
-				Title:  "My Sites",
+				Title:  "My Awesome Sites",
 				Domain: "myawesome.site",
+				Owner: &usersv1alpha2.User{
+					Username: "ownertest",
+					Email:    "ownertest@myawesome.site",
+					Role:     3,
+				},
 			},
 			wantErr: false,
 		},
@@ -90,7 +132,12 @@ func TestServer_CreateSite(t *testing.T) {
 				&sitesv1alpha2.CreateSiteRequest{
 					Site: &sitesv1alpha2.Site{
 						Title:  "My Sites",
-						Domain: "myawesome.site",
+						Domain: "mysites.site",
+						Owner: &usersv1alpha2.User{
+							Username: "ownertest",
+							Email:    "ownertest@myawesome.site",
+							Password: "secret",
+						},
 					},
 				},
 			},
@@ -128,9 +175,28 @@ func TestServer_CreateSite(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name: "Test create site without owner",
+			args: args{
+				context.Background(),
+				&sitesv1alpha2.CreateSiteRequest{
+					Site: &sitesv1alpha2.Site{
+						Title:  "My Sites",
+						Domain: "mysites.site",
+					},
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.want != nil {
+				mockUserClient.EXPECT().
+					CreateUser(gomock.Any(), &rpcMsg{msg: &usersv1alpha2.CreateUserRequest{Parent: strings.Join([]string{"sites", tt.args.req.Site.Domain}, "/"), User: tt.args.req.Site.Owner}}).
+					Return(tt.want.Owner, nil)
+			}
+
 			got, err := server.CreateSite(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.CreateSite() error = %v, wantErr %v", err, tt.wantErr)
