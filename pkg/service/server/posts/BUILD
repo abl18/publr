@@ -4,6 +4,7 @@ go_library(
     name = "go_default_library",
     srcs = [
         "datastore.go",
+        "datastore_mock.go",
         "server.go",
     ],
     importpath = "github.com/prksu/publr/pkg/service/server/posts",
@@ -13,6 +14,7 @@ go_library(
         "//pkg/service/util:go_default_library",
         "//pkg/storage/database:go_default_library",
         "//vendor/github.com/go-sql-driver/mysql:go_default_library",
+        "//vendor/github.com/golang/mock/gomock:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/empty:go_default_library",
         "//vendor/google.golang.org/grpc/codes:go_default_library",

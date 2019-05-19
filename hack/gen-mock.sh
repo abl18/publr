@@ -27,17 +27,31 @@ TEMPLATE=${PROJECT_ROOT}/hack/template/generated.go.template
 function gen::mock::format() {
   local mock=${1}
   echo -e "$(cat ${TEMPLATE} ${mock})" > ${mock}
+  sed -i -e "s#${PROJECT_ROOT}/##g" ${mock}
+  gofmt -s -w ${mock}
 }
 
-function gen::mock() {
+function gen::mock::datastore() {
+  for d in $(find ${PKG_DIR}/service/server -type f -name 'datastore.go'); do
+    local package_dir=${PROJECT_ROOT}$(dirname ${d#${PROJECT_ROOT}})
+    local package_name=$(basename ${package_dir})
+    local output=${package_dir}/datastore_mock.go
+    mockgen -package=${package_name} -source ${d} -destination ${output}
+    gen::mock::format ${output}
+    echo "[+] Generated $(basename ${package_name}) datastore mock"
+  done
+}
+
+function gen::mock::grpc() {
   for api in $(find ${PKG_DIR}/api -type f -name '*.pb.go'); do
     local package_dir=${PROJECT_PACKAGE}$(dirname ${api#${PROJECT_ROOT}})
     local package_name=$(basename ${api%.pb.go})
     local output=${MOCK_DIR}/${package_name}/mock.go
     mockgen -package=${package_name} ${package_dir} "$(echo "${package_name%s}" | sed 's/.*/\u&/')"ServiceClient > ${output}
     gen::mock::format ${output}
-    echo "[+] Generated $(basename ${package_name}) mock"
+    echo "[+] Generated $(basename ${package_name}) grpc mock"
   done
 }
 
-gen::mock
+gen::mock::grpc
+gen::mock::datastore
