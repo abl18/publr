@@ -23,6 +23,15 @@ import (
 	"github.com/prksu/publr/pkg/service/server/posts"
 )
 
+// MustNewServiceClient create new sites service client with panic if any errors.
+func MustNewServiceClient() postsv1alpha2.PostServiceClient {
+	client, err := NewServiceClient()
+	if err != nil {
+		panic(err)
+	}
+	return client
+}
+
 // NewServiceClient create new posts service client.
 func NewServiceClient() (postsv1alpha2.PostServiceClient, error) {
 	_, port, err := net.SplitHostPort(posts.ServiceAddress)

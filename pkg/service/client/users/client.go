@@ -23,6 +23,15 @@ import (
 	"github.com/prksu/publr/pkg/service/server/users"
 )
 
+// MustNewServiceClient create new sites service client with panic if any errors.
+func MustNewServiceClient() usersv1alpha2.UserServiceClient {
+	client, err := NewServiceClient()
+	if err != nil {
+		panic(err)
+	}
+	return client
+}
+
 // NewServiceClient create new users service client.
 func NewServiceClient() (usersv1alpha2.UserServiceClient, error) {
 	_, port, err := net.SplitHostPort(users.ServiceAddress)
