@@ -181,8 +181,17 @@ func (ds *datastore) Delete(sitedomain, username string) error {
 		WHERE site_users.site_domain=? AND users.username=?
 	`
 
-	if _, err := ds.DB.Exec(sqlquery, sitedomain, username); err != nil {
+	result, err := ds.DB.Exec(sqlquery, sitedomain, username)
+	if err != nil {
 		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected < 1 {
+		return status.Error(codes.NotFound, "user not found")
 	}
 
 	return nil

@@ -16,137 +16,134 @@ package users
 
 import (
 	"context"
-	"log"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
-	"github.com/prksu/publr/pkg/bindata/schema"
-	"github.com/prksu/publr/pkg/bindata/testdata"
 	"github.com/prksu/publr/pkg/service/util"
-	"github.com/prksu/publr/pkg/storage/database"
 )
-
-var (
-	DSN = "root:@/publr_test?autocommit=true&parseTime=true&multiStatements=true"
-)
-
-func init() {
-	database := database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect()
-	defer database.Close()
-
-	database.Exec("DROP TABLE IF EXISTS site_users")
-	database.Exec("DROP TABLE IF EXISTS users")
-
-	schema, err := schema.Asset("data/schema/users.sql")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	testdata, err := testdata.Asset("data/testdata/users.sql")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	database.Exec(string(schema))
-	database.Exec(string(testdata))
-
-}
 
 func TestServer_ListUser(t *testing.T) {
-	server := new(Server)
-	server.User = NewUserDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
-	server.PageToken = util.NewPageToken()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockDatastore := NewMockUserDatastore(ctrl)
+	pageToken := util.NewPageToken()
+
+	testuserlist := &usersv1alpha2.UserList{
+		Users: []*usersv1alpha2.User{
+			{
+				Name:     strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
+				Email:    "testuser@mysites.site",
+				Username: "testuser",
+				Fullname: "Test User",
+				Role:     0,
+			},
+			{
+				Name:     strings.Join([]string{"sites", "mysites.site", "users", "testauthor"}, "/"),
+				Email:    "testauthor@mysites.site",
+				Username: "testauthor",
+				Fullname: "Test Author",
+				Role:     1,
+			},
+			{
+				Name:     strings.Join([]string{"sites", "mysites.site", "users", "testadmin"}, "/"),
+				Email:    "testadmin@mysites.site",
+				Username: "testadmin",
+				Fullname: "Test Admin",
+				Role:     2,
+			},
+			{
+				Name:     strings.Join([]string{"sites", "mysites.site", "users", "testowner"}, "/"),
+				Email:    "testowner@mysites.site",
+				Username: "testowner",
+				Fullname: "Test Owner",
+				Role:     3,
+			},
+		},
+	}
 
 	type args struct {
 		ctx context.Context
 		req *usersv1alpha2.ListUserRequest
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *usersv1alpha2.UserList
-		wantErr bool
+		name              string
+		args              args
+		expectedListUsers *gomock.Call
+		want              *usersv1alpha2.UserList
+		wantErr           bool
 	}{
 		{
-			name: "Test list user",
+			name: "Test list users",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.ListUserRequest{
-					Parent: "sites/mysites.site",
+					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
 				},
 			},
-			want: &usersv1alpha2.UserList{
-				Users: []*usersv1alpha2.User{
-					{
-						Name:     "sites/mysites.site/users/userdemo",
-						Email:    "userdemo@mysites.site",
-						Username: "userdemo",
-						Fullname: "User Demo",
-						Role:     0,
-					},
-					{
-						Name:     "sites/mysites.site/users/authordemo",
-						Email:    "authordemo@mysites.site",
-						Username: "authordemo",
-						Fullname: "Author Demo",
-						Role:     1,
-					},
-					{
-						Name:     "sites/mysites.site/users/ownerdemo",
-						Email:    "ownerdemo@mysites.site",
-						Username: "ownerdemo",
-						Fullname: "Owner Demo",
-						Role:     3,
-					},
+			expectedListUsers: mockDatastore.EXPECT().List("mysites.site", 0, 10).Return(testuserlist.Users, len(testuserlist.Users), nil),
+			want:              testuserlist,
+			wantErr:           false,
+		},
+		{
+			name: "Test list users with page_size",
+			args: args{
+				context.Background(),
+				&usersv1alpha2.ListUserRequest{
+					Parent:   strings.Join([]string{"sites", "mysites.site"}, "/"),
+					PageSize: 2,
 				},
+			},
+			expectedListUsers: mockDatastore.EXPECT().List("mysites.site", 0, 2).Return(testuserlist.Users[0:2], len(testuserlist.Users), nil),
+			want: &usersv1alpha2.UserList{
+				Users:         testuserlist.Users[0:2],
+				NextPageToken: pageToken.Generate(2),
 			},
 			wantErr: false,
 		},
 		{
-			name: "Test list user with page size",
+			name: "Test list users with page_size and page_token",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.ListUserRequest{
-					Parent:   "sites/mysites.site",
-					PageSize: 1,
+					Parent:    strings.Join([]string{"sites", "mysites.site"}, "/"),
+					PageSize:  2,
+					PageToken: pageToken.Generate(2),
 				},
 			},
+			expectedListUsers: mockDatastore.EXPECT().List("mysites.site", 2, 2).Return(testuserlist.Users[2:4], len(testuserlist.Users), nil),
 			want: &usersv1alpha2.UserList{
-				Users: []*usersv1alpha2.User{
-					{
-						Name:     "sites/mysites.site/users/userdemo",
-						Email:    "userdemo@mysites.site",
-						Username: "userdemo",
-						Fullname: "User Demo",
-						Role:     0,
-					},
-				},
-				NextPageToken: server.PageToken.Generate(1),
+				Users: testuserlist.Users[2:4],
 			},
 			wantErr: false,
+		},
+		{
+			name: "Test list users with invalid page_token",
+			args: args{
+				context.Background(),
+				&usersv1alpha2.ListUserRequest{
+					Parent:    strings.Join([]string{"sites", "mysites.site"}, "/"),
+					PageToken: "invalid",
+				},
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
+			server := newServiceServer(mockDatastore, pageToken)
 			got, err := server.ListUser(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.ListUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
-			if got != nil {
-				for _, user := range tt.want.Users {
-					for _, g := range got.Users {
-						user.CreateTime = g.CreateTime
-						user.UpdateTime = g.UpdateTime
-					}
-				}
-			}
-
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Server.ListUser() = %v, want %v", got, tt.want)
 			}
@@ -155,61 +152,47 @@ func TestServer_ListUser(t *testing.T) {
 }
 
 func TestServer_CreateUser(t *testing.T) {
-	server := new(Server)
-	server.User = NewUserDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
-	server.PageToken = util.NewPageToken()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockDatastore := NewMockUserDatastore(ctrl)
+	pageToken := util.NewPageToken()
+
+	testuser := &usersv1alpha2.User{
+		Name:     strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
+		Email:    "testuser@mysites.site",
+		Password: "secret",
+		Username: "testuser",
+		Fullname: "Test User",
+	}
 
 	type args struct {
 		ctx context.Context
 		req *usersv1alpha2.CreateUserRequest
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *usersv1alpha2.User
-		wantErr bool
+		name               string
+		args               args
+		expectedCreateUser *gomock.Call
+		expectedGetUser    *gomock.Call
+		want               *usersv1alpha2.User
+		wantErr            bool
 	}{
 		{
 			name: "Test create user",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.CreateUserRequest{
-					Parent: "sites/mysites.site",
-					User: &usersv1alpha2.User{
-						Email:    "testuser@mysites.site",
-						Password: "secret",
-						Username: "testuser",
-						Fullname: "Test User",
-					},
+					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
+					User:   testuser,
 				},
 			},
-			want: &usersv1alpha2.User{
-				Name:     "sites/mysites.site/users/testuser",
-				Email:    "testuser@mysites.site",
-				Username: "testuser",
-				Fullname: "Test User",
-				Role:     0,
-			},
-			wantErr: false,
+			expectedCreateUser: mockDatastore.EXPECT().Create("mysites.site", testuser).Return(nil),
+			expectedGetUser:    mockDatastore.EXPECT().Get("mysites.site", testuser.Username).Return(testuser, nil),
+			want:               testuser,
 		},
 		{
-			name: "Test create existing user",
-			args: args{
-				context.Background(),
-				&usersv1alpha2.CreateUserRequest{
-					Parent: "sites/mysites.site",
-					User: &usersv1alpha2.User{
-						Email:    "testuser@mysites.site",
-						Password: "secret",
-						Username: "testuser",
-						Fullname: "Test User",
-					},
-				},
-			},
-			wantErr: true,
-		},
-		{
-			name: "Test create user with null request",
+			name: "Test create user with nil request",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.CreateUserRequest{},
@@ -221,7 +204,7 @@ func TestServer_CreateUser(t *testing.T) {
 			args: args{
 				context.Background(),
 				&usersv1alpha2.CreateUserRequest{
-					Parent: "sites/mysites.site",
+					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
 					User: &usersv1alpha2.User{
 						Email:    "testuser@mysites.site",
 						Password: "secret",
@@ -232,11 +215,11 @@ func TestServer_CreateUser(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "Test create user with empty email",
+			name: "Test create user with empty username",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.CreateUserRequest{
-					Parent: "sites/mysites.site",
+					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
 					User: &usersv1alpha2.User{
 						Username: "testuser",
 						Password: "secret",
@@ -247,14 +230,14 @@ func TestServer_CreateUser(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "Test create user with empty email",
+			name: "Test create user with empty password",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.CreateUserRequest{
-					Parent: "sites/mysites.site",
+					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
 					User: &usersv1alpha2.User{
-						Username: "testuser",
 						Email:    "testuser@mysites.site",
+						Username: "testuser",
 						Fullname: "Test User",
 					},
 				},
@@ -264,17 +247,12 @@ func TestServer_CreateUser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			server := newServiceServer(mockDatastore, pageToken)
 			got, err := server.CreateUser(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.CreateUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
-			if got != nil {
-				tt.want.CreateTime = got.CreateTime
-				tt.want.UpdateTime = got.UpdateTime
-			}
-
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Server.CreateUser() = %v, want %v", got, tt.want)
 			}
@@ -283,61 +261,62 @@ func TestServer_CreateUser(t *testing.T) {
 }
 
 func TestServer_GetUser(t *testing.T) {
-	server := new(Server)
-	server.User = NewUserDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
-	server.PageToken = util.NewPageToken()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockDatastore := NewMockUserDatastore(ctrl)
+	pageToken := util.NewPageToken()
+
+	testuser := &usersv1alpha2.User{
+		Name:     strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
+		Email:    "testuser@mysites.site",
+		Password: "secret",
+		Username: "testuser",
+		Fullname: "Test User",
+	}
 
 	type args struct {
 		ctx context.Context
 		req *usersv1alpha2.GetUserRequest
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *usersv1alpha2.User
-		wantErr bool
+		name            string
+		args            args
+		expectedGetUser *gomock.Call
+		want            *usersv1alpha2.User
+		wantErr         bool
 	}{
 		{
 			name: "Test get user",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.GetUserRequest{
-					Name: "sites/mysites.site/users/userdemo",
+					Name: strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 				},
 			},
-			want: &usersv1alpha2.User{
-				Name:     "sites/mysites.site/users/userdemo",
-				Email:    "userdemo@mysites.site",
-				Username: "userdemo",
-				Fullname: "User Demo",
-				Role:     0,
-			},
-			wantErr: false,
+			expectedGetUser: mockDatastore.EXPECT().Get("mysites.site", testuser.Username).Return(testuser, nil),
+			want:            testuser,
 		},
 		{
-			name: "Test get not existing user",
+			name: "Test get user not found",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.GetUserRequest{
-					Name: "sites/mysites.site/users/notexists",
+					Name: strings.Join([]string{"sites", "mysites.site", "users", "notfound"}, "/"),
 				},
 			},
-			wantErr: true,
+			expectedGetUser: mockDatastore.EXPECT().Get("mysites.site", "notfound").Return(nil, status.Error(codes.NotFound, "user not found")),
+			wantErr:         true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			server := newServiceServer(mockDatastore, pageToken)
 			got, err := server.GetUser(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.GetUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
-			if got != nil {
-				tt.want.CreateTime = got.CreateTime
-				tt.want.UpdateTime = got.UpdateTime
-			}
-
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Server.GetUser() = %v, want %v", got, tt.want)
 			}
@@ -346,68 +325,74 @@ func TestServer_GetUser(t *testing.T) {
 }
 
 func TestServer_UpdateUser(t *testing.T) {
-	server := new(Server)
-	server.User = NewUserDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
-	server.PageToken = util.NewPageToken()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockDatastore := NewMockUserDatastore(ctrl)
+	pageToken := util.NewPageToken()
+
+	testuser := &usersv1alpha2.User{
+		Name:     strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
+		Email:    "testuser@mysites.site",
+		Password: "secret",
+		Username: "testuser",
+		Fullname: "Test User",
+	}
+
+	testupdateuser := &usersv1alpha2.User{
+		Name:     strings.Join([]string{"sites", "mysites.site", "users", "testupdateuser"}, "/"),
+		Email:    "testupdateuser@mysites.site",
+		Password: "secret",
+		Username: "testupdateuser",
+		Fullname: "Test User",
+	}
 
 	type args struct {
 		ctx context.Context
 		req *usersv1alpha2.UpdateUserRequest
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *usersv1alpha2.User
-		wantErr bool
+		name               string
+		args               args
+		expectedGetUser    *gomock.Call
+		expectedUpdateUser *gomock.Call
+		want               *usersv1alpha2.User
+		wantErr            bool
 	}{
 		{
 			name: "Test update user",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.UpdateUserRequest{
-					Name: "sites/mysites.site/users/testuser",
-					User: &usersv1alpha2.User{
-						Email:    "updatetestuser@mysites.site",
-						Username: "updatetestuser",
-						Fullname: "Update Test User",
-					},
+					Name: strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
+					User: testupdateuser,
 				},
 			},
-			want: &usersv1alpha2.User{
-				Name:     "sites/mysites.site/users/updatetestuser",
-				Email:    "updatetestuser@mysites.site",
-				Username: "updatetestuser",
-				Fullname: "Update Test User",
-			},
-			wantErr: false,
+			expectedGetUser:    mockDatastore.EXPECT().Get("mysites.site", testuser.Username).Return(testuser, nil),
+			expectedUpdateUser: mockDatastore.EXPECT().Update("mysites.site", "testuser", testupdateuser).Return(nil),
+			want:               testupdateuser,
 		},
 		{
-			name: "Test update user that have owner role",
+			name: "Test update user not found",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.UpdateUserRequest{
-					Name: "sites/mysites.site/users/ownerdemo",
-					User: &usersv1alpha2.User{
-						Role: 0,
-					},
+					Name: strings.Join([]string{"sites", "mysites.site", "users", "notfound"}, "/"),
+					User: testupdateuser,
 				},
 			},
-			wantErr: true,
+			expectedGetUser: mockDatastore.EXPECT().Get("mysites.site", "notfound").Return(nil, status.Error(codes.NotFound, "user not found")),
+			wantErr:         true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			server := newServiceServer(mockDatastore, pageToken)
 			got, err := server.UpdateUser(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.UpdateUser() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
-			if got != nil {
-				tt.want.CreateTime = got.CreateTime
-				tt.want.UpdateTime = got.UpdateTime
-			}
-
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Server.UpdateUser() = %v, want %v", got, tt.want)
 			}
@@ -416,44 +401,49 @@ func TestServer_UpdateUser(t *testing.T) {
 }
 
 func TestServer_DeleteUser(t *testing.T) {
-	server := new(Server)
-	server.User = NewUserDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
-	server.PageToken = util.NewPageToken()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockDatastore := NewMockUserDatastore(ctrl)
+	pageToken := util.NewPageToken()
 
 	type args struct {
 		ctx context.Context
 		req *usersv1alpha2.DeleteUserRequest
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *empty.Empty
-		wantErr bool
+		name               string
+		args               args
+		want               *empty.Empty
+		expectedDeleteUser *gomock.Call
+		wantErr            bool
 	}{
 		{
 			name: "Test delete user",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.DeleteUserRequest{
-					Name: "sites/mysites.site/users/userdemo",
+					Name: strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 				},
 			},
-			want:    &empty.Empty{},
-			wantErr: false,
+			expectedDeleteUser: mockDatastore.EXPECT().Delete("mysites.site", "testuser").Return(nil),
+			want:               &empty.Empty{},
 		},
 		{
-			name: "Test delete not existing user",
+			name: "Test delete user not found",
 			args: args{
 				context.Background(),
 				&usersv1alpha2.DeleteUserRequest{
-					Name: "sites/mysites.site/users/userdemo",
+					Name: strings.Join([]string{"sites", "mysites.site", "users", "notfound"}, "/"),
 				},
 			},
-			wantErr: true,
+			expectedDeleteUser: mockDatastore.EXPECT().Delete("mysites.site", "notfound").Return(status.Error(codes.NotFound, "user not found")),
+			wantErr:            true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			server := newServiceServer(mockDatastore, pageToken)
 			got, err := server.DeleteUser(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.DeleteUser() error = %v, wantErr %v", err, tt.wantErr)
@@ -467,31 +457,38 @@ func TestServer_DeleteUser(t *testing.T) {
 }
 
 func TestServer_SearchUser(t *testing.T) {
-	server := new(Server)
-	server.User = NewUserDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
-	server.PageToken = util.NewPageToken()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockDatastore := NewMockUserDatastore(ctrl)
+	pageToken := util.NewPageToken()
 
 	type args struct {
 		ctx context.Context
 		req *usersv1alpha2.SearchUserRequest
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *usersv1alpha2.UserList
-		wantErr bool
+		name               string
+		args               args
+		expectedSearchUser *gomock.Call
+		want               *usersv1alpha2.UserList
+		wantErr            bool
 	}{
 		{
-			name: "Test search user that not implement yet",
+			name: "Test list users",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.SearchUserRequest{},
+				&usersv1alpha2.SearchUserRequest{
+					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
+					Query:  "whocares",
+				},
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			server := newServiceServer(mockDatastore, pageToken)
 			got, err := server.SearchUser(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.SearchUser() error = %v, wantErr %v", err, tt.wantErr)

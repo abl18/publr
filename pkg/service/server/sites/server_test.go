@@ -16,132 +16,61 @@ package sites
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
 	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
-	"github.com/prksu/publr/pkg/bindata/schema"
-	"github.com/prksu/publr/pkg/bindata/testdata"
 	"github.com/prksu/publr/pkg/service/mock/users"
-	"github.com/prksu/publr/pkg/storage/database"
 )
-
-var (
-	DSN = "root:@/publr_test?autocommit=true&parseTime=true"
-)
-
-type rpcMsg struct {
-	msg proto.Message
-}
-
-func (r *rpcMsg) Matches(msg interface{}) bool {
-	m, ok := msg.(proto.Message)
-	if !ok {
-		return false
-	}
-	return proto.Equal(m, r.msg)
-}
-
-func (r *rpcMsg) String() string {
-	return fmt.Sprintf("is %s", r.msg)
-}
-
-func init() {
-	database := database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect()
-	defer database.Close()
-
-	database.Exec("DROP TABLE IF EXISTS sites")
-	schema, err := schema.Asset("data/schema/sites.sql")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	sitetestdata, err := testdata.Asset("data/testdata/sites.sql")
-	if err != nil {
-		log.Fatal(err)
-	}
-	usertestdata, err := testdata.Asset("data/testdata/users.sql")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	database.Exec(string(schema))
-	database.Exec(string(sitetestdata))
-	database.Exec(string(usertestdata))
-}
 
 func TestServer_CreateSite(t *testing.T) {
-	server := new(Server)
-	server.Site = NewSiteDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockDatastore := NewMockSiteDatastore(ctrl)
 	mockUserClient := users.NewMockUserServiceClient(ctrl)
-	server.UserClient = mockUserClient
+
+	testsite := &sitesv1alpha2.Site{
+		Title:  "My Sites",
+		Domain: "mysites.site",
+		Owner: &usersv1alpha2.User{
+			Username: "testowner",
+			Email:    "testowner@mysites.site",
+			Password: "secret",
+			Fullname: "Test Owner",
+		},
+	}
 
 	type args struct {
 		ctx context.Context
 		req *sitesv1alpha2.CreateSiteRequest
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    *sitesv1alpha2.Site
-		wantErr bool
+		name                string
+		args                args
+		expectedCreateSite  *gomock.Call
+		expectedCreateOwner *gomock.Call
+		want                *sitesv1alpha2.Site
+		wantErr             bool
 	}{
 		{
 			name: "Test create site",
 			args: args{
 				context.Background(),
 				&sitesv1alpha2.CreateSiteRequest{
-					Site: &sitesv1alpha2.Site{
-						Title:  "My Awesome Sites",
-						Domain: "myawesome.site",
-						Owner: &usersv1alpha2.User{
-							Username: "ownertest",
-							Email:    "ownertest@myawesome.site",
-							Password: "secret",
-						},
-					},
+					Site: testsite,
 				},
 			},
-			want: &sitesv1alpha2.Site{
-				Name:   "sites/myawesome.site",
-				Title:  "My Awesome Sites",
-				Domain: "myawesome.site",
-				Owner: &usersv1alpha2.User{
-					Username: "ownertest",
-					Email:    "ownertest@myawesome.site",
-					Role:     3,
-				},
-			},
-			wantErr: false,
-		},
-		{
-			name: "Test create already existing site",
-			args: args{
-				context.Background(),
-				&sitesv1alpha2.CreateSiteRequest{
-					Site: &sitesv1alpha2.Site{
-						Title:  "My Sites",
-						Domain: "mysites.site",
-						Owner: &usersv1alpha2.User{
-							Username: "ownertest",
-							Email:    "ownertest@myawesome.site",
-							Password: "secret",
-						},
-					},
-				},
-			},
-			wantErr: true,
+			expectedCreateSite:  mockDatastore.EXPECT().Create(testsite).Return(nil),
+			expectedCreateOwner: mockUserClient.EXPECT().CreateUser(gomock.Any(), &usersv1alpha2.CreateUserRequest{Parent: strings.Join([]string{"sites", testsite.Domain}, "/"), User: testsite.Owner}).Return(testsite.Owner, nil),
+			want:                testsite,
 		},
 		{
 			name: "Test create site with null request",
@@ -157,7 +86,13 @@ func TestServer_CreateSite(t *testing.T) {
 				context.Background(),
 				&sitesv1alpha2.CreateSiteRequest{
 					Site: &sitesv1alpha2.Site{
-						Domain: "myawesome.site",
+						Domain: "mysites.site",
+						Owner: &usersv1alpha2.User{
+							Username: "testowner",
+							Email:    "testowner@mysites.site",
+							Password: "secret",
+							Fullname: "Test Owner",
+						},
 					},
 				},
 			},
@@ -170,13 +105,19 @@ func TestServer_CreateSite(t *testing.T) {
 				&sitesv1alpha2.CreateSiteRequest{
 					Site: &sitesv1alpha2.Site{
 						Title: "My Sites",
+						Owner: &usersv1alpha2.User{
+							Username: "testowner",
+							Email:    "testowner@mysites.site",
+							Password: "secret",
+							Fullname: "Test Owner",
+						},
 					},
 				},
 			},
 			wantErr: true,
 		},
 		{
-			name: "Test create site without owner",
+			name: "Test create site with empty owner",
 			args: args{
 				context.Background(),
 				&sitesv1alpha2.CreateSiteRequest{
@@ -191,21 +132,11 @@ func TestServer_CreateSite(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.want != nil {
-				mockUserClient.EXPECT().
-					CreateUser(gomock.Any(), &rpcMsg{msg: &usersv1alpha2.CreateUserRequest{Parent: strings.Join([]string{"sites", tt.args.req.Site.Domain}, "/"), User: tt.args.req.Site.Owner}}).
-					Return(tt.want.Owner, nil)
-			}
-
+			server := newServiceServer(mockDatastore, mockUserClient)
 			got, err := server.CreateSite(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.CreateSite() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			}
-
-			if got != nil {
-				tt.want.CreateTime = got.CreateTime
-				tt.want.UpdateTime = got.UpdateTime
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
@@ -216,48 +147,60 @@ func TestServer_CreateSite(t *testing.T) {
 }
 
 func TestServer_GetSite(t *testing.T) {
-	server := new(Server)
-	server.Site = NewSiteDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
+	mockDatastore := NewMockSiteDatastore(ctrl)
+	mockUserClient := users.NewMockUserServiceClient(ctrl)
+
+	testsite := &sitesv1alpha2.Site{
+		Name:   strings.Join([]string{"sites", "mysites.site"}, "/"),
+		Title:  "My Sites",
+		Domain: "mysites.site",
+	}
+
+	type args struct {
+		ctx context.Context
+		req *sitesv1alpha2.GetSiteRequest
+	}
 	tests := []struct {
-		name    string
-		request *sitesv1alpha2.GetSiteRequest
-		want    *sitesv1alpha2.Site
-		wantErr bool
+		name            string
+		args            args
+		expectedGetSite *gomock.Call
+		want            *sitesv1alpha2.Site
+		wantErr         bool
 	}{
 		{
 			name: "Test get site",
-			request: &sitesv1alpha2.GetSiteRequest{
-				Name: "sites/mysites.site",
+			args: args{
+				context.Background(),
+				&sitesv1alpha2.GetSiteRequest{
+					Name: testsite.Name,
+				},
 			},
-			want: &sitesv1alpha2.Site{
-				Name:   "sites/mysites.site",
-				Title:  "My Sites",
-				Domain: "mysites.site",
-			},
-			wantErr: false,
+			expectedGetSite: mockDatastore.EXPECT().Get(testsite.Domain).Return(testsite, nil),
+			want:            testsite,
 		},
 		{
-			name: "Test get not existing site",
-			request: &sitesv1alpha2.GetSiteRequest{
-				Name: "sites/notexist",
+			name: "Test get site not found",
+			args: args{
+				context.Background(),
+				&sitesv1alpha2.GetSiteRequest{
+					Name: strings.Join([]string{"sites", "notfound"}, "/"),
+				},
 			},
-			wantErr: true,
+			expectedGetSite: mockDatastore.EXPECT().Get("notfound").Return(nil, status.Error(codes.NotFound, "site not found")),
+			wantErr:         true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := server.GetSite(context.Background(), tt.request)
+			server := newServiceServer(mockDatastore, mockUserClient)
+			got, err := server.GetSite(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.GetSite() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
-			if got != nil {
-				tt.want.CreateTime = got.CreateTime
-				tt.want.UpdateTime = got.UpdateTime
-			}
-
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Server.GetSite() = %v, want %v", got, tt.want)
 			}
@@ -266,34 +209,56 @@ func TestServer_GetSite(t *testing.T) {
 }
 
 func TestServer_DeleteSite(t *testing.T) {
-	server := new(Server)
-	server.Site = NewSiteDatastoreWithDB(database.NewDatabase().WithDriver("mysql").WithDSN(DSN).Connect())
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
+	mockDatastore := NewMockSiteDatastore(ctrl)
+	mockUserClient := users.NewMockUserServiceClient(ctrl)
+
+	testsite := &sitesv1alpha2.Site{
+		Name:   strings.Join([]string{"sites", "mysites.site"}, "/"),
+		Title:  "My Sites",
+		Domain: "mysites.site",
+	}
+
+	type args struct {
+		ctx context.Context
+		req *sitesv1alpha2.DeleteSiteRequest
+	}
 	tests := []struct {
-		name    string
-		request *sitesv1alpha2.DeleteSiteRequest
-		want    *empty.Empty
-		wantErr bool
+		name               string
+		args               args
+		expectedDeleteSite *gomock.Call
+		want               *empty.Empty
+		wantErr            bool
 	}{
 		{
 			name: "Test delete site",
-			request: &sitesv1alpha2.DeleteSiteRequest{
-				Name: "sites/mysites.site",
+			args: args{
+				context.Background(),
+				&sitesv1alpha2.DeleteSiteRequest{
+					Name: testsite.Name,
+				},
 			},
-			want:    &empty.Empty{},
-			wantErr: false,
+			expectedDeleteSite: mockDatastore.EXPECT().Delete(testsite.Domain).Return(nil),
+			want:               &empty.Empty{},
 		},
 		{
-			name: "Test delete not existing site",
-			request: &sitesv1alpha2.DeleteSiteRequest{
-				Name: "sites/mysites.site",
+			name: "Test delete site not found",
+			args: args{
+				context.Background(),
+				&sitesv1alpha2.DeleteSiteRequest{
+					Name: strings.Join([]string{"sites", "notfound"}, "/"),
+				},
 			},
-			wantErr: true,
+			expectedDeleteSite: mockDatastore.EXPECT().Delete("notfound").Return(status.Error(codes.NotFound, "site not found")),
+			wantErr:            true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := server.DeleteSite(context.Background(), tt.request)
+			server := newServiceServer(mockDatastore, mockUserClient)
+			got, err := server.DeleteSite(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Server.DeleteSite() error = %v, wantErr %v", err, tt.wantErr)
 				return

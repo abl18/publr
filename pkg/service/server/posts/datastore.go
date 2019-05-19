@@ -193,9 +193,19 @@ func (ds *datastore) Delete(sitedomain, author, slug string) error {
 		WHERE post_sites.site_domain=? AND post_authors.author_username=? AND posts.slug=?
 	`
 
-	if _, err := ds.DB.Exec(sqlquery, sitedomain, author, slug); err != nil {
+	result, err := ds.DB.Exec(sqlquery, sitedomain, author, slug)
+	if err != nil {
 		return err
 	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected < 1 {
+		return status.Error(codes.NotFound, "post not found")
+	}
+
 	return nil
 }
 

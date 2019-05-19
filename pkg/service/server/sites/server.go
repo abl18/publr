@@ -16,7 +16,6 @@ package sites
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -44,14 +43,13 @@ type Server struct {
 // NewServiceServer create new sites service server.
 // returns sitesv1alpha2.SiteServiceServer.
 func NewServiceServer() sitesv1alpha2.SiteServiceServer {
-	var err error
-	server := new(Server)
-	server.Site = NewSiteDatastore()
-	server.UserClient, err = users.NewServiceClient()
-	if err != nil {
-		log.Fatal(err)
-	}
+	return newServiceServer(NewSiteDatastore(), users.MustNewServiceClient())
+}
 
+func newServiceServer(site SiteDatastore, userClient usersv1alpha2.UserServiceClient) sitesv1alpha2.SiteServiceServer {
+	server := new(Server)
+	server.Site = site
+	server.UserClient = userClient
 	return server
 }
 
@@ -111,10 +109,6 @@ func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha2.GetSiteRequest)
 func (s *Server) DeleteSite(ctx context.Context, req *sitesv1alpha2.DeleteSiteRequest) (*empty.Empty, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
-
-	if _, err := s.Site.Get(sitedomain); err != nil {
-		return nil, err
-	}
 
 	if err := s.Site.Delete(sitedomain); err != nil {
 		return nil, err

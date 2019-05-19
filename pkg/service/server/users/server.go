@@ -43,9 +43,13 @@ type Server struct {
 // NewServiceServer create new users service server.
 // returns usersv1alpha2.SiteServiceServer
 func NewServiceServer() usersv1alpha2.UserServiceServer {
+	return newServiceServer(NewUserDatastore(), util.NewPageToken())
+}
+
+func newServiceServer(user UserDatastore, pageToken util.PageToken) usersv1alpha2.UserServiceServer {
 	server := new(Server)
-	server.User = NewUserDatastore()
-	server.PageToken = util.NewPageToken()
+	server.User = user
+	server.PageToken = pageToken
 	return server
 }
 
@@ -175,10 +179,6 @@ func (s *Server) DeleteUser(ctx context.Context, req *usersv1alpha2.DeleteUserRe
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
-
-	if _, err := s.User.Get(sitedomain, username); err != nil {
-		return nil, err
-	}
 
 	if err := s.User.Delete(sitedomain, username); err != nil {
 		return nil, err

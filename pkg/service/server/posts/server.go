@@ -42,9 +42,13 @@ type Server struct {
 // NewServiceServer create new users service server.
 // returns postsv1alpha2.PostServiceServer
 func NewServiceServer() postsv1alpha2.PostServiceServer {
+	return newServiceServer(NewPostDatastore(), util.NewPageToken())
+}
+
+func newServiceServer(post PostDatastore, pageToken util.PageToken) postsv1alpha2.PostServiceServer {
 	server := new(Server)
-	server.Post = NewPostDatastore()
-	server.PageToken = util.NewPageToken()
+	server.Post = post
+	server.PageToken = pageToken
 	return server
 }
 
@@ -169,11 +173,6 @@ func (s *Server) DeletePost(ctx context.Context, req *postsv1alpha2.DeletePostRe
 	sitedomain := sname[1]
 	author := sname[3]
 	slug := sname[5]
-
-	// just check if the posts is exist
-	if _, err := s.Post.Get(sitedomain, author, slug); err != nil {
-		return nil, err
-	}
 
 	if err := s.Post.Delete(sitedomain, author, slug); err != nil {
 		return nil, err
