@@ -1,22 +1,25 @@
 dist: xenial
 sudo: required
 language: go
-go:
-  - 1.12.x
-services:
-  - mysql
-env:
-  matrix:
-    - JOB=go-test
-    - JOB=bazel-test
-    - JOB=bazel-build
-before_install:
-  - 'if [[ "${JOB}" = bazel-* ]]; then hack/install-bazel.sh; fi'
+matrix:
+  include:
+    - go: 1.12.x
+      env: JOB=go-test
+    - go: 1.12.x
+      env: JOB=bazel-test
+    - go: 1.12.x
+      env: JOB=bazel-test-flaky
+    - go: 1.12.x
+      env: JOB=bazel-build
+  allow_failures:
+    - go: 1.12.x
+      env: JOB=bazel-test-flaky
 before_script:
-  - 'if [[ "${JOB}" == *-test ]]; then mysql -e "CREATE DATABASE IF NOT EXISTS publr_test"; fi'
+  - 'if [[ "${JOB}" = bazel-* ]]; then hack/install-bazel.sh; fi'
 script:
   - 'if [ "${JOB}" = "go-test" ]; then go test -race -v -covermode=atomic -coverprofile=coverage.txt ./...; fi'
   - 'if [ "${JOB}" = "bazel-test" ]; then bazel test --test_output=errors //...; fi'
+  - 'if [ "${JOB}" = "bazel-test-flaky" ]; then  bazel test --runs_per_test=100 --runs_per_test_detects_flakes --test_output=all //...; fi'
   - 'if [ "${JOB}" = "bazel-build" ]; then bazel build //...; fi'
 after_success:
   - 'if [ "${JOB}" = "go-test" ]; then bash <(curl -s https://codecov.io/bash); fi'
