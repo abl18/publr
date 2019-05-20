@@ -21,12 +21,12 @@ spec:
   selector:
     matchLabels:
       app: publr-http-proxy
-      version: v1alpha1
+      version: v1alpha2
   template:
     metadata:
       labels:
         app: publr-http-proxy
-        version: v1alpha1
+        version: v1alpha2
     spec:
       containers:
       - name: http-proxy

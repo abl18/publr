@@ -21,12 +21,12 @@ spec:
   selector:
     matchLabels:
       app: publr-sites
-      version: v1alpha1
+      version: v1alpha2
   template:
     metadata:
       labels:
         app: publr-sites
-        version: v1alpha1
+        version: v1alpha2
     spec:
       containers:
       - name: sites
