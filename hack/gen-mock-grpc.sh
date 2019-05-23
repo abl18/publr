@@ -31,17 +31,6 @@ function gen::mock::format() {
   gofmt -s -w ${mock}
 }
 
-function gen::mock::datastore() {
-  for d in $(find ${PKG_DIR}/service/server -type f -name 'datastore.go'); do
-    local package_dir=${PROJECT_ROOT}$(dirname ${d#${PROJECT_ROOT}})
-    local package_name=$(basename ${package_dir})
-    local output=${package_dir}/datastore_mock.go
-    mockgen -package=${package_name} -source ${d} -destination ${output}
-    gen::mock::format ${output}
-    echo "[+] Generated $(basename ${package_name}) datastore mock"
-  done
-}
-
 function gen::mock::grpc() {
   for api in $(find ${PKG_DIR}/api -type f -name '*.pb.go'); do
     local package_dir=${PROJECT_PACKAGE}$(dirname ${api#${PROJECT_ROOT}})
@@ -54,4 +43,3 @@ function gen::mock::grpc() {
 }
 
 gen::mock::grpc
-gen::mock::datastore
