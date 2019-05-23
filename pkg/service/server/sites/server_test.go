@@ -28,13 +28,14 @@ import (
 	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
 	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 	"github.com/prksu/publr/pkg/service/mock/users"
+	mock_datastore "github.com/prksu/publr/pkg/service/server/sites/datastore/mock"
 )
 
 func TestServer_CreateSite(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatastore := NewMockSiteDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockSiteDatastore(ctrl)
 	mockUserClient := users.NewMockUserServiceClient(ctrl)
 
 	testsite := &sitesv1alpha2.Site{
@@ -150,7 +151,7 @@ func TestServer_GetSite(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatastore := NewMockSiteDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockSiteDatastore(ctrl)
 	mockUserClient := users.NewMockUserServiceClient(ctrl)
 
 	testsite := &sitesv1alpha2.Site{
@@ -212,7 +213,7 @@ func TestServer_DeleteSite(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatastore := NewMockSiteDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockSiteDatastore(ctrl)
 	mockUserClient := users.NewMockUserServiceClient(ctrl)
 
 	testsite := &sitesv1alpha2.Site{

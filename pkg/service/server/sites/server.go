@@ -25,6 +25,7 @@ import (
 	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
 	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 	"github.com/prksu/publr/pkg/service/client/users"
+	"github.com/prksu/publr/pkg/service/server/sites/datastore"
 )
 
 // Sites service
@@ -36,17 +37,17 @@ var (
 
 // Server implement sitesv1alpha2.SiteServiceServer.
 type Server struct {
-	Site       SiteDatastore
+	Site       datastore.SiteDatastore
 	UserClient usersv1alpha2.UserServiceClient
 }
 
 // NewServiceServer create new sites service server.
 // returns sitesv1alpha2.SiteServiceServer.
 func NewServiceServer() sitesv1alpha2.SiteServiceServer {
-	return newServiceServer(NewSiteDatastore(), users.MustNewServiceClient())
+	return newServiceServer(datastore.NewSiteDatastore(), users.MustNewServiceClient())
 }
 
-func newServiceServer(site SiteDatastore, userClient usersv1alpha2.UserServiceClient) sitesv1alpha2.SiteServiceServer {
+func newServiceServer(site datastore.SiteDatastore, userClient usersv1alpha2.UserServiceClient) sitesv1alpha2.SiteServiceServer {
 	server := new(Server)
 	server.Site = site
 	server.UserClient = userClient

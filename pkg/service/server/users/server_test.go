@@ -26,6 +26,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	mock_datastore "github.com/prksu/publr/pkg/service/server/users/datastore/mock"
 	"github.com/prksu/publr/pkg/service/util"
 )
 
@@ -33,7 +34,7 @@ func TestServer_ListUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatastore := NewMockUserDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	testuserlist := &usersv1alpha2.UserList{
@@ -155,7 +156,7 @@ func TestServer_CreateUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatastore := NewMockUserDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	testuser := &usersv1alpha2.User{
@@ -264,7 +265,7 @@ func TestServer_GetUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatastore := NewMockUserDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	testuser := &usersv1alpha2.User{
@@ -328,7 +329,7 @@ func TestServer_UpdateUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatastore := NewMockUserDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	testuser := &usersv1alpha2.User{
@@ -404,7 +405,7 @@ func TestServer_DeleteUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatastore := NewMockUserDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	type args struct {
@@ -460,7 +461,7 @@ func TestServer_SearchUser(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDatastore := NewMockUserDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	type args struct {

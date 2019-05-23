@@ -26,13 +26,14 @@ import (
 	"google.golang.org/grpc/status"
 
 	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
+	mock_datastore "github.com/prksu/publr/pkg/service/server/posts/datastore/mock"
 	"github.com/prksu/publr/pkg/service/util"
 )
 
 func TestServer_ListPost(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockDatastore := NewMockPostDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockPostDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	testpostlist := &postsv1alpha2.PostList{
@@ -140,7 +141,7 @@ func TestServer_ListPost(t *testing.T) {
 func TestServer_CreatePost(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockDatastore := NewMockPostDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockPostDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	testpost := &postsv1alpha2.Post{
@@ -252,7 +253,7 @@ func TestServer_CreatePost(t *testing.T) {
 func TestServer_GetPost(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockDatastore := NewMockPostDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockPostDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	testpost := &postsv1alpha2.Post{
@@ -316,7 +317,7 @@ func TestServer_GetPost(t *testing.T) {
 func TestServer_UpdatePost(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockDatastore := NewMockPostDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockPostDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	type args struct {
@@ -349,7 +350,7 @@ func TestServer_UpdatePost(t *testing.T) {
 func TestServer_DeletePost(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockDatastore := NewMockPostDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockPostDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	type args struct {
@@ -404,7 +405,7 @@ func TestServer_DeletePost(t *testing.T) {
 func TestServer_SearchPost(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockDatastore := NewMockPostDatastore(ctrl)
+	mockDatastore := mock_datastore.NewMockPostDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
 	type args struct {

@@ -23,6 +23,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
+	"github.com/prksu/publr/pkg/service/server/posts/datastore"
 	"github.com/prksu/publr/pkg/service/util"
 )
 
@@ -35,17 +36,17 @@ var (
 
 // Server implement postsv1alpha2.PostServiceServer.
 type Server struct {
-	Post      PostDatastore
+	Post      datastore.PostDatastore
 	PageToken util.PageToken
 }
 
 // NewServiceServer create new users service server.
 // returns postsv1alpha2.PostServiceServer
 func NewServiceServer() postsv1alpha2.PostServiceServer {
-	return newServiceServer(NewPostDatastore(), util.NewPageToken())
+	return newServiceServer(datastore.NewPostDatastore(), util.NewPageToken())
 }
 
-func newServiceServer(post PostDatastore, pageToken util.PageToken) postsv1alpha2.PostServiceServer {
+func newServiceServer(post datastore.PostDatastore, pageToken util.PageToken) postsv1alpha2.PostServiceServer {
 	server := new(Server)
 	server.Post = post
 	server.PageToken = pageToken
