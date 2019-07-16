@@ -17,7 +17,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-BAZEL_VERSION=0.18.0
+BAZEL_VERSION=0.28.0
 OS=$(go env GOHOSTOS)
 
 wget -O bazel-install.sh \
