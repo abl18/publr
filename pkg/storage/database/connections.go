@@ -17,10 +17,11 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // mysql driver
+
+	"github.com/prksu/publr/pkg/log"
 )
 
 // Default database configuration

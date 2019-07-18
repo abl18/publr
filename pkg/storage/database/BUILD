@@ -5,5 +5,8 @@ go_library(
     srcs = ["connections.go"],
     importpath = "github.com/prksu/publr/pkg/storage/database",
     visibility = ["//visibility:public"],
-    deps = ["//vendor/github.com/go-sql-driver/mysql:go_default_library"],
+    deps = [
+        "//pkg/log:go_default_library",
+        "//vendor/github.com/go-sql-driver/mysql:go_default_library",
+    ],
 )
