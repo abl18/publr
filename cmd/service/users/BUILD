@@ -7,6 +7,8 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//pkg/api/users/v1alpha2:go_default_library",
+        "//pkg/log:go_default_library",
+        "//pkg/service/logging:go_default_library",
         "//pkg/service/server/users:go_default_library",
         "//pkg/storage/database:go_default_library",
         "//vendor/google.golang.org/grpc:go_default_library",

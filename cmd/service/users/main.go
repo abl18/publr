@@ -23,6 +23,8 @@ import (
 	"google.golang.org/grpc"
 
 	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	"github.com/prksu/publr/pkg/log"
+	"github.com/prksu/publr/pkg/service/logging"
 	"github.com/prksu/publr/pkg/service/server/users"
 	"github.com/prksu/publr/pkg/storage/database"
 )
@@ -41,9 +43,13 @@ func run() error {
 		return err
 	}
 
-	opts := []grpc.ServerOption{}
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(logging.ServerInterceptor),
+	}
+
 	server := grpc.NewServer(opts...)
 
+	log.Infof("serve grpc server on %s", users.ServiceAddress)
 	usersv1alpha2.RegisterUserServiceServer(server, users.NewServiceServer())
 	return server.Serve(listener)
 }
