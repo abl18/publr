@@ -58,6 +58,18 @@ go_repository(
 )
 
 go_repository(
+    name = "com_github_data_dog_go_sqlmock",
+    importpath = "github.com/DATA-DOG/go-sqlmock",
+    tag = "v1.3.3",
+)
+
+go_repository(
+    name = "com_github_davecgh_go_spew",
+    importpath = "github.com/davecgh/go-spew",
+    tag = "v1.1.1",
+)
+
+go_repository(
     name = "com_github_ghodss_yaml",
     importpath = "github.com/ghodss/yaml",
     tag = "v1.0.0",
@@ -67,6 +79,12 @@ go_repository(
     name = "com_github_go_sql_driver_mysql",
     importpath = "github.com/go-sql-driver/mysql",
     tag = "v1.4.1",
+)
+
+go_repository(
+    name = "com_github_gogo_protobuf",
+    importpath = "github.com/gogo/protobuf",
+    tag = "v1.2.1",
 )
 
 go_repository(
@@ -88,15 +106,33 @@ go_repository(
 )
 
 go_repository(
+    name = "com_github_grpc_ecosystem_go_grpc_middleware",
+    importpath = "github.com/grpc-ecosystem/go-grpc-middleware",
+    tag = "v1.0.0",
+)
+
+go_repository(
     name = "com_github_grpc_ecosystem_grpc_gateway",
     importpath = "github.com/grpc-ecosystem/grpc-gateway",
     tag = "v1.8.5",
 )
 
 go_repository(
-    name = "com_github_inconshreveable_mousetrap",
-    importpath = "github.com/inconshreveable/mousetrap",
+    name = "com_github_kisielk_errcheck",
+    importpath = "github.com/kisielk/errcheck",
+    tag = "v1.1.0",
+)
+
+go_repository(
+    name = "com_github_kisielk_gotool",
+    importpath = "github.com/kisielk/gotool",
     tag = "v1.0.0",
+)
+
+go_repository(
+    name = "com_github_konsorten_go_windows_terminal_sequences",
+    importpath = "github.com/konsorten/go-windows-terminal-sequences",
+    tag = "v1.0.1",
 )
 
 go_repository(
@@ -118,21 +154,33 @@ go_repository(
 )
 
 go_repository(
+    name = "com_github_pmezard_go_difflib",
+    importpath = "github.com/pmezard/go-difflib",
+    tag = "v1.0.0",
+)
+
+go_repository(
     name = "com_github_rogpeppe_fastuuid",
     commit = "6724a57986af",
     importpath = "github.com/rogpeppe/fastuuid",
 )
 
 go_repository(
-    name = "com_github_spf13_cobra",
-    importpath = "github.com/spf13/cobra",
-    tag = "v0.0.3",
+    name = "com_github_sirupsen_logrus",
+    importpath = "github.com/sirupsen/logrus",
+    tag = "v1.4.2",
 )
 
 go_repository(
-    name = "com_github_spf13_pflag",
-    importpath = "github.com/spf13/pflag",
-    tag = "v1.0.3",
+    name = "com_github_stretchr_objx",
+    importpath = "github.com/stretchr/objx",
+    tag = "v0.1.1",
+)
+
+go_repository(
+    name = "com_github_stretchr_testify",
+    importpath = "github.com/stretchr/testify",
+    tag = "v1.3.0",
 )
 
 go_repository(
@@ -167,7 +215,7 @@ go_repository(
 
 go_repository(
     name = "org_golang_google_genproto",
-    commit = "357c62f0e4bb",
+    commit = "54afdca5d873",
     importpath = "google.golang.org/genproto",
 )
 
@@ -229,10 +277,4 @@ go_repository(
     name = "org_golang_x_tools",
     commit = "36563e24a262",
     importpath = "golang.org/x/tools",
-)
-
-go_repository(
-    name = "com_github_data_dog_go_sqlmock",
-    importpath = "github.com/DATA-DOG/go-sqlmock",
-    tag = "v1.3.3",
 )

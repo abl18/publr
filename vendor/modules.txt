@@ -22,6 +22,10 @@ github.com/golang/protobuf/protoc-gen-go/plugin
 github.com/grpc-ecosystem/grpc-gateway/runtime
 github.com/grpc-ecosystem/grpc-gateway/utilities
 github.com/grpc-ecosystem/grpc-gateway/internal
+# github.com/konsorten/go-windows-terminal-sequences v1.0.1
+github.com/konsorten/go-windows-terminal-sequences
+# github.com/sirupsen/logrus v1.4.2
+github.com/sirupsen/logrus
 # golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5
 golang.org/x/net/trace
 golang.org/x/net/internal/timeseries
@@ -38,7 +42,7 @@ golang.org/x/text/unicode/norm
 golang.org/x/text/transform
 # google.golang.org/appengine v1.5.0
 google.golang.org/appengine/cloudsql
-# google.golang.org/genproto v0.0.0-20190425155659-357c62f0e4bb
+# google.golang.org/genproto v0.0.0-20190502173448-54afdca5d873
 google.golang.org/genproto/googleapis/api/annotations
 google.golang.org/genproto/googleapis/api/httpbody
 google.golang.org/genproto/protobuf/field_mask
