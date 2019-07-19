@@ -1,0 +1,11 @@
+{
+    "hosts": [
+        "*.publr.svc.cluster.local",
+        "*.publr.pod.cluster.local"
+    ],
+    "CN": "*.publr.pod.cluster.local",
+    "key": {
+        "algo": "ecdsa",
+        "size": 256
+    }
+}

@@ -28,13 +28,6 @@ import (
 	"github.com/prksu/publr/pkg/service/server/sites/datastore"
 )
 
-// Sites service
-var (
-	ServiceName    = "sites"
-	ServiceAddress = "0.0.0.0:9000"
-	ServiceVersion = "v1alpha2"
-)
-
 // Server implement sitesv1alpha2.SiteServiceServer.
 type Server struct {
 	Site       datastore.SiteDatastore

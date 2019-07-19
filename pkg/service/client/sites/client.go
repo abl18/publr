@@ -15,17 +15,24 @@
 package sites
 
 import (
-	"net"
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/credentials"
 
 	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
-	"github.com/prksu/publr/pkg/service/server/sites"
+	"github.com/prksu/publr/pkg/service"
 )
+
+// DefaultAddress default sites service server address
+var DefaultAddress = "dns:///sites.publr.svc.cluster.local"
 
 // MustNewServiceClient create new sites service client with panic if any errors.
 func MustNewServiceClient() sitesv1alpha2.SiteServiceClient {
-	client, err := NewServiceClient()
+	client, err := NewServiceClient(DefaultAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -33,16 +40,20 @@ func MustNewServiceClient() sitesv1alpha2.SiteServiceClient {
 }
 
 // NewServiceClient create new sites service client.
-func NewServiceClient() (sitesv1alpha2.SiteServiceClient, error) {
-	_, port, err := net.SplitHostPort(sites.ServiceAddress)
+func NewServiceClient(address string) (sitesv1alpha2.SiteServiceClient, error) {
+	ca, err := ioutil.ReadFile(service.CA)
 	if err != nil {
 		return nil, err
 	}
 
-	address := net.JoinHostPort(sites.ServiceName, port)
+	CertPool := x509.NewCertPool()
+	CertPool.AppendCertsFromPEM(ca)
 
 	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
+		grpc.WithBalancerName(roundrobin.Name),
+		grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
+			RootCAs: CertPool,
+		})),
 	}
 
 	conn, err := grpc.Dial(address, opts...)

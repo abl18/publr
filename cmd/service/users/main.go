@@ -17,20 +17,15 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net"
 	"os"
 
-	"google.golang.org/grpc"
-
 	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
-	"github.com/prksu/publr/pkg/log"
-	"github.com/prksu/publr/pkg/service/logging"
+	"github.com/prksu/publr/pkg/service"
 	"github.com/prksu/publr/pkg/service/server/users"
 	"github.com/prksu/publr/pkg/storage/database"
 )
 
 func init() {
-	flag.StringVar(&users.ServiceAddress, "service-address", "0.0.0.0:9000", "Service address")
 	flag.StringVar(&database.Host, "database-host", "127.0.0.1", "Database host")
 	flag.StringVar(&database.User, "database-user", "root", "Database user")
 	flag.StringVar(&database.Password, "database-password", "", "Database password")
@@ -38,20 +33,13 @@ func init() {
 }
 
 func run() error {
-	listener, err := net.Listen("tcp", users.ServiceAddress)
+	s, err := service.NewService()
 	if err != nil {
 		return err
 	}
 
-	opts := []grpc.ServerOption{
-		grpc.UnaryInterceptor(logging.ServerInterceptor),
-	}
-
-	server := grpc.NewServer(opts...)
-
-	log.Infof("serve grpc server on %s", users.ServiceAddress)
-	usersv1alpha2.RegisterUserServiceServer(server, users.NewServiceServer())
-	return server.Serve(listener)
+	usersv1alpha2.RegisterUserServiceServer(s.GRPC(), users.NewServiceServer())
+	return s.ListenAndServe()
 }
 
 func main() {

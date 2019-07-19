@@ -16,32 +16,64 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/credentials"
 
 	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
 	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
 	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	"github.com/prksu/publr/pkg/service"
 )
+
+var (
+	// InecureServer insecure grpc server
+	InecureServer bool
+)
+
+func init() {
+	flag.BoolVar(&InecureServer, "insecure-server", false, "Insecure grpc server")
+}
 
 func run() error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
+		grpc.WithBalancerName(roundrobin.Name),
 	}
 
-	postsv1alpha2.RegisterPostServiceHandlerFromEndpoint(context.Background(), mux, "posts:9000", opts)
-	sitesv1alpha2.RegisterSiteServiceHandlerFromEndpoint(context.Background(), mux, "sites:9000", opts)
-	usersv1alpha2.RegisterUserServiceHandlerFromEndpoint(context.Background(), mux, "users:9000", opts)
+	if InecureServer {
+		opts = append(opts, grpc.WithInsecure())
+	} else {
+		ca, err := ioutil.ReadFile(service.CA)
+		if err != nil {
+			return err
+		}
+
+		CertPool := x509.NewCertPool()
+		CertPool.AppendCertsFromPEM(ca)
+		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
+			RootCAs: CertPool,
+		})))
+	}
+
+	postsv1alpha2.RegisterPostServiceHandlerFromEndpoint(context.Background(), mux, "dns:///posts.publr.svc.cluster.local", opts)
+	sitesv1alpha2.RegisterSiteServiceHandlerFromEndpoint(context.Background(), mux, "dns:///sites.publr.svc.cluster.local", opts)
+	usersv1alpha2.RegisterUserServiceHandlerFromEndpoint(context.Background(), mux, "dns:///users.publr.svc.cluster.local", opts)
 
 	return http.ListenAndServe(":8000", mux)
 }
 
 func main() {
+	flag.Parse()
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)

@@ -15,17 +15,24 @@
 package users
 
 import (
-	"net"
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/credentials"
 
 	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
-	"github.com/prksu/publr/pkg/service/server/users"
+	"github.com/prksu/publr/pkg/service"
 )
+
+// DefaultAddress default users service server address
+var DefaultAddress = "dns:///users.publr.svc.cluster.local"
 
 // MustNewServiceClient create new sites service client with panic if any errors.
 func MustNewServiceClient() usersv1alpha2.UserServiceClient {
-	client, err := NewServiceClient()
+	client, err := NewServiceClient(DefaultAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -33,16 +40,20 @@ func MustNewServiceClient() usersv1alpha2.UserServiceClient {
 }
 
 // NewServiceClient create new users service client.
-func NewServiceClient() (usersv1alpha2.UserServiceClient, error) {
-	_, port, err := net.SplitHostPort(users.ServiceAddress)
+func NewServiceClient(address string) (usersv1alpha2.UserServiceClient, error) {
+	ca, err := ioutil.ReadFile(service.CA)
 	if err != nil {
 		return nil, err
 	}
 
-	address := net.JoinHostPort(users.ServiceName, port)
+	CertPool := x509.NewCertPool()
+	CertPool.AppendCertsFromPEM(ca)
 
 	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
+		grpc.WithBalancerName(roundrobin.Name),
+		grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
+			RootCAs: CertPool,
+		})),
 	}
 
 	conn, err := grpc.Dial(address, opts...)

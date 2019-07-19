@@ -28,13 +28,6 @@ import (
 	"github.com/prksu/publr/pkg/service/util"
 )
 
-// Users service
-var (
-	ServiceName    = "users"
-	ServiceAddress = "0.0.0.0:9000"
-	ServiceVersion = "v1alpha2"
-)
-
 // Server implement usersv1alpha2.UserServiceServer.
 type Server struct {
 	User      datastore.UserDatastore

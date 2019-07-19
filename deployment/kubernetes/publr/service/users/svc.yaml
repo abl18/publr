@@ -17,8 +17,9 @@ kind: Service
 metadata:
   name: users
 spec:
+  clusterIP: None
   selector:
     app: publr-users
   ports:
-  - port: 9000
+  - port: 443
     name: grpc

@@ -32,11 +32,22 @@ spec:
       - name: posts
         image: posts
         args:
-        - --service-address=0.0.0.0:9000
+        - --server-address=:443
+        - --server-tls=true
+        - --server-cert=/etc/certs/tls.crt
+        - --server-key=/etc/certs/tls.key
+        - --ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - --database-host=database
         - --database-user=publr
         - --database-password=secret
         - --database-name=publr
         ports:
         - name: grpc
-          containerPort: 9000
+          containerPort: 443
+        volumeMounts:
+        - name: tls
+          mountPath: /etc/certs
+      volumes:
+      - name: tls
+        secret:
+          secretName: publr-tls

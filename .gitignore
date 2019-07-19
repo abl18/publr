@@ -6,3 +6,6 @@ bazel-publr
 bazel-testlogs
 coverage.txt
 bazel-install.sh
+*.pem
+*.crt
+*.csr

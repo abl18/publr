@@ -9,8 +9,11 @@ go_library(
         "//pkg/api/posts/v1alpha2:go_default_library",
         "//pkg/api/sites/v1alpha2:go_default_library",
         "//pkg/api/users/v1alpha2:go_default_library",
+        "//pkg/service:go_default_library",
         "//vendor/github.com/grpc-ecosystem/grpc-gateway/runtime:go_default_library",
         "//vendor/google.golang.org/grpc:go_default_library",
+        "//vendor/google.golang.org/grpc/balancer/roundrobin:go_default_library",
+        "//vendor/google.golang.org/grpc/credentials:go_default_library",
     ],
 )
 

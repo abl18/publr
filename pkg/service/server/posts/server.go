@@ -27,13 +27,6 @@ import (
 	"github.com/prksu/publr/pkg/service/util"
 )
 
-// Posts service
-var (
-	ServiceName    = "posts"
-	ServiceAddress = "0.0.0.0:9000"
-	ServiceVersion = "v1alpha2"
-)
-
 // Server implement postsv1alpha2.PostServiceServer.
 type Server struct {
 	Post      datastore.PostDatastore

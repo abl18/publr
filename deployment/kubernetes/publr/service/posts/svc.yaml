@@ -17,8 +17,9 @@ kind: Service
 metadata:
   name: posts
 spec:
+  clusterIP: None
   selector:
     app: publr-posts
   ports:
-  - port: 9000
+  - port: 443
     name: grpc
