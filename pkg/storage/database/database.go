@@ -16,6 +16,7 @@ package database
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"time"
 
@@ -24,13 +25,20 @@ import (
 	"github.com/prksu/publr/pkg/log"
 )
 
-// Default database configuration
+// Database global var
 var (
-	Host     = "127.0.0.1"
-	User     = "root"
-	Password = ""
-	Name     = "publr"
+	Host     string
+	User     string
+	Password string
+	Name     string
 )
+
+func init() {
+	flag.StringVar(&Host, "database-host", "127.0.0.1", "Database host")
+	flag.StringVar(&User, "database-user", "root", "Database user")
+	flag.StringVar(&Password, "database-password", "", "Database password")
+	flag.StringVar(&Name, "database-name", "publr", "Database name")
+}
 
 // Database interface
 type Database interface {

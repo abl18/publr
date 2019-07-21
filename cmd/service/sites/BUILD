@@ -9,7 +9,6 @@ go_library(
         "//pkg/api/sites/v1alpha2:go_default_library",
         "//pkg/service:go_default_library",
         "//pkg/service/server/sites:go_default_library",
-        "//pkg/storage/database:go_default_library",
     ],
 )
 

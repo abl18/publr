@@ -22,15 +22,7 @@ import (
 	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
 	"github.com/prksu/publr/pkg/service"
 	"github.com/prksu/publr/pkg/service/server/posts"
-	"github.com/prksu/publr/pkg/storage/database"
 )
-
-func init() {
-	flag.StringVar(&database.Host, "database-host", "127.0.0.1", "Database host")
-	flag.StringVar(&database.User, "database-user", "root", "Database user")
-	flag.StringVar(&database.Password, "database-password", "", "Database password")
-	flag.StringVar(&database.Name, "database-name", "publr", "Database name")
-}
 
 func run() error {
 	s, err := service.NewService()
