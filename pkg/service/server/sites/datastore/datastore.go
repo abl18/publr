@@ -15,6 +15,7 @@
 package datastore
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/go-sql-driver/mysql"
@@ -28,9 +29,9 @@ import (
 
 // SiteDatastore interface
 type SiteDatastore interface {
-	Create(site *sitesv1alpha2.Site) error
-	Get(sitedomain string) (*sitesv1alpha2.Site, error)
-	Delete(sitedomain string) error
+	Create(ctx context.Context, site *sitesv1alpha2.Site) error
+	Get(ctx context.Context, sitedomain string) (*sitesv1alpha2.Site, error)
+	Delete(ctx context.Context, sitedomain string) error
 }
 
 // datastore implement sites service datastore
@@ -50,13 +51,13 @@ func NewSiteDatastoreWithDB(database *sql.DB) SiteDatastore {
 	return ds
 }
 
-func (ds *datastore) Create(site *sitesv1alpha2.Site) error {
-	stmt, err := ds.DB.Prepare("INSERT INTO sites (title, domain) VALUES (?, ?)")
+func (ds *datastore) Create(ctx context.Context, site *sitesv1alpha2.Site) error {
+	stmt, err := ds.DB.PrepareContext(ctx, "INSERT INTO sites (title, domain) VALUES (?, ?)")
 	if err != nil {
 		return err
 	}
 
-	if _, err = stmt.Exec(site.Title, site.Domain); err != nil {
+	if _, err = stmt.ExecContext(ctx, site.Title, site.Domain); err != nil {
 		if err.(*mysql.MySQLError).Number == 1062 {
 			return status.Error(codes.AlreadyExists, "site already exists")
 		}
@@ -66,11 +67,11 @@ func (ds *datastore) Create(site *sitesv1alpha2.Site) error {
 	return nil
 }
 
-func (ds *datastore) Get(sitedomain string) (*sitesv1alpha2.Site, error) {
+func (ds *datastore) Get(ctx context.Context, sitedomain string) (*sitesv1alpha2.Site, error) {
 	site := new(sitesv1alpha2.Site)
 	var createTime mysql.NullTime
 	var updateTime mysql.NullTime
-	if err := ds.DB.QueryRow("SELECT title, domain, createtime, updatetime FROM sites WHERE domain=?", sitedomain).
+	if err := ds.DB.QueryRowContext(ctx, "SELECT title, domain, createtime, updatetime FROM sites WHERE domain=?", sitedomain).
 		Scan(&site.Title, &site.Domain, &createTime, &updateTime); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Error(codes.NotFound, "site not found")
@@ -83,8 +84,8 @@ func (ds *datastore) Get(sitedomain string) (*sitesv1alpha2.Site, error) {
 	return site, nil
 }
 
-func (ds *datastore) Delete(sitedomain string) error {
-	result, err := ds.DB.Exec("DELETE FROM sites WHERE domain=?", sitedomain)
+func (ds *datastore) Delete(ctx context.Context, sitedomain string) error {
+	result, err := ds.DB.ExecContext(ctx, "DELETE FROM sites WHERE domain=?", sitedomain)
 	if err != nil {
 		return err
 	}

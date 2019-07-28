@@ -62,7 +62,7 @@ func (s *Server) ListUser(ctx context.Context, req *usersv1alpha2.ListUserReques
 	}
 
 	sitedomain := strings.Split(parent, "/")[1]
-	users, totalSize, err := s.User.List(sitedomain, start, limit)
+	users, totalSize, err := s.User.List(ctx, sitedomain, start, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -108,11 +108,11 @@ func (s *Server) CreateUser(ctx context.Context, req *usersv1alpha2.CreateUserRe
 
 	// TODO: Check if the site is really exists.
 
-	if err := s.User.Create(sitedomain, user); err != nil {
+	if err := s.User.Create(ctx, sitedomain, user); err != nil {
 		return nil, err
 	}
 
-	res, err := s.User.Get(sitedomain, username)
+	res, err := s.User.Get(ctx, sitedomain, username)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (s *Server) GetUser(ctx context.Context, req *usersv1alpha2.GetUserRequest)
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
-	res, err := s.User.Get(sitedomain, username)
+	res, err := s.User.Get(ctx, sitedomain, username)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func (s *Server) UpdateUser(ctx context.Context, req *usersv1alpha2.UpdateUserRe
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
 
-	res, err := s.User.Get(sitedomain, username)
+	res, err := s.User.Get(ctx, sitedomain, username)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (s *Server) UpdateUser(ctx context.Context, req *usersv1alpha2.UpdateUserRe
 		return nil, err
 	}
 
-	if err := s.User.Update(sitedomain, username, res); err != nil {
+	if err := s.User.Update(ctx, sitedomain, username, res); err != nil {
 		return nil, err
 	}
 
@@ -174,7 +174,7 @@ func (s *Server) DeleteUser(ctx context.Context, req *usersv1alpha2.DeleteUserRe
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
 
-	if err := s.User.Delete(sitedomain, username); err != nil {
+	if err := s.User.Delete(ctx, sitedomain, username); err != nil {
 		return nil, err
 	}
 

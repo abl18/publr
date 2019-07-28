@@ -15,6 +15,7 @@
 package datastore
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/go-sql-driver/mysql"
@@ -28,12 +29,12 @@ import (
 
 // PostDatastore interface
 type PostDatastore interface {
-	List(sitedomain, author string, start, limit int) ([]*postsv1alpha2.Post, int, error)
-	Create(sitedomain, author string, post *postsv1alpha2.Post) error
-	Get(sitedomain, author, slug string) (*postsv1alpha2.Post, error)
-	Update(sitedomain, author, slug string, post *postsv1alpha2.Post) error
-	Delete(sitedomain, author, slug string) error
-	Search(query string) ([]*postsv1alpha2.Post, error)
+	List(ctx context.Context, sitedomain, author string, start, limit int) ([]*postsv1alpha2.Post, int, error)
+	Create(ctx context.Context, sitedomain, author string, post *postsv1alpha2.Post) error
+	Get(ctx context.Context, sitedomain, author, slug string) (*postsv1alpha2.Post, error)
+	Update(ctx context.Context, sitedomain, author, slug string, post *postsv1alpha2.Post) error
+	Delete(ctx context.Context, sitedomain, author, slug string) error
+	Search(ctx context.Context, query string) ([]*postsv1alpha2.Post, error)
 }
 
 // datastore implement users service datastore
@@ -53,7 +54,7 @@ func NewPostDatastoreWithDB(database *sql.DB) PostDatastore {
 	return ds
 }
 
-func (ds *datastore) List(sitedomain, author string, start, limit int) ([]*postsv1alpha2.Post, int, error) {
+func (ds *datastore) List(ctx context.Context, sitedomain, author string, start, limit int) ([]*postsv1alpha2.Post, int, error) {
 	var posts []*postsv1alpha2.Post
 	var foundRows int
 
@@ -74,7 +75,7 @@ func (ds *datastore) List(sitedomain, author string, start, limit int) ([]*posts
 		WHERE ps.site_domain = ? AND ( NULLIF(?, '') IS NULL OR pa.author_username = ? )
 	`
 
-	rows, err := ds.DB.Query(sqlrows, sitedomain, author, author, start, limit)
+	rows, err := ds.DB.QueryContext(ctx, sqlrows, sitedomain, author, author, start, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -102,31 +103,31 @@ func (ds *datastore) List(sitedomain, author string, start, limit int) ([]*posts
 	return posts, foundRows, nil
 }
 
-func (ds *datastore) Create(sitedomain, author string, post *postsv1alpha2.Post) error {
-	tx, err := ds.DB.Begin()
+func (ds *datastore) Create(ctx context.Context, sitedomain, author string, post *postsv1alpha2.Post) error {
+	tx, err := ds.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 	{
-		stmt, err := tx.Prepare("INSERT INTO posts (title, slug, html, image, published) VALUES (?, ?, ?, ?, ?)")
+		stmt, err := tx.PrepareContext(ctx, "INSERT INTO posts (title, slug, html, image, published) VALUES (?, ?, ?, ?, ?)")
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 		defer stmt.Close()
-		if _, err := stmt.Exec(post.Title, post.Slug, post.Html, post.Image, post.Published); err != nil {
+		if _, err := stmt.ExecContext(ctx, post.Title, post.Slug, post.Html, post.Image, post.Published); err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 	{
-		stmt, err := tx.Prepare("INSERT INTO post_sites (post_slug, site_domain) VALUES (?, ?)")
+		stmt, err := tx.PrepareContext(ctx, "INSERT INTO post_sites (post_slug, site_domain) VALUES (?, ?)")
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 		defer stmt.Close()
-		if _, err := stmt.Exec(post.Slug, sitedomain); err != nil {
+		if _, err := stmt.ExecContext(ctx, post.Slug, sitedomain); err != nil {
 			tx.Rollback()
 			if err.(*mysql.MySQLError).Number == 1062 {
 				return status.Error(codes.AlreadyExists, "post slug already taken")
@@ -135,13 +136,13 @@ func (ds *datastore) Create(sitedomain, author string, post *postsv1alpha2.Post)
 		}
 	}
 	{
-		stmt, err := tx.Prepare("INSERT INTO post_authors (post_slug, author_username) VALUES (?, ?)")
+		stmt, err := tx.PrepareContext(ctx, "INSERT INTO post_authors (post_slug, author_username) VALUES (?, ?)")
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 		defer stmt.Close()
-		if _, err := stmt.Exec(post.Slug, author); err != nil {
+		if _, err := stmt.ExecContext(ctx, post.Slug, author); err != nil {
 			tx.Rollback()
 			if err.(*mysql.MySQLError).Number == 1062 {
 				return status.Error(codes.AlreadyExists, "cannot add author in this post")
@@ -153,7 +154,7 @@ func (ds *datastore) Create(sitedomain, author string, post *postsv1alpha2.Post)
 	return tx.Commit()
 }
 
-func (ds *datastore) Get(sitedomain, author, slug string) (*postsv1alpha2.Post, error) {
+func (ds *datastore) Get(ctx context.Context, sitedomain, author, slug string) (*postsv1alpha2.Post, error) {
 	post := new(postsv1alpha2.Post)
 	var sqlrow *sql.Row
 
@@ -165,12 +166,15 @@ func (ds *datastore) Get(sitedomain, author, slug string) (*postsv1alpha2.Post, 
 		WHERE ps.site_domain=? AND p.slug=? AND ( NULLIF(?, '') IS NULL OR pa.author_username = ? )
 	`
 
-	sqlrow = ds.DB.QueryRow(sqlquery, sitedomain, slug, author, author)
+	sqlrow = ds.DB.QueryRowContext(ctx, sqlquery, sitedomain, slug, author, author)
 
 	var createTime mysql.NullTime
 	var publishTime mysql.NullTime
 	var updateTime mysql.NullTime
 	if err := sqlrow.Scan(&post.Title, &post.Slug, &post.Html, &post.Image, &post.Published, &createTime, &publishTime, &updateTime); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, status.Error(codes.NotFound, "post not found")
+		}
 		return nil, err
 	}
 
@@ -181,11 +185,11 @@ func (ds *datastore) Get(sitedomain, author, slug string) (*postsv1alpha2.Post, 
 	return post, nil
 }
 
-func (ds *datastore) Update(sitedomain, author, slug string, post *postsv1alpha2.Post) error {
+func (ds *datastore) Update(ctx context.Context, sitedomain, author, slug string, post *postsv1alpha2.Post) error {
 	return nil
 }
 
-func (ds *datastore) Delete(sitedomain, author, slug string) error {
+func (ds *datastore) Delete(ctx context.Context, sitedomain, author, slug string) error {
 	var sqlquery = `
 		DELETE posts FROM posts
 		LEFT JOIN post_sites on posts.slug=post_sites.post_slug
@@ -193,7 +197,7 @@ func (ds *datastore) Delete(sitedomain, author, slug string) error {
 		WHERE post_sites.site_domain=? AND post_authors.author_username=? AND posts.slug=?
 	`
 
-	result, err := ds.DB.Exec(sqlquery, sitedomain, author, slug)
+	result, err := ds.DB.ExecContext(ctx, sqlquery, sitedomain, author, slug)
 	if err != nil {
 		return err
 	}
@@ -209,4 +213,6 @@ func (ds *datastore) Delete(sitedomain, author, slug string) error {
 	return nil
 }
 
-func (ds *datastore) Search(query string) ([]*postsv1alpha2.Post, error) { return nil, nil }
+func (ds *datastore) Search(ctx context.Context, query string) ([]*postsv1alpha2.Post, error) {
+	return nil, nil
+}

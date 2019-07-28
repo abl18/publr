@@ -69,7 +69,7 @@ func TestServer_CreateSite(t *testing.T) {
 					Site: testsite,
 				},
 			},
-			expectedCreateSite:  mockDatastore.EXPECT().Create(testsite).Return(nil),
+			expectedCreateSite:  mockDatastore.EXPECT().Create(context.Background(), testsite).Return(nil),
 			expectedCreateOwner: mockUserClient.EXPECT().CreateUser(gomock.Any(), &usersv1alpha2.CreateUserRequest{Parent: strings.Join([]string{"sites", testsite.Domain}, "/"), User: testsite.Owner}).Return(testsite.Owner, nil),
 			want:                testsite,
 		},
@@ -179,7 +179,7 @@ func TestServer_GetSite(t *testing.T) {
 					Name: testsite.Name,
 				},
 			},
-			expectedGetSite: mockDatastore.EXPECT().Get(testsite.Domain).Return(testsite, nil),
+			expectedGetSite: mockDatastore.EXPECT().Get(context.Background(), testsite.Domain).Return(testsite, nil),
 			want:            testsite,
 		},
 		{
@@ -190,7 +190,7 @@ func TestServer_GetSite(t *testing.T) {
 					Name: strings.Join([]string{"sites", "notfound"}, "/"),
 				},
 			},
-			expectedGetSite: mockDatastore.EXPECT().Get("notfound").Return(nil, status.Error(codes.NotFound, "site not found")),
+			expectedGetSite: mockDatastore.EXPECT().Get(context.Background(), "notfound").Return(nil, status.Error(codes.NotFound, "site not found")),
 			wantErr:         true,
 		},
 	}
@@ -241,7 +241,7 @@ func TestServer_DeleteSite(t *testing.T) {
 					Name: testsite.Name,
 				},
 			},
-			expectedDeleteSite: mockDatastore.EXPECT().Delete(testsite.Domain).Return(nil),
+			expectedDeleteSite: mockDatastore.EXPECT().Delete(context.Background(), testsite.Domain).Return(nil),
 			want:               &empty.Empty{},
 		},
 		{
@@ -252,7 +252,7 @@ func TestServer_DeleteSite(t *testing.T) {
 					Name: strings.Join([]string{"sites", "notfound"}, "/"),
 				},
 			},
-			expectedDeleteSite: mockDatastore.EXPECT().Delete("notfound").Return(status.Error(codes.NotFound, "site not found")),
+			expectedDeleteSite: mockDatastore.EXPECT().Delete(context.Background(), "notfound").Return(status.Error(codes.NotFound, "site not found")),
 			wantErr:            true,
 		},
 	}

@@ -15,6 +15,7 @@
 package datastore
 
 import (
+	"context"
 	"database/sql"
 	"reflect"
 	"testing"
@@ -32,6 +33,7 @@ func Test_datastore_List(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	timestamp := time.Now()
 	protoTimestamp, err := ptypes.TimestampProto(timestamp)
 	if err != nil {
@@ -101,6 +103,7 @@ func Test_datastore_List(t *testing.T) {
 	`
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 		author     string
 		start      int
@@ -118,6 +121,7 @@ func Test_datastore_List(t *testing.T) {
 		{
 			name: "Test list post",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				author:     author,
 				start:      0,
@@ -132,7 +136,7 @@ func Test_datastore_List(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewPostDatastoreWithDB(database)
-			got, got1, err := datastore.List(tt.args.sitedomain, tt.args.author, tt.args.start, tt.args.limit)
+			got, got1, err := datastore.List(tt.args.context, tt.args.sitedomain, tt.args.author, tt.args.start, tt.args.limit)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("datastore.List() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -153,6 +157,7 @@ func Test_datastore_Create(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	sitedomain := "mysites.site"
 	author := "testauthor"
 
@@ -165,6 +170,7 @@ func Test_datastore_Create(t *testing.T) {
 	}
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 		author     string
 		post       *postsv1alpha2.Post
@@ -183,6 +189,7 @@ func Test_datastore_Create(t *testing.T) {
 		{
 			name: "Test create post",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				author:     author,
 				post:       post,
@@ -197,7 +204,7 @@ func Test_datastore_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewPostDatastoreWithDB(database)
-			if err := datastore.Create(tt.args.sitedomain, tt.args.author, tt.args.post); (err != nil) != tt.wantErr {
+			if err := datastore.Create(tt.args.context, tt.args.sitedomain, tt.args.author, tt.args.post); (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -210,6 +217,7 @@ func Test_datastore_Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	timestamp := time.Now()
 	protoTimestamp, err := ptypes.TimestampProto(timestamp)
 	if err != nil {
@@ -242,6 +250,7 @@ func Test_datastore_Get(t *testing.T) {
 		AddRow(post.Title, post.Slug, post.Html, post.Image, post.Published, timestamp, timestamp, timestamp)
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 		author     string
 		slug       string
@@ -256,6 +265,7 @@ func Test_datastore_Get(t *testing.T) {
 		{
 			name: "Test get post",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				author:     author,
 				slug:       slug,
@@ -266,6 +276,7 @@ func Test_datastore_Get(t *testing.T) {
 		{
 			name: "Test get post not found",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				author:     author,
 				slug:       "notfound",
@@ -277,7 +288,7 @@ func Test_datastore_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewPostDatastoreWithDB(database)
-			got, err := datastore.Get(tt.args.sitedomain, tt.args.author, tt.args.slug)
+			got, err := datastore.Get(tt.args.context, tt.args.sitedomain, tt.args.author, tt.args.slug)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Get() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -294,6 +305,7 @@ func Test_datastore_Update(t *testing.T) {
 		DB *sql.DB
 	}
 	type args struct {
+		context    context.Context
 		sitedomain string
 		author     string
 		slug       string
@@ -312,7 +324,7 @@ func Test_datastore_Update(t *testing.T) {
 			ds := &datastore{
 				DB: tt.fields.DB,
 			}
-			if err := ds.Update(tt.args.sitedomain, tt.args.author, tt.args.slug, tt.args.post); (err != nil) != tt.wantErr {
+			if err := ds.Update(tt.args.context, tt.args.sitedomain, tt.args.author, tt.args.slug, tt.args.post); (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Update() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -325,6 +337,7 @@ func Test_datastore_Delete(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	sitedomain := "mysites.site"
 	author := "testauthor"
 	slug := "first-post"
@@ -336,6 +349,7 @@ func Test_datastore_Delete(t *testing.T) {
 	`
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 		author     string
 		slug       string
@@ -349,6 +363,7 @@ func Test_datastore_Delete(t *testing.T) {
 		{
 			name: "Test delete post",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				author:     author,
 				slug:       slug,
@@ -358,6 +373,7 @@ func Test_datastore_Delete(t *testing.T) {
 		{
 			name: "Test delete post not found",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				author:     author,
 				slug:       "notfound",
@@ -369,7 +385,7 @@ func Test_datastore_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewPostDatastoreWithDB(database)
-			if err := datastore.Delete(tt.args.sitedomain, tt.args.author, tt.args.slug); (err != nil) != tt.wantErr {
+			if err := datastore.Delete(tt.args.context, tt.args.sitedomain, tt.args.author, tt.args.slug); (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Delete() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -381,7 +397,8 @@ func Test_datastore_Search(t *testing.T) {
 		DB *sql.DB
 	}
 	type args struct {
-		query string
+		context context.Context
+		query   string
 	}
 	tests := []struct {
 		name    string
@@ -397,7 +414,7 @@ func Test_datastore_Search(t *testing.T) {
 			ds := &datastore{
 				DB: tt.fields.DB,
 			}
-			got, err := ds.Search(tt.args.query)
+			got, err := ds.Search(tt.args.context, tt.args.query)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Search() error = %v, wantErr %v", err, tt.wantErr)
 				return

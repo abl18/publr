@@ -7,6 +7,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//pkg/log:go_default_library",
+        "//vendor/contrib.go.opencensus.io/integrations/ocsql:go_default_library",
         "//vendor/github.com/go-sql-driver/mysql:go_default_library",
     ],
 )

@@ -69,14 +69,14 @@ func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha2.CreateSiteRe
 	}
 
 	sitedomain := site.Domain
-	if err := s.Site.Create(site); err != nil {
+	if err := s.Site.Create(ctx, site); err != nil {
 		return nil, err
 	}
 
 	owner.Role = 3
 	ownerres, err := s.UserClient.CreateUser(ctx, &usersv1alpha2.CreateUserRequest{Parent: strings.Join([]string{"sites", sitedomain}, "/"), User: owner})
 	if err != nil {
-		return nil, s.Site.Delete(sitedomain)
+		return nil, s.Site.Delete(ctx, sitedomain)
 	}
 
 	res := new(sitesv1alpha2.Site)
@@ -90,7 +90,7 @@ func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha2.CreateSiteRe
 func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha2.GetSiteRequest) (*sitesv1alpha2.Site, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
-	res, err := s.Site.Get(sitedomain)
+	res, err := s.Site.Get(ctx, sitedomain)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (s *Server) DeleteSite(ctx context.Context, req *sitesv1alpha2.DeleteSiteRe
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 
-	if err := s.Site.Delete(sitedomain); err != nil {
+	if err := s.Site.Delete(ctx, sitedomain); err != nil {
 		return nil, err
 	}
 

@@ -1,6 +1,8 @@
 # contrib.go.opencensus.io/exporter/jaeger v0.1.0
 contrib.go.opencensus.io/exporter/jaeger
 contrib.go.opencensus.io/exporter/jaeger/internal/gen-go/jaeger
+# contrib.go.opencensus.io/integrations/ocsql v0.1.5-0.20190624063948-41ee6eb7a3ea
+contrib.go.opencensus.io/integrations/ocsql
 # github.com/DATA-DOG/go-sqlmock v1.3.3
 github.com/DATA-DOG/go-sqlmock
 # github.com/apache/thrift v0.12.0

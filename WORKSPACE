@@ -329,6 +329,6 @@ go_repository(
 
 go_repository(
     name = "io_opencensus_go_contrib_integrations_ocsql",
+    commit = "41ee6eb7a3ea",
     importpath = "contrib.go.opencensus.io/integrations/ocsql",
-    tag = "v0.1.4",
 )

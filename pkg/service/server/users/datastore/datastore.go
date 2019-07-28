@@ -15,6 +15,7 @@
 package datastore
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/go-sql-driver/mysql"
@@ -28,12 +29,12 @@ import (
 
 // UserDatastore interface
 type UserDatastore interface {
-	List(sitedomain string, start, offset int) ([]*usersv1alpha2.User, int, error)
-	Create(sitedomain string, user *usersv1alpha2.User) error
-	Get(sitedomain, username string) (*usersv1alpha2.User, error)
-	Update(sitedomain, username string, user *usersv1alpha2.User) error
-	Delete(sitedomain, username string) error
-	Search(query string) ([]*usersv1alpha2.User, error)
+	List(ctx context.Context, sitedomain string, start, offset int) ([]*usersv1alpha2.User, int, error)
+	Create(ctx context.Context, sitedomain string, user *usersv1alpha2.User) error
+	Get(ctx context.Context, sitedomain, username string) (*usersv1alpha2.User, error)
+	Update(ctx context.Context, sitedomain, username string, user *usersv1alpha2.User) error
+	Delete(ctx context.Context, sitedomain, username string) error
+	Search(ctx context.Context, query string) ([]*usersv1alpha2.User, error)
 }
 
 // datastore implement users service datastore
@@ -53,7 +54,7 @@ func NewUserDatastoreWithDB(database *sql.DB) UserDatastore {
 	return ds
 }
 
-func (ds *datastore) List(sitedomain string, start, limit int) ([]*usersv1alpha2.User, int, error) {
+func (ds *datastore) List(ctx context.Context, sitedomain string, start, limit int) ([]*usersv1alpha2.User, int, error) {
 	var users []*usersv1alpha2.User
 	var foundRows int
 
@@ -72,7 +73,7 @@ func (ds *datastore) List(sitedomain string, start, limit int) ([]*usersv1alpha2
 		WHERE su.site_domain=?
 	`
 
-	rows, err := ds.DB.Query(sqlrows, sitedomain, start, limit)
+	rows, err := ds.DB.QueryContext(ctx, sqlrows, sitedomain, start, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -90,38 +91,38 @@ func (ds *datastore) List(sitedomain string, start, limit int) ([]*usersv1alpha2
 		users = append(users, &user)
 	}
 
-	if err := ds.DB.QueryRow(sqlcount, sitedomain).Scan(&foundRows); err != nil {
+	if err := ds.DB.QueryRowContext(ctx, sqlcount, sitedomain).Scan(&foundRows); err != nil {
 		return nil, 0, err
 	}
 
 	return users, foundRows, nil
 }
 
-func (ds *datastore) Create(sitedomain string, user *usersv1alpha2.User) error {
-	tx, err := ds.DB.Begin()
+func (ds *datastore) Create(ctx context.Context, sitedomain string, user *usersv1alpha2.User) error {
+	tx, err := ds.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 	{
-		stmt, err := tx.Prepare("INSERT INTO users (email, username, fullname) VALUES (?, ?, ?)")
+		stmt, err := tx.PrepareContext(ctx, "INSERT INTO users (email, username, fullname) VALUES (?, ?, ?)")
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 		defer stmt.Close()
-		if _, err := stmt.Exec(user.Email, user.Username, user.Fullname); err != nil {
+		if _, err := stmt.ExecContext(ctx, user.Email, user.Username, user.Fullname); err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 	{
-		stmt, err := tx.Prepare("INSERT INTO site_users (user_username, site_domain, role) VALUES (?, ?, ?)")
+		stmt, err := tx.PrepareContext(ctx, "INSERT INTO site_users (user_username, site_domain, role) VALUES (?, ?, ?)")
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 		defer stmt.Close()
-		if _, err := stmt.Exec(user.Username, sitedomain, user.Role); err != nil {
+		if _, err := stmt.ExecContext(ctx, user.Username, sitedomain, user.Role); err != nil {
 			tx.Rollback()
 			if err.(*mysql.MySQLError).Number == 1062 {
 				return status.Error(codes.AlreadyExists, "user already exists")
@@ -133,7 +134,7 @@ func (ds *datastore) Create(sitedomain string, user *usersv1alpha2.User) error {
 	return tx.Commit()
 }
 
-func (ds *datastore) Get(sitedomain, username string) (*usersv1alpha2.User, error) {
+func (ds *datastore) Get(ctx context.Context, sitedomain, username string) (*usersv1alpha2.User, error) {
 	user := new(usersv1alpha2.User)
 	var createTime mysql.NullTime
 	var updateTime mysql.NullTime
@@ -143,7 +144,7 @@ func (ds *datastore) Get(sitedomain, username string) (*usersv1alpha2.User, erro
 		LEFT JOIN site_users AS su on u.username=su.user_username
 		WHERE username=? AND su.site_domain=?
 	`
-	if err := ds.DB.QueryRow(sqlquery, username, sitedomain).
+	if err := ds.DB.QueryRowContext(ctx, sqlquery, username, sitedomain).
 		Scan(&user.Email, &user.Username, &user.Fullname, &user.Role, &createTime, &updateTime); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, status.Error(codes.NotFound, "user not found")
@@ -156,32 +157,32 @@ func (ds *datastore) Get(sitedomain, username string) (*usersv1alpha2.User, erro
 	return user, nil
 }
 
-func (ds *datastore) Update(sitedomain, username string, user *usersv1alpha2.User) error {
+func (ds *datastore) Update(ctx context.Context, sitedomain, username string, user *usersv1alpha2.User) error {
 	var sqlquery = `
 		UPDATE users AS u LEFT JOIN site_users AS su on u.username=su.user_username
 		SET u.username=?, u.fullname=?, su.role=?
 		WHERE u.username=? AND su.site_domain=?
 	`
-	stmt, err := ds.DB.Prepare(sqlquery)
+	stmt, err := ds.DB.PrepareContext(ctx, sqlquery)
 	if err != nil {
 		return err
 	}
 
-	if _, err := stmt.Exec(user.Username, user.Fullname, user.Role, username, sitedomain); err != nil {
+	if _, err := stmt.ExecContext(ctx, user.Username, user.Fullname, user.Role, username, sitedomain); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (ds *datastore) Delete(sitedomain, username string) error {
+func (ds *datastore) Delete(ctx context.Context, sitedomain, username string) error {
 	var sqlquery = `
 		DELETE users FROM users
 		LEFT JOIN site_users on users.username=site_users.user_username
 		WHERE site_users.site_domain=? AND users.username=?
 	`
 
-	result, err := ds.DB.Exec(sqlquery, sitedomain, username)
+	result, err := ds.DB.ExecContext(ctx, sqlquery, sitedomain, username)
 	if err != nil {
 		return err
 	}
@@ -197,4 +198,6 @@ func (ds *datastore) Delete(sitedomain, username string) error {
 	return nil
 }
 
-func (ds *datastore) Search(query string) ([]*usersv1alpha2.User, error) { return nil, nil }
+func (ds *datastore) Search(ctx context.Context, query string) ([]*usersv1alpha2.User, error) {
+	return nil, nil
+}

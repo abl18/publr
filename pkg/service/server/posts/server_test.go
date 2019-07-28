@@ -89,7 +89,7 @@ func TestServer_ListPost(t *testing.T) {
 					Parent: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor"}, "/"),
 				},
 			},
-			expectedListPosts: mockDatastore.EXPECT().List("mysites.site", "testauthor", 0, 10).Return(testpostlist.Posts, len(testpostlist.Posts), nil),
+			expectedListPosts: mockDatastore.EXPECT().List(context.Background(), "mysites.site", "testauthor", 0, 10).Return(testpostlist.Posts, len(testpostlist.Posts), nil),
 			want:              testpostlist,
 		},
 		{
@@ -101,7 +101,7 @@ func TestServer_ListPost(t *testing.T) {
 					PageSize: 2,
 				},
 			},
-			expectedListPosts: mockDatastore.EXPECT().List("mysites.site", "testauthor", 0, 2).Return(testpostlist.Posts[0:2], len(testpostlist.Posts), nil),
+			expectedListPosts: mockDatastore.EXPECT().List(context.Background(), "mysites.site", "testauthor", 0, 2).Return(testpostlist.Posts[0:2], len(testpostlist.Posts), nil),
 			want: &postsv1alpha2.PostList{
 				Posts:         testpostlist.Posts[0:2],
 				NextPageToken: pageToken.Generate(2),
@@ -117,7 +117,7 @@ func TestServer_ListPost(t *testing.T) {
 					PageToken: pageToken.Generate(2),
 				},
 			},
-			expectedListPosts: mockDatastore.EXPECT().List("mysites.site", "testauthor", 2, 2).Return(testpostlist.Posts[2:4], len(testpostlist.Posts), nil),
+			expectedListPosts: mockDatastore.EXPECT().List(context.Background(), "mysites.site", "testauthor", 2, 2).Return(testpostlist.Posts[2:4], len(testpostlist.Posts), nil),
 			want: &postsv1alpha2.PostList{
 				Posts: testpostlist.Posts[2:4],
 			},
@@ -174,8 +174,8 @@ func TestServer_CreatePost(t *testing.T) {
 					Post:   testpost,
 				},
 			},
-			expectedCreatePost: mockDatastore.EXPECT().Create("mysites.site", "testauthor", testpost).Return(nil),
-			expectedGetPost:    mockDatastore.EXPECT().Get("mysites.site", "testauthor", testpost.Slug).Return(testpost, nil),
+			expectedCreatePost: mockDatastore.EXPECT().Create(context.Background(), "mysites.site", "testauthor", testpost).Return(nil),
+			expectedGetPost:    mockDatastore.EXPECT().Get(context.Background(), "mysites.site", "testauthor", testpost.Slug).Return(testpost, nil),
 			want:               testpost,
 		},
 		{
@@ -284,7 +284,7 @@ func TestServer_GetPost(t *testing.T) {
 					Name: testpost.Name,
 				},
 			},
-			expectedGetPost: mockDatastore.EXPECT().Get("mysites.site", "testauthor", testpost.Slug).Return(testpost, nil),
+			expectedGetPost: mockDatastore.EXPECT().Get(context.Background(), "mysites.site", "testauthor", testpost.Slug).Return(testpost, nil),
 			want:            testpost,
 		},
 		{
@@ -295,7 +295,7 @@ func TestServer_GetPost(t *testing.T) {
 					Name: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor", "posts", "notfound"}, "/"),
 				},
 			},
-			expectedGetPost: mockDatastore.EXPECT().Get("mysites.site", "testauthor", "notfound").Return(nil, status.Error(codes.NotFound, "post not found")),
+			expectedGetPost: mockDatastore.EXPECT().Get(context.Background(), "mysites.site", "testauthor", "notfound").Return(nil, status.Error(codes.NotFound, "post not found")),
 			wantErr:         true,
 		},
 	}
@@ -372,7 +372,7 @@ func TestServer_DeletePost(t *testing.T) {
 					Name: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor", "posts", "first-post"}, "/"),
 				},
 			},
-			expectedDeletePost: mockDatastore.EXPECT().Delete("mysites.site", "testauthor", "first-post").Return(nil),
+			expectedDeletePost: mockDatastore.EXPECT().Delete(context.Background(), "mysites.site", "testauthor", "first-post").Return(nil),
 			want:               &empty.Empty{},
 		},
 		{
@@ -383,7 +383,7 @@ func TestServer_DeletePost(t *testing.T) {
 					Name: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor", "posts", "notfound"}, "/"),
 				},
 			},
-			expectedDeletePost: mockDatastore.EXPECT().Delete("mysites.site", "testauthor", "notfound").Return(status.Error(codes.NotFound, "post not found")),
+			expectedDeletePost: mockDatastore.EXPECT().Delete(context.Background(), "mysites.site", "testauthor", "notfound").Return(status.Error(codes.NotFound, "post not found")),
 			wantErr:            true,
 		},
 	}

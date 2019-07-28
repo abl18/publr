@@ -19,6 +19,7 @@
 package mock_datastore
 
 import (
+	context "context"
 	gomock "github.com/golang/mock/gomock"
 	v1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
 	reflect "reflect"
@@ -48,44 +49,44 @@ func (m *MockSiteDatastore) EXPECT() *MockSiteDatastoreMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockSiteDatastore) Create(site *v1alpha2.Site) error {
+func (m *MockSiteDatastore) Create(ctx context.Context, site *v1alpha2.Site) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", site)
+	ret := m.ctrl.Call(m, "Create", ctx, site)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create
-func (mr *MockSiteDatastoreMockRecorder) Create(site interface{}) *gomock.Call {
+func (mr *MockSiteDatastoreMockRecorder) Create(ctx, site interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockSiteDatastore)(nil).Create), site)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockSiteDatastore)(nil).Create), ctx, site)
 }
 
 // Get mocks base method
-func (m *MockSiteDatastore) Get(sitedomain string) (*v1alpha2.Site, error) {
+func (m *MockSiteDatastore) Get(ctx context.Context, sitedomain string) (*v1alpha2.Site, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", sitedomain)
+	ret := m.ctrl.Call(m, "Get", ctx, sitedomain)
 	ret0, _ := ret[0].(*v1alpha2.Site)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get
-func (mr *MockSiteDatastoreMockRecorder) Get(sitedomain interface{}) *gomock.Call {
+func (mr *MockSiteDatastoreMockRecorder) Get(ctx, sitedomain interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSiteDatastore)(nil).Get), sitedomain)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSiteDatastore)(nil).Get), ctx, sitedomain)
 }
 
 // Delete mocks base method
-func (m *MockSiteDatastore) Delete(sitedomain string) error {
+func (m *MockSiteDatastore) Delete(ctx context.Context, sitedomain string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", sitedomain)
+	ret := m.ctrl.Call(m, "Delete", ctx, sitedomain)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete
-func (mr *MockSiteDatastoreMockRecorder) Delete(sitedomain interface{}) *gomock.Call {
+func (mr *MockSiteDatastoreMockRecorder) Delete(ctx, sitedomain interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSiteDatastore)(nil).Delete), sitedomain)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSiteDatastore)(nil).Delete), ctx, sitedomain)
 }

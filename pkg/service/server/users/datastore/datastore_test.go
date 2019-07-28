@@ -15,6 +15,7 @@
 package datastore
 
 import (
+	"context"
 	"database/sql"
 	"reflect"
 	"testing"
@@ -38,6 +39,7 @@ func Test_datastore_List(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	sitedomain := "mysites.site"
 	users := []*usersv1alpha2.User{
 		{
@@ -93,6 +95,7 @@ func Test_datastore_List(t *testing.T) {
 	`
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 		start      int
 		limit      int
@@ -109,6 +112,7 @@ func Test_datastore_List(t *testing.T) {
 		{
 			name: "Test list users",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				start:      0,
 				limit:      10,
@@ -123,7 +127,7 @@ func Test_datastore_List(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewUserDatastoreWithDB(database)
-			got, got1, err := datastore.List(tt.args.sitedomain, tt.args.start, tt.args.limit)
+			got, got1, err := datastore.List(tt.args.context, tt.args.sitedomain, tt.args.start, tt.args.limit)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("datastore.List() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -144,6 +148,7 @@ func Test_datastore_Create(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	sitedomain := "mysites.site"
 	user := &usersv1alpha2.User{
 		Email:    "testuser@mysites.site",
@@ -157,6 +162,7 @@ func Test_datastore_Create(t *testing.T) {
 	}
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 		user       *usersv1alpha2.User
 	}
@@ -173,6 +179,7 @@ func Test_datastore_Create(t *testing.T) {
 		{
 			name: "Test create user",
 			args: args{
+				ctx,
 				sitedomain,
 				user,
 			},
@@ -185,7 +192,7 @@ func Test_datastore_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewUserDatastoreWithDB(database)
-			if err := datastore.Create(tt.args.sitedomain, tt.args.user); (err != nil) != tt.wantErr {
+			if err := datastore.Create(tt.args.context, tt.args.sitedomain, tt.args.user); (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -210,6 +217,7 @@ func Test_datastore_Get(t *testing.T) {
 		LEFT JOIN site_users AS su on u.username=su.user_username
 	`
 
+	ctx := context.Background()
 	sitedomain := "mysites.site"
 	user := &usersv1alpha2.User{
 		Email:      "testuser@mysites.site",
@@ -224,6 +232,7 @@ func Test_datastore_Get(t *testing.T) {
 		AddRow(user.Email, user.Username, user.Fullname, user.Role, timestamp, timestamp)
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 		username   string
 	}
@@ -237,6 +246,7 @@ func Test_datastore_Get(t *testing.T) {
 		{
 			name: "Test get user",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				username:   user.Username,
 			},
@@ -246,6 +256,7 @@ func Test_datastore_Get(t *testing.T) {
 		{
 			name: "Test get user not found",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				username:   "notfound",
 			},
@@ -256,7 +267,7 @@ func Test_datastore_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewUserDatastoreWithDB(database)
-			got, err := datastore.Get(tt.args.sitedomain, tt.args.username)
+			got, err := datastore.Get(tt.args.context, tt.args.sitedomain, tt.args.username)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Get() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -280,6 +291,7 @@ func Test_datastore_Update(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	sitedomain := "mysites.site"
 	user := &usersv1alpha2.User{
 		Email:      "testuser@mysites.site",
@@ -303,6 +315,7 @@ func Test_datastore_Update(t *testing.T) {
 	`
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 		username   string
 		user       *usersv1alpha2.User
@@ -316,6 +329,7 @@ func Test_datastore_Update(t *testing.T) {
 		{
 			name: "Test update users",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				username:   user.Username,
 				user:       updateuser,
@@ -326,7 +340,7 @@ func Test_datastore_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewUserDatastoreWithDB(database)
-			if err := datastore.Update(tt.args.sitedomain, tt.args.username, tt.args.user); (err != nil) != tt.wantErr {
+			if err := datastore.Update(tt.args.context, tt.args.sitedomain, tt.args.username, tt.args.user); (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Update() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -339,6 +353,7 @@ func Test_datastore_Delete(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	sitedomain := "mysites.site"
 	username := "testuser"
 
@@ -348,6 +363,7 @@ func Test_datastore_Delete(t *testing.T) {
 	`
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 		username   string
 	}
@@ -360,6 +376,7 @@ func Test_datastore_Delete(t *testing.T) {
 		{
 			name: "Test delete user",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				username:   username,
 			},
@@ -368,6 +385,7 @@ func Test_datastore_Delete(t *testing.T) {
 		{
 			name: "Test delete user not found",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 				username:   "notfound",
 			},
@@ -378,7 +396,7 @@ func Test_datastore_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewUserDatastoreWithDB(database)
-			if err := datastore.Delete(tt.args.sitedomain, tt.args.username); (err != nil) != tt.wantErr {
+			if err := datastore.Delete(tt.args.context, tt.args.sitedomain, tt.args.username); (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Delete() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

@@ -19,6 +19,7 @@
 package mock_datastore
 
 import (
+	context "context"
 	gomock "github.com/golang/mock/gomock"
 	v1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
 	reflect "reflect"
@@ -48,9 +49,9 @@ func (m *MockUserDatastore) EXPECT() *MockUserDatastoreMockRecorder {
 }
 
 // List mocks base method
-func (m *MockUserDatastore) List(sitedomain string, start, offset int) ([]*v1alpha2.User, int, error) {
+func (m *MockUserDatastore) List(ctx context.Context, sitedomain string, start, offset int) ([]*v1alpha2.User, int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", sitedomain, start, offset)
+	ret := m.ctrl.Call(m, "List", ctx, sitedomain, start, offset)
 	ret0, _ := ret[0].([]*v1alpha2.User)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
@@ -58,79 +59,79 @@ func (m *MockUserDatastore) List(sitedomain string, start, offset int) ([]*v1alp
 }
 
 // List indicates an expected call of List
-func (mr *MockUserDatastoreMockRecorder) List(sitedomain, start, offset interface{}) *gomock.Call {
+func (mr *MockUserDatastoreMockRecorder) List(ctx, sitedomain, start, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserDatastore)(nil).List), sitedomain, start, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockUserDatastore)(nil).List), ctx, sitedomain, start, offset)
 }
 
 // Create mocks base method
-func (m *MockUserDatastore) Create(sitedomain string, user *v1alpha2.User) error {
+func (m *MockUserDatastore) Create(ctx context.Context, sitedomain string, user *v1alpha2.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", sitedomain, user)
+	ret := m.ctrl.Call(m, "Create", ctx, sitedomain, user)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create
-func (mr *MockUserDatastoreMockRecorder) Create(sitedomain, user interface{}) *gomock.Call {
+func (mr *MockUserDatastoreMockRecorder) Create(ctx, sitedomain, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserDatastore)(nil).Create), sitedomain, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserDatastore)(nil).Create), ctx, sitedomain, user)
 }
 
 // Get mocks base method
-func (m *MockUserDatastore) Get(sitedomain, username string) (*v1alpha2.User, error) {
+func (m *MockUserDatastore) Get(ctx context.Context, sitedomain, username string) (*v1alpha2.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", sitedomain, username)
+	ret := m.ctrl.Call(m, "Get", ctx, sitedomain, username)
 	ret0, _ := ret[0].(*v1alpha2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get
-func (mr *MockUserDatastoreMockRecorder) Get(sitedomain, username interface{}) *gomock.Call {
+func (mr *MockUserDatastoreMockRecorder) Get(ctx, sitedomain, username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUserDatastore)(nil).Get), sitedomain, username)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUserDatastore)(nil).Get), ctx, sitedomain, username)
 }
 
 // Update mocks base method
-func (m *MockUserDatastore) Update(sitedomain, username string, user *v1alpha2.User) error {
+func (m *MockUserDatastore) Update(ctx context.Context, sitedomain, username string, user *v1alpha2.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", sitedomain, username, user)
+	ret := m.ctrl.Call(m, "Update", ctx, sitedomain, username, user)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update
-func (mr *MockUserDatastoreMockRecorder) Update(sitedomain, username, user interface{}) *gomock.Call {
+func (mr *MockUserDatastoreMockRecorder) Update(ctx, sitedomain, username, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserDatastore)(nil).Update), sitedomain, username, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserDatastore)(nil).Update), ctx, sitedomain, username, user)
 }
 
 // Delete mocks base method
-func (m *MockUserDatastore) Delete(sitedomain, username string) error {
+func (m *MockUserDatastore) Delete(ctx context.Context, sitedomain, username string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", sitedomain, username)
+	ret := m.ctrl.Call(m, "Delete", ctx, sitedomain, username)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete
-func (mr *MockUserDatastoreMockRecorder) Delete(sitedomain, username interface{}) *gomock.Call {
+func (mr *MockUserDatastoreMockRecorder) Delete(ctx, sitedomain, username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUserDatastore)(nil).Delete), sitedomain, username)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUserDatastore)(nil).Delete), ctx, sitedomain, username)
 }
 
 // Search mocks base method
-func (m *MockUserDatastore) Search(query string) ([]*v1alpha2.User, error) {
+func (m *MockUserDatastore) Search(ctx context.Context, query string) ([]*v1alpha2.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Search", query)
+	ret := m.ctrl.Call(m, "Search", ctx, query)
 	ret0, _ := ret[0].([]*v1alpha2.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Search indicates an expected call of Search
-func (mr *MockUserDatastoreMockRecorder) Search(query interface{}) *gomock.Call {
+func (mr *MockUserDatastoreMockRecorder) Search(ctx, query interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockUserDatastore)(nil).Search), query)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockUserDatastore)(nil).Search), ctx, query)
 }

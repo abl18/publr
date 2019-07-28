@@ -89,7 +89,7 @@ func TestServer_ListUser(t *testing.T) {
 					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
 				},
 			},
-			expectedListUsers: mockDatastore.EXPECT().List("mysites.site", 0, 10).Return(testuserlist.Users, len(testuserlist.Users), nil),
+			expectedListUsers: mockDatastore.EXPECT().List(context.Background(), "mysites.site", 0, 10).Return(testuserlist.Users, len(testuserlist.Users), nil),
 			want:              testuserlist,
 			wantErr:           false,
 		},
@@ -102,7 +102,7 @@ func TestServer_ListUser(t *testing.T) {
 					PageSize: 2,
 				},
 			},
-			expectedListUsers: mockDatastore.EXPECT().List("mysites.site", 0, 2).Return(testuserlist.Users[0:2], len(testuserlist.Users), nil),
+			expectedListUsers: mockDatastore.EXPECT().List(context.Background(), "mysites.site", 0, 2).Return(testuserlist.Users[0:2], len(testuserlist.Users), nil),
 			want: &usersv1alpha2.UserList{
 				Users:         testuserlist.Users[0:2],
 				NextPageToken: pageToken.Generate(2),
@@ -119,7 +119,7 @@ func TestServer_ListUser(t *testing.T) {
 					PageToken: pageToken.Generate(2),
 				},
 			},
-			expectedListUsers: mockDatastore.EXPECT().List("mysites.site", 2, 2).Return(testuserlist.Users[2:4], len(testuserlist.Users), nil),
+			expectedListUsers: mockDatastore.EXPECT().List(context.Background(), "mysites.site", 2, 2).Return(testuserlist.Users[2:4], len(testuserlist.Users), nil),
 			want: &usersv1alpha2.UserList{
 				Users: testuserlist.Users[2:4],
 			},
@@ -188,8 +188,8 @@ func TestServer_CreateUser(t *testing.T) {
 					User:   testuser,
 				},
 			},
-			expectedCreateUser: mockDatastore.EXPECT().Create("mysites.site", testuser).Return(nil),
-			expectedGetUser:    mockDatastore.EXPECT().Get("mysites.site", testuser.Username).Return(testuser, nil),
+			expectedCreateUser: mockDatastore.EXPECT().Create(context.Background(), "mysites.site", testuser).Return(nil),
+			expectedGetUser:    mockDatastore.EXPECT().Get(context.Background(), "mysites.site", testuser.Username).Return(testuser, nil),
 			want:               testuser,
 		},
 		{
@@ -295,7 +295,7 @@ func TestServer_GetUser(t *testing.T) {
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 				},
 			},
-			expectedGetUser: mockDatastore.EXPECT().Get("mysites.site", testuser.Username).Return(testuser, nil),
+			expectedGetUser: mockDatastore.EXPECT().Get(context.Background(), "mysites.site", testuser.Username).Return(testuser, nil),
 			want:            testuser,
 		},
 		{
@@ -306,7 +306,7 @@ func TestServer_GetUser(t *testing.T) {
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "notfound"}, "/"),
 				},
 			},
-			expectedGetUser: mockDatastore.EXPECT().Get("mysites.site", "notfound").Return(nil, status.Error(codes.NotFound, "user not found")),
+			expectedGetUser: mockDatastore.EXPECT().Get(context.Background(), "mysites.site", "notfound").Return(nil, status.Error(codes.NotFound, "user not found")),
 			wantErr:         true,
 		},
 	}
@@ -369,8 +369,8 @@ func TestServer_UpdateUser(t *testing.T) {
 					User: testupdateuser,
 				},
 			},
-			expectedGetUser:    mockDatastore.EXPECT().Get("mysites.site", testuser.Username).Return(testuser, nil),
-			expectedUpdateUser: mockDatastore.EXPECT().Update("mysites.site", "testuser", testupdateuser).Return(nil),
+			expectedGetUser:    mockDatastore.EXPECT().Get(context.Background(), "mysites.site", testuser.Username).Return(testuser, nil),
+			expectedUpdateUser: mockDatastore.EXPECT().Update(context.Background(), "mysites.site", "testuser", testupdateuser).Return(nil),
 			want:               testupdateuser,
 		},
 		{
@@ -382,7 +382,7 @@ func TestServer_UpdateUser(t *testing.T) {
 					User: testupdateuser,
 				},
 			},
-			expectedGetUser: mockDatastore.EXPECT().Get("mysites.site", "notfound").Return(nil, status.Error(codes.NotFound, "user not found")),
+			expectedGetUser: mockDatastore.EXPECT().Get(context.Background(), "mysites.site", "notfound").Return(nil, status.Error(codes.NotFound, "user not found")),
 			wantErr:         true,
 		},
 	}
@@ -427,7 +427,7 @@ func TestServer_DeleteUser(t *testing.T) {
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 				},
 			},
-			expectedDeleteUser: mockDatastore.EXPECT().Delete("mysites.site", "testuser").Return(nil),
+			expectedDeleteUser: mockDatastore.EXPECT().Delete(context.Background(), "mysites.site", "testuser").Return(nil),
 			want:               &empty.Empty{},
 		},
 		{
@@ -438,7 +438,7 @@ func TestServer_DeleteUser(t *testing.T) {
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "notfound"}, "/"),
 				},
 			},
-			expectedDeleteUser: mockDatastore.EXPECT().Delete("mysites.site", "notfound").Return(status.Error(codes.NotFound, "user not found")),
+			expectedDeleteUser: mockDatastore.EXPECT().Delete(context.Background(), "mysites.site", "notfound").Return(status.Error(codes.NotFound, "user not found")),
 			wantErr:            true,
 		},
 	}

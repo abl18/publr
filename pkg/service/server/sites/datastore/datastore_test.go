@@ -15,6 +15,7 @@
 package datastore
 
 import (
+	"context"
 	"database/sql"
 	"reflect"
 	"testing"
@@ -32,6 +33,7 @@ func Test_datastore_Create(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	site := &sitesv1alpha2.Site{
 		Title:  "My Sites",
 		Domain: "mysites.site",
@@ -40,7 +42,8 @@ func Test_datastore_Create(t *testing.T) {
 	pre := mock.ExpectPrepare("INSERT INTO")
 
 	type args struct {
-		site *sitesv1alpha2.Site
+		context context.Context
+		site    *sitesv1alpha2.Site
 	}
 	tests := []struct {
 		name         string
@@ -51,7 +54,8 @@ func Test_datastore_Create(t *testing.T) {
 		{
 			name: "Test create sites",
 			args: args{
-				site: site,
+				context: ctx,
+				site:    site,
 			},
 			expectedExec: pre.ExpectExec().WithArgs(site.Title, site.Domain).WillReturnResult(sqlmock.NewResult(1, 1)),
 			wantErr:      false,
@@ -60,7 +64,7 @@ func Test_datastore_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewSiteDatastoreWithDB(database)
-			if err := datastore.Create(tt.args.site); (err != nil) != tt.wantErr {
+			if err := datastore.Create(tt.args.context, tt.args.site); (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -73,6 +77,7 @@ func Test_datastore_Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	timestamp := time.Now()
 	protoTimestamp, err := ptypes.TimestampProto(timestamp)
 	if err != nil {
@@ -89,6 +94,7 @@ func Test_datastore_Get(t *testing.T) {
 		AddRow(site.Title, site.Domain, timestamp, timestamp)
 
 	type args struct {
+		ctx        context.Context
 		sitedomain string
 	}
 	tests := []struct {
@@ -101,6 +107,7 @@ func Test_datastore_Get(t *testing.T) {
 		{
 			name: "Test get site",
 			args: args{
+				ctx:        ctx,
 				sitedomain: site.Domain,
 			},
 			expectedQuery: mock.ExpectQuery("SELECT title, domain, createtime, updatetime FROM sites").WithArgs(site.Domain).WillReturnRows(rows),
@@ -110,6 +117,7 @@ func Test_datastore_Get(t *testing.T) {
 		{
 			name: "Test get site not found",
 			args: args{
+				ctx:        ctx,
 				sitedomain: "notfound",
 			},
 			expectedQuery: mock.ExpectQuery("SELECT title, domain, createtime, updatetime FROM sites").WithArgs("notfound").WillReturnError(sql.ErrNoRows),
@@ -119,7 +127,7 @@ func Test_datastore_Get(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewSiteDatastoreWithDB(database)
-			got, err := datastore.Get(tt.args.sitedomain)
+			got, err := datastore.Get(tt.args.ctx, tt.args.sitedomain)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Get() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -137,9 +145,11 @@ func Test_datastore_Delete(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	ctx := context.Background()
 	sitedomain := "mysites.site"
 
 	type args struct {
+		context    context.Context
 		sitedomain string
 	}
 	tests := []struct {
@@ -151,6 +161,7 @@ func Test_datastore_Delete(t *testing.T) {
 		{
 			name: "Test delete site",
 			args: args{
+				context:    ctx,
 				sitedomain: sitedomain,
 			},
 			expectedExec: mock.ExpectExec("DELETE FROM sites").WithArgs(sitedomain).WillReturnResult(sqlmock.NewResult(0, 1)),
@@ -158,6 +169,7 @@ func Test_datastore_Delete(t *testing.T) {
 		{
 			name: "Test delete site not found",
 			args: args{
+				context:    ctx,
 				sitedomain: "notfound",
 			},
 			expectedExec: mock.ExpectExec("DELETE FROM sites").WithArgs("notfound").WillReturnResult(sqlmock.NewResult(0, 0)),
@@ -167,7 +179,7 @@ func Test_datastore_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			datastore := NewSiteDatastoreWithDB(database)
-			if err := datastore.Delete(tt.args.sitedomain); (err != nil) != tt.wantErr {
+			if err := datastore.Delete(tt.args.context, tt.args.sitedomain); (err != nil) != tt.wantErr {
 				t.Errorf("datastore.Delete() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

@@ -69,7 +69,7 @@ func (s *Server) ListPost(ctx context.Context, req *postsv1alpha2.ListPostReques
 		author = sparent[3]
 	}
 
-	posts, totalSize, err := s.Post.List(sitedomain, author, start, limit)
+	posts, totalSize, err := s.Post.List(ctx, sitedomain, author, start, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -114,11 +114,11 @@ func (s *Server) CreatePost(ctx context.Context, req *postsv1alpha2.CreatePostRe
 	author := strings.Split(parent, "/")[3]
 
 	slug := strings.ToLower(strings.Replace(post.Slug, " ", "-", -1))
-	if err := s.Post.Create(sitedomain, author, post); err != nil {
+	if err := s.Post.Create(ctx, sitedomain, author, post); err != nil {
 		return nil, err
 	}
 
-	res, err := s.Post.Get(sitedomain, author, slug)
+	res, err := s.Post.Get(ctx, sitedomain, author, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (s *Server) GetPost(ctx context.Context, req *postsv1alpha2.GetPostRequest)
 		slug = sname[5]
 	}
 
-	res, err := s.Post.Get(sitedomain, author, slug)
+	res, err := s.Post.Get(ctx, sitedomain, author, slug)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +168,7 @@ func (s *Server) DeletePost(ctx context.Context, req *postsv1alpha2.DeletePostRe
 	author := sname[3]
 	slug := sname[5]
 
-	if err := s.Post.Delete(sitedomain, author, slug); err != nil {
+	if err := s.Post.Delete(ctx, sitedomain, author, slug); err != nil {
 		return nil, err
 	}
 

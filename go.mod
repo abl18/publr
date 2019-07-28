@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	contrib.go.opencensus.io/exporter/jaeger v0.1.0
+	contrib.go.opencensus.io/integrations/ocsql v0.1.5-0.20190624063948-41ee6eb7a3ea
 	github.com/DATA-DOG/go-sqlmock v1.3.3
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/mock v1.3.0

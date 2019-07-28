@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"time"
 
+	"contrib.go.opencensus.io/integrations/ocsql"
 	_ "github.com/go-sql-driver/mysql" // mysql driver
 
 	"github.com/prksu/publr/pkg/log"
@@ -78,7 +79,13 @@ func (o *Options) Connect() *sql.DB {
 	if o.Driver == "" {
 		o.Driver = "mysql"
 	}
-	database, err := sql.Open(o.Driver, o.DSN)
+
+	driver, err := ocsql.Register(o.Driver, ocsql.WithAllTraceOptions(), ocsql.WithPing(false), ocsql.WithDisableErrSkip(true))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	database, err := sql.Open(driver, o.DSN)
 	if err != nil {
 		log.Fatal(err)
 	}
