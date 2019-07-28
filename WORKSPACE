@@ -186,7 +186,7 @@ go_repository(
 go_repository(
     name = "com_google_cloud_go",
     importpath = "cloud.google.com/go",
-    tag = "v0.26.0",
+    tag = "v0.34.0",
 )
 
 go_repository(
@@ -203,8 +203,8 @@ go_repository(
 
 go_repository(
     name = "in_gopkg_yaml_v2",
-    commit = "eb3733d160e7",
     importpath = "gopkg.in/yaml.v2",
+    tag = "v2.2.1",
 )
 
 go_repository(
@@ -222,7 +222,7 @@ go_repository(
 go_repository(
     name = "org_golang_google_grpc",
     importpath = "google.golang.org/grpc",
-    tag = "v1.20.1",
+    tag = "v1.21.0",
 )
 
 go_repository(
@@ -251,7 +251,7 @@ go_repository(
 
 go_repository(
     name = "org_golang_x_oauth2",
-    commit = "d2e6202438be",
+    commit = "e64efc72b421",
     importpath = "golang.org/x/oauth2",
 )
 
@@ -277,4 +277,58 @@ go_repository(
     name = "org_golang_x_tools",
     commit = "36563e24a262",
     importpath = "golang.org/x/tools",
+)
+
+go_repository(
+    name = "com_github_google_go_cmp",
+    importpath = "github.com/google/go-cmp",
+    tag = "v0.3.0",
+)
+
+go_repository(
+    name = "com_github_hashicorp_golang_lru",
+    importpath = "github.com/hashicorp/golang-lru",
+    tag = "v0.5.1",
+)
+
+go_repository(
+    name = "io_opencensus_go",
+    importpath = "go.opencensus.io",
+    tag = "v0.22.0",
+)
+
+go_repository(
+    name = "com_github_apache_thrift",
+    importpath = "github.com/apache/thrift",
+    tag = "v0.12.0",
+)
+
+go_repository(
+    name = "io_opencensus_go_contrib_exporter_jaeger",
+    importpath = "contrib.go.opencensus.io/exporter/jaeger",
+    tag = "v0.1.0",
+)
+
+go_repository(
+    name = "org_golang_google_api",
+    importpath = "google.golang.org/api",
+    tag = "v0.5.0",
+)
+
+go_repository(
+    name = "com_github_census_instrumentation_opencensus_proto",
+    importpath = "github.com/census-instrumentation/opencensus-proto",
+    tag = "v0.2.0",
+)
+
+go_repository(
+    name = "io_opencensus_go_contrib_exporter_ocagent",
+    importpath = "contrib.go.opencensus.io/exporter/ocagent",
+    tag = "v0.5.1",
+)
+
+go_repository(
+    name = "io_opencensus_go_contrib_integrations_ocsql",
+    importpath = "contrib.go.opencensus.io/integrations/ocsql",
+    tag = "v0.1.4",
 )

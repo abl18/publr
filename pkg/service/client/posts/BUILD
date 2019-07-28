@@ -8,6 +8,7 @@ go_library(
     deps = [
         "//pkg/api/posts/v1alpha2:go_default_library",
         "//pkg/service:go_default_library",
+        "//vendor/go.opencensus.io/plugin/ocgrpc:go_default_library",
         "//vendor/google.golang.org/grpc:go_default_library",
         "//vendor/google.golang.org/grpc/balancer/roundrobin:go_default_library",
         "//vendor/google.golang.org/grpc/credentials:go_default_library",

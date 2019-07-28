@@ -19,6 +19,7 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 
+	"go.opencensus.io/plugin/ocgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials"
@@ -51,6 +52,7 @@ func NewServiceClient(address string) (postsv1alpha2.PostServiceClient, error) {
 
 	opts := []grpc.DialOption{
 		grpc.WithBalancerName(roundrobin.Name),
+		grpc.WithStatsHandler(&ocgrpc.ClientHandler{}),
 		grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
 			RootCAs: CertPool,
 		})),

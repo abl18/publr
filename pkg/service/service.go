@@ -23,6 +23,11 @@ import (
 	"net/http"
 	"strings"
 
+	"contrib.go.opencensus.io/exporter/jaeger"
+	"go.opencensus.io/plugin/ocgrpc"
+	"go.opencensus.io/stats/view"
+	"go.opencensus.io/trace"
+	"go.opencensus.io/zpages"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
@@ -34,11 +39,14 @@ import (
 
 // Server global var
 var (
-	ServerAddress string
-	ServerTLS     bool
-	ServerCert    string
-	ServerKey     string
-	CA            string
+	ServiceName            string
+	ServerAddress          string
+	ServerTLS              bool
+	ServerCert             string
+	ServerKey              string
+	CA                     string
+	JaegerAgentAddress     string
+	JaegerCollectorAddress string
 )
 
 // Service struct
@@ -49,18 +57,41 @@ type Service struct {
 }
 
 func init() {
+	flag.StringVar(&ServiceName, "service-name", "", "Service name")
 	flag.StringVar(&ServerAddress, "server-address", "0.0.0.0:9443", "Server address")
 	flag.BoolVar(&ServerTLS, "server-tls", false, "Enable server TLS")
 	flag.StringVar(&ServerCert, "server-cert", "", "Server certifiate")
 	flag.StringVar(&ServerKey, "server-key", "", "Server key")
 	flag.StringVar(&CA, "ca", "", "Certificate authority")
+	flag.StringVar(&JaegerAgentAddress, "jaeger-agent-address", "", "Jaeger agent address")
+	flag.StringVar(&JaegerCollectorAddress, "jaeger-collector-address", "", "Jaeger collector address")
+
 }
 
 // NewService create new service instance
 func NewService() (*Service, error) {
 	service := new(Service)
 
+	je, err := jaeger.NewExporter(jaeger.Options{
+		AgentEndpoint:     JaegerAgentAddress,
+		CollectorEndpoint: "http://" + JaegerCollectorAddress + "/api/traces",
+		ServiceName:       ServiceName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	trace.RegisterExporter(je)
+	trace.ApplyConfig(trace.Config{
+		DefaultSampler: trace.AlwaysSample(),
+	})
+
+	if err := view.Register(ocgrpc.DefaultServerViews...); err != nil {
+		return nil, err
+	}
+
 	opts := []grpc.ServerOption{
+		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
 		grpc.UnaryInterceptor(logging.ServerInterceptor),
 	}
 
@@ -90,6 +121,7 @@ func NewService() (*Service, error) {
 
 	service.grpc = grpc.NewServer(opts...)
 	mux := http.NewServeMux()
+	zpages.Handle(mux, "/debug")
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})

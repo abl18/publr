@@ -32,11 +32,14 @@ spec:
       - name: users
         image: users
         args:
+        - --service-name=users
         - --server-address=:443
         - --server-tls=true
         - --server-cert=/etc/certs/tls.crt
         - --server-key=/etc/certs/tls.key
         - --ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - --jaeger-agent-address=jaeger-agent.jaeger:6831
+        - --jaeger-collector-address=jaeger-collector.jaeger:14268
         - --database-host=database
         - --database-user=publr
         - --database-password=secret
