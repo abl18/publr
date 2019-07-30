@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"contrib.go.opencensus.io/exporter/jaeger"
+	"contrib.go.opencensus.io/exporter/prometheus"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
@@ -72,6 +73,13 @@ func init() {
 func NewService() (*Service, error) {
 	service := new(Service)
 
+	pe, err := prometheus.NewExporter(prometheus.Options{
+		Namespace: ServiceName,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	je, err := jaeger.NewExporter(jaeger.Options{
 		AgentEndpoint:     JaegerAgentAddress,
 		CollectorEndpoint: "http://" + JaegerCollectorAddress + "/api/traces",
@@ -81,14 +89,11 @@ func NewService() (*Service, error) {
 		return nil, err
 	}
 
+	view.RegisterExporter(pe)
 	trace.RegisterExporter(je)
 	trace.ApplyConfig(trace.Config{
 		DefaultSampler: trace.AlwaysSample(),
 	})
-
-	if err := view.Register(ocgrpc.DefaultServerViews...); err != nil {
-		return nil, err
-	}
 
 	opts := []grpc.ServerOption{
 		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
@@ -122,6 +127,7 @@ func NewService() (*Service, error) {
 	service.grpc = grpc.NewServer(opts...)
 	mux := http.NewServeMux()
 	zpages.Handle(mux, "/debug")
+	mux.Handle("/metrics", pe)
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})

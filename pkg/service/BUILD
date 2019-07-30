@@ -9,6 +9,7 @@ go_library(
         "//pkg/log:go_default_library",
         "//pkg/service/logging:go_default_library",
         "//vendor/contrib.go.opencensus.io/exporter/jaeger:go_default_library",
+        "//vendor/contrib.go.opencensus.io/exporter/prometheus:go_default_library",
         "//vendor/go.opencensus.io/plugin/ocgrpc:go_default_library",
         "//vendor/go.opencensus.io/stats/view:go_default_library",
         "//vendor/go.opencensus.io/trace:go_default_library",

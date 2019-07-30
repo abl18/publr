@@ -1,12 +1,16 @@
 # contrib.go.opencensus.io/exporter/jaeger v0.1.0
 contrib.go.opencensus.io/exporter/jaeger
 contrib.go.opencensus.io/exporter/jaeger/internal/gen-go/jaeger
+# contrib.go.opencensus.io/exporter/prometheus v0.1.0
+contrib.go.opencensus.io/exporter/prometheus
 # contrib.go.opencensus.io/integrations/ocsql v0.1.5-0.20190624063948-41ee6eb7a3ea
 contrib.go.opencensus.io/integrations/ocsql
 # github.com/DATA-DOG/go-sqlmock v1.3.3
 github.com/DATA-DOG/go-sqlmock
 # github.com/apache/thrift v0.12.0
 github.com/apache/thrift/lib/go/thrift
+# github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
+github.com/beorn7/perks/quantile
 # github.com/go-sql-driver/mysql v1.4.1
 github.com/go-sql-driver/mysql
 # github.com/golang/mock v1.3.0
@@ -33,6 +37,23 @@ github.com/grpc-ecosystem/grpc-gateway/internal
 github.com/hashicorp/golang-lru/simplelru
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
+# github.com/matttproud/golang_protobuf_extensions v1.0.1
+github.com/matttproud/golang_protobuf_extensions/pbutil
+# github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829
+github.com/prometheus/client_golang/prometheus
+github.com/prometheus/client_golang/prometheus/promhttp
+github.com/prometheus/client_golang/prometheus/internal
+# github.com/prometheus/client_model v0.0.0-20190115171406-56726106282f
+github.com/prometheus/client_model/go
+# github.com/prometheus/common v0.2.0
+github.com/prometheus/common/expfmt
+github.com/prometheus/common/model
+github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
+# github.com/prometheus/procfs v0.0.0-20190117184657-bf6a532e95b1
+github.com/prometheus/procfs
+github.com/prometheus/procfs/nfs
+github.com/prometheus/procfs/xfs
+github.com/prometheus/procfs/internal/util
 # github.com/sirupsen/logrus v1.4.2
 github.com/sirupsen/logrus
 # go.opencensus.io v0.22.0
@@ -41,6 +62,7 @@ go.opencensus.io/stats/view
 go.opencensus.io/trace
 go.opencensus.io/zpages
 go.opencensus.io/metric/metricdata
+go.opencensus.io/metric/metricexport
 go.opencensus.io/stats
 go.opencensus.io/tag
 go.opencensus.io/trace/propagation

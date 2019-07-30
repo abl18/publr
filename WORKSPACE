@@ -84,7 +84,7 @@ go_repository(
 go_repository(
     name = "com_github_gogo_protobuf",
     importpath = "github.com/gogo/protobuf",
-    tag = "v1.2.1",
+    tag = "v1.2.0",
 )
 
 go_repository(
@@ -331,4 +331,106 @@ go_repository(
     name = "io_opencensus_go_contrib_integrations_ocsql",
     commit = "41ee6eb7a3ea",
     importpath = "contrib.go.opencensus.io/integrations/ocsql",
+)
+
+go_repository(
+    name = "com_github_alecthomas_template",
+    commit = "a0175ee3bccc",
+    importpath = "github.com/alecthomas/template",
+)
+
+go_repository(
+    name = "com_github_alecthomas_units",
+    commit = "2efee857e7cf",
+    importpath = "github.com/alecthomas/units",
+)
+
+go_repository(
+    name = "com_github_beorn7_perks",
+    commit = "3a771d992973",
+    importpath = "github.com/beorn7/perks",
+)
+
+go_repository(
+    name = "com_github_go_kit_kit",
+    importpath = "github.com/go-kit/kit",
+    tag = "v0.8.0",
+)
+
+go_repository(
+    name = "com_github_go_logfmt_logfmt",
+    importpath = "github.com/go-logfmt/logfmt",
+    tag = "v0.3.0",
+)
+
+go_repository(
+    name = "com_github_go_stack_stack",
+    importpath = "github.com/go-stack/stack",
+    tag = "v1.8.0",
+)
+
+go_repository(
+    name = "com_github_julienschmidt_httprouter",
+    importpath = "github.com/julienschmidt/httprouter",
+    tag = "v1.2.0",
+)
+
+go_repository(
+    name = "com_github_kr_logfmt",
+    commit = "b84e30acd515",
+    importpath = "github.com/kr/logfmt",
+)
+
+go_repository(
+    name = "com_github_matttproud_golang_protobuf_extensions",
+    importpath = "github.com/matttproud/golang_protobuf_extensions",
+    tag = "v1.0.1",
+)
+
+go_repository(
+    name = "com_github_mwitkow_go_conntrack",
+    commit = "cc309e4a2223",
+    importpath = "github.com/mwitkow/go-conntrack",
+)
+
+go_repository(
+    name = "com_github_pkg_errors",
+    importpath = "github.com/pkg/errors",
+    tag = "v0.8.0",
+)
+
+go_repository(
+    name = "com_github_prometheus_client_golang",
+    commit = "3c4408c8b829",
+    importpath = "github.com/prometheus/client_golang",
+)
+
+go_repository(
+    name = "com_github_prometheus_client_model",
+    commit = "56726106282f",
+    importpath = "github.com/prometheus/client_model",
+)
+
+go_repository(
+    name = "com_github_prometheus_common",
+    importpath = "github.com/prometheus/common",
+    tag = "v0.2.0",
+)
+
+go_repository(
+    name = "com_github_prometheus_procfs",
+    commit = "bf6a532e95b1",
+    importpath = "github.com/prometheus/procfs",
+)
+
+go_repository(
+    name = "in_gopkg_alecthomas_kingpin_v2",
+    importpath = "gopkg.in/alecthomas/kingpin.v2",
+    tag = "v2.2.6",
+)
+
+go_repository(
+    name = "io_opencensus_go_contrib_exporter_prometheus",
+    importpath = "contrib.go.opencensus.io/exporter/prometheus",
+    tag = "v0.1.0",
 )
