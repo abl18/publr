@@ -35,19 +35,19 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/prksu/publr/pkg/log"
-	"github.com/prksu/publr/pkg/service/logging"
 )
 
 // Server global var
 var (
-	ServiceName            string
-	ServerAddress          string
-	ServerTLS              bool
-	ServerCert             string
-	ServerKey              string
-	CA                     string
-	JaegerAgentAddress     string
-	JaegerCollectorAddress string
+	ServiceName             string
+	ServerAddress           string
+	ServerTLS               bool
+	ServerCert              string
+	ServerKey               string
+	CA                      string
+	JaegerAgentEndpoint     string
+	JaegerCollectorEndpoint string
+	JaegerCollectorHostPort string
 )
 
 // Service struct
@@ -64,15 +64,14 @@ func init() {
 	flag.StringVar(&ServerCert, "server-cert", "", "Server certifiate")
 	flag.StringVar(&ServerKey, "server-key", "", "Server key")
 	flag.StringVar(&CA, "ca", "", "Certificate authority")
-	flag.StringVar(&JaegerAgentAddress, "jaeger-agent-address", "", "Jaeger agent address")
-	flag.StringVar(&JaegerCollectorAddress, "jaeger-collector-address", "", "Jaeger collector address")
+	flag.StringVar(&JaegerAgentEndpoint, "jaeger-agent-endpoint", "0.0.0.0:6831", "Jaeger agent endpoint")
+	flag.StringVar(&JaegerCollectorEndpoint, "jaeger-collector-endpoint", "http://0.0.0.0:14268/api/traces", "Jaeger collector endpoint")
+	flag.StringVar(&JaegerCollectorHostPort, "jaeger-collector-hostport", "", "Jaeger collector host port with default jaeger collector http thrift endpoint, if set it will be overwrite jaeger-collector-endpoint")
 
 }
 
 // NewService create new service instance
 func NewService() (*Service, error) {
-	service := new(Service)
-
 	pe, err := prometheus.NewExporter(prometheus.Options{
 		Namespace: ServiceName,
 	})
@@ -80,10 +79,16 @@ func NewService() (*Service, error) {
 		return nil, err
 	}
 
+	if JaegerCollectorHostPort != "" {
+		JaegerCollectorEndpoint = "http://" + JaegerCollectorHostPort + "/api/traces"
+	}
+
 	je, err := jaeger.NewExporter(jaeger.Options{
-		AgentEndpoint:     JaegerAgentAddress,
-		CollectorEndpoint: "http://" + JaegerCollectorAddress + "/api/traces",
-		ServiceName:       ServiceName,
+		AgentEndpoint:     JaegerAgentEndpoint,
+		CollectorEndpoint: JaegerCollectorEndpoint,
+		Process: jaeger.Process{
+			ServiceName: ServiceName,
+		},
 	})
 	if err != nil {
 		return nil, err
@@ -95,9 +100,10 @@ func NewService() (*Service, error) {
 		DefaultSampler: trace.AlwaysSample(),
 	})
 
+	service := new(Service)
 	opts := []grpc.ServerOption{
 		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
-		grpc.UnaryInterceptor(logging.ServerInterceptor),
+		grpc.UnaryInterceptor(ServerLoggingInterceptor),
 	}
 
 	if ServerTLS {

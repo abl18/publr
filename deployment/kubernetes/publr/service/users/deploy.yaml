@@ -38,8 +38,8 @@ spec:
         - --server-cert=/etc/certs/tls.crt
         - --server-key=/etc/certs/tls.key
         - --ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        - --jaeger-agent-address=jaeger-agent.jaeger:6831
-        - --jaeger-collector-address=jaeger-collector.jaeger:14268
+        - --jaeger-agent-endpoint=jaeger-agent.jaeger:6831
+        - --jaeger-collector-hostport=jaeger-collector.jaeger:14268
         - --database-host=database
         - --database-user=publr
         - --database-password=secret

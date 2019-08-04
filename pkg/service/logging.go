@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package logging
+package service
 
 import (
 	"context"
-	"path"
 	"time"
 
 	"google.golang.org/grpc"
@@ -25,19 +24,17 @@ import (
 	"github.com/prksu/publr/pkg/log"
 )
 
-// ServerInterceptor logging
-func ServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+// ServerLoggingInterceptor is unary server interceptor for logging
+func ServerLoggingInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	start := time.Now()
-
 	h, err := handler(ctx, req)
 	grpcstatus, _ := status.FromError(err)
-	level := log.GRPCCode(grpcstatus.Code()).ToLevel()
 
 	logMsg := "call grpc request"
 	logFields := log.WithFields(
 		log.Fields{
-			"grpc.service":        path.Dir(info.FullMethod)[1:],
-			"grpc.method":         path.Base(info.FullMethod),
+			"grpc.service":        ServiceName,
+			"grpc.method":         info.FullMethod,
 			"grpc.time.start":     start.Format(time.RFC3339),
 			"grpc.time.duration":  time.Since(start),
 			"grpc.status.code":    grpcstatus.Code(),
@@ -46,7 +43,7 @@ func ServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnarySer
 		},
 	)
 
-	switch level {
+	switch log.GRPCCode(grpcstatus.Code()).ToLevel() {
 	case log.InfoLevel:
 		logFields.Info(logMsg)
 	case log.WarnLevel:
