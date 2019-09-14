@@ -65,9 +65,9 @@ func run() error {
 		})))
 	}
 
-	postsv1alpha2.RegisterPostServiceHandlerFromEndpoint(context.Background(), mux, "dns:///posts.publr.svc.cluster.local", opts)
-	sitesv1alpha2.RegisterSiteServiceHandlerFromEndpoint(context.Background(), mux, "dns:///sites.publr.svc.cluster.local", opts)
-	usersv1alpha2.RegisterUserServiceHandlerFromEndpoint(context.Background(), mux, "dns:///users.publr.svc.cluster.local", opts)
+	postsv1alpha2.RegisterPostServiceHandlerFromEndpoint(context.Background(), mux, "dns:///posts:9000", opts)
+	sitesv1alpha2.RegisterSiteServiceHandlerFromEndpoint(context.Background(), mux, "dns:///sites:9000", opts)
+	usersv1alpha2.RegisterUserServiceHandlerFromEndpoint(context.Background(), mux, "dns:///users:9000", opts)
 
 	return http.ListenAndServe(":8000", mux)
 }

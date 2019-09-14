@@ -15,21 +15,15 @@
 package sites
 
 import (
-	"crypto/tls"
-	"crypto/x509"
-	"io/ioutil"
-
 	"go.opencensus.io/plugin/ocgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
-	"google.golang.org/grpc/credentials"
 
 	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
-	"github.com/prksu/publr/pkg/service"
 )
 
 // DefaultAddress default sites service server address
-var DefaultAddress = "dns:///sites.publr.svc.cluster.local"
+var DefaultAddress = "dns:///sites:9000"
 
 // MustNewServiceClient create new sites service client with panic if any errors.
 func MustNewServiceClient() sitesv1alpha2.SiteServiceClient {
@@ -42,20 +36,21 @@ func MustNewServiceClient() sitesv1alpha2.SiteServiceClient {
 
 // NewServiceClient create new sites service client.
 func NewServiceClient(address string) (sitesv1alpha2.SiteServiceClient, error) {
-	ca, err := ioutil.ReadFile(service.CA)
-	if err != nil {
-		return nil, err
-	}
+	// ca, err := ioutil.ReadFile(service.CA)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	CertPool := x509.NewCertPool()
-	CertPool.AppendCertsFromPEM(ca)
+	// CertPool := x509.NewCertPool()
+	// CertPool.AppendCertsFromPEM(ca)
 
 	opts := []grpc.DialOption{
 		grpc.WithBalancerName(roundrobin.Name),
 		grpc.WithStatsHandler(&ocgrpc.ClientHandler{}),
-		grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
-			RootCAs: CertPool,
-		})),
+		grpc.WithInsecure(),
+		// grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{
+		// 	RootCAs: CertPool,
+		// })),
 	}
 
 	conn, err := grpc.Dial(address, opts...)

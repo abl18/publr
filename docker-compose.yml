@@ -1,0 +1,81 @@
+version: '3.7'
+services:
+  http-proxy:
+    build:
+      context: .
+      dockerfile: build/docker/http-proxy/Dockerfile
+    image: http-proxy:latest
+    restart: on-failure
+    networks:
+      - default
+    command: [
+      "--insecure-server", "true"
+    ]
+    ports:
+      - 8000:8000
+  posts:
+    build:
+      context: .
+      dockerfile: build/docker/service/posts/Dockerfile
+    image: posts:latest
+    restart: on-failure
+    command: [
+      "--service-name", "posts",
+      "--server-address", ":9000",
+      "--database-host", "database",
+      "--database-user", "publr",
+      "--database-password", "secret",
+      "--database-name", "publr"
+    ]
+    networks:
+      - default
+  sites:
+    build:
+      context: .
+      dockerfile: build/docker/service/sites/Dockerfile
+    image: sites:latest
+    restart: on-failure
+    command: [
+      "--service-name", "sites",
+      "--server-address", ":9000",
+      "--database-host", "database",
+      "--database-user", "publr",
+      "--database-password", "secret",
+      "--database-name", "publr"
+    ]
+    networks:
+      - default
+  users:
+    build:
+      context: .
+      dockerfile: build/docker/service/users/Dockerfile
+    image: users:latest
+    restart: on-failure
+    command: [
+      "--service-name", "users",
+      "--server-address", ":9000",
+      "--database-host", "database",
+      "--database-user", "publr",
+      "--database-password", "secret",
+      "--database-name", "publr"
+    ]
+    networks:
+      - default
+  database:
+    image: mysql:8.0
+    restart: on-failure
+    volumes:
+      - ./data/schema:/docker-entrypoint-initdb.d
+      - database_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: supersecret
+      MYSQL_DATABASE: publr
+      MYSQL_USER: publr
+      MYSQL_PASSWORD: secret
+      TZ: Asia/Jakarta
+    networks:
+      - default
+volumes:
+  database_data:
+networks:
+  default:
