@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/prksu/publr/pkg/service/server/users",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/api/users/v1alpha2:go_default_library",
+        "//pkg/api/users/v1alpha3:go_default_library",
         "//pkg/service/server/users/datastore:go_default_library",
         "//pkg/service/util:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes/empty:go_default_library",
@@ -20,7 +20,7 @@ go_test(
     srcs = ["server_test.go"],
     embed = [":go_default_library"],
     deps = [
-        "//pkg/api/users/v1alpha2:go_default_library",
+        "//pkg/api/users/v1alpha3:go_default_library",
         "//pkg/service/server/users/datastore/mock:go_default_library",
         "//pkg/service/util:go_default_library",
         "//vendor/github.com/golang/mock/gomock:go_default_library",

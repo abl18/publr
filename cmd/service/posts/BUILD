@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/prksu/publr/cmd/service/posts",
     visibility = ["//visibility:private"],
     deps = [
-        "//pkg/api/posts/v1alpha2:go_default_library",
+        "//pkg/api/posts/v1alpha3:go_default_library",
         "//pkg/service:go_default_library",
         "//pkg/service/server/posts:go_default_library",
     ],

@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	usersv1alpha3 "github.com/prksu/publr/pkg/api/users/v1alpha3"
 	mock_datastore "github.com/prksu/publr/pkg/service/server/users/datastore/mock"
 	"github.com/prksu/publr/pkg/service/util"
 )
@@ -37,8 +37,8 @@ func TestServer_ListUser(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
-	testuserlist := &usersv1alpha2.UserList{
-		Users: []*usersv1alpha2.User{
+	testuserlist := &usersv1alpha3.UserList{
+		Users: []*usersv1alpha3.User{
 			{
 				Name:     strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 				Email:    "testuser@mysites.site",
@@ -72,20 +72,20 @@ func TestServer_ListUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha2.ListUserRequest
+		req *usersv1alpha3.ListUserRequest
 	}
 	tests := []struct {
 		name              string
 		args              args
 		expectedListUsers *gomock.Call
-		want              *usersv1alpha2.UserList
+		want              *usersv1alpha3.UserList
 		wantErr           bool
 	}{
 		{
 			name: "Test list users",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.ListUserRequest{
+				&usersv1alpha3.ListUserRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
 				},
 			},
@@ -97,13 +97,13 @@ func TestServer_ListUser(t *testing.T) {
 			name: "Test list users with page_size",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.ListUserRequest{
+				&usersv1alpha3.ListUserRequest{
 					Parent:   strings.Join([]string{"sites", "mysites.site"}, "/"),
 					PageSize: 2,
 				},
 			},
 			expectedListUsers: mockDatastore.EXPECT().List(context.Background(), "mysites.site", 0, 2).Return(testuserlist.Users[0:2], len(testuserlist.Users), nil),
-			want: &usersv1alpha2.UserList{
+			want: &usersv1alpha3.UserList{
 				Users:         testuserlist.Users[0:2],
 				NextPageToken: pageToken.Generate(2),
 			},
@@ -113,14 +113,14 @@ func TestServer_ListUser(t *testing.T) {
 			name: "Test list users with page_size and page_token",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.ListUserRequest{
+				&usersv1alpha3.ListUserRequest{
 					Parent:    strings.Join([]string{"sites", "mysites.site"}, "/"),
 					PageSize:  2,
 					PageToken: pageToken.Generate(2),
 				},
 			},
 			expectedListUsers: mockDatastore.EXPECT().List(context.Background(), "mysites.site", 2, 2).Return(testuserlist.Users[2:4], len(testuserlist.Users), nil),
-			want: &usersv1alpha2.UserList{
+			want: &usersv1alpha3.UserList{
 				Users: testuserlist.Users[2:4],
 			},
 			wantErr: false,
@@ -129,7 +129,7 @@ func TestServer_ListUser(t *testing.T) {
 			name: "Test list users with invalid page_token",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.ListUserRequest{
+				&usersv1alpha3.ListUserRequest{
 					Parent:    strings.Join([]string{"sites", "mysites.site"}, "/"),
 					PageToken: "invalid",
 				},
@@ -159,7 +159,7 @@ func TestServer_CreateUser(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
-	testuser := &usersv1alpha2.User{
+	testuser := &usersv1alpha3.User{
 		Name:     strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 		Email:    "testuser@mysites.site",
 		Password: "secret",
@@ -169,21 +169,21 @@ func TestServer_CreateUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha2.CreateUserRequest
+		req *usersv1alpha3.CreateUserRequest
 	}
 	tests := []struct {
 		name               string
 		args               args
 		expectedCreateUser *gomock.Call
 		expectedGetUser    *gomock.Call
-		want               *usersv1alpha2.User
+		want               *usersv1alpha3.User
 		wantErr            bool
 	}{
 		{
 			name: "Test create user",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.CreateUserRequest{
+				&usersv1alpha3.CreateUserRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
 					User:   testuser,
 				},
@@ -196,7 +196,7 @@ func TestServer_CreateUser(t *testing.T) {
 			name: "Test create user with nil request",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.CreateUserRequest{},
+				&usersv1alpha3.CreateUserRequest{},
 			},
 			wantErr: true,
 		},
@@ -204,9 +204,9 @@ func TestServer_CreateUser(t *testing.T) {
 			name: "Test create user with empty username",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.CreateUserRequest{
+				&usersv1alpha3.CreateUserRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
-					User: &usersv1alpha2.User{
+					User: &usersv1alpha3.User{
 						Email:    "testuser@mysites.site",
 						Password: "secret",
 						Fullname: "Test User",
@@ -219,9 +219,9 @@ func TestServer_CreateUser(t *testing.T) {
 			name: "Test create user with empty username",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.CreateUserRequest{
+				&usersv1alpha3.CreateUserRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
-					User: &usersv1alpha2.User{
+					User: &usersv1alpha3.User{
 						Username: "testuser",
 						Password: "secret",
 						Fullname: "Test User",
@@ -234,9 +234,9 @@ func TestServer_CreateUser(t *testing.T) {
 			name: "Test create user with empty password",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.CreateUserRequest{
+				&usersv1alpha3.CreateUserRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
-					User: &usersv1alpha2.User{
+					User: &usersv1alpha3.User{
 						Email:    "testuser@mysites.site",
 						Username: "testuser",
 						Fullname: "Test User",
@@ -268,7 +268,7 @@ func TestServer_GetUser(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
-	testuser := &usersv1alpha2.User{
+	testuser := &usersv1alpha3.User{
 		Name:     strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 		Email:    "testuser@mysites.site",
 		Password: "secret",
@@ -278,20 +278,20 @@ func TestServer_GetUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha2.GetUserRequest
+		req *usersv1alpha3.GetUserRequest
 	}
 	tests := []struct {
 		name            string
 		args            args
 		expectedGetUser *gomock.Call
-		want            *usersv1alpha2.User
+		want            *usersv1alpha3.User
 		wantErr         bool
 	}{
 		{
 			name: "Test get user",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.GetUserRequest{
+				&usersv1alpha3.GetUserRequest{
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 				},
 			},
@@ -302,7 +302,7 @@ func TestServer_GetUser(t *testing.T) {
 			name: "Test get user not found",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.GetUserRequest{
+				&usersv1alpha3.GetUserRequest{
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "notfound"}, "/"),
 				},
 			},
@@ -332,7 +332,7 @@ func TestServer_UpdateUser(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockUserDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
-	testuser := &usersv1alpha2.User{
+	testuser := &usersv1alpha3.User{
 		Name:     strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 		Email:    "testuser@mysites.site",
 		Password: "secret",
@@ -340,7 +340,7 @@ func TestServer_UpdateUser(t *testing.T) {
 		Fullname: "Test User",
 	}
 
-	testupdateuser := &usersv1alpha2.User{
+	testupdateuser := &usersv1alpha3.User{
 		Name:     strings.Join([]string{"sites", "mysites.site", "users", "testupdateuser"}, "/"),
 		Email:    "testupdateuser@mysites.site",
 		Password: "secret",
@@ -350,21 +350,21 @@ func TestServer_UpdateUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha2.UpdateUserRequest
+		req *usersv1alpha3.UpdateUserRequest
 	}
 	tests := []struct {
 		name               string
 		args               args
 		expectedGetUser    *gomock.Call
 		expectedUpdateUser *gomock.Call
-		want               *usersv1alpha2.User
+		want               *usersv1alpha3.User
 		wantErr            bool
 	}{
 		{
 			name: "Test update user",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.UpdateUserRequest{
+				&usersv1alpha3.UpdateUserRequest{
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 					User: testupdateuser,
 				},
@@ -377,7 +377,7 @@ func TestServer_UpdateUser(t *testing.T) {
 			name: "Test update user not found",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.UpdateUserRequest{
+				&usersv1alpha3.UpdateUserRequest{
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "notfound"}, "/"),
 					User: testupdateuser,
 				},
@@ -410,7 +410,7 @@ func TestServer_DeleteUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha2.DeleteUserRequest
+		req *usersv1alpha3.DeleteUserRequest
 	}
 	tests := []struct {
 		name               string
@@ -423,7 +423,7 @@ func TestServer_DeleteUser(t *testing.T) {
 			name: "Test delete user",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.DeleteUserRequest{
+				&usersv1alpha3.DeleteUserRequest{
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "testuser"}, "/"),
 				},
 			},
@@ -434,7 +434,7 @@ func TestServer_DeleteUser(t *testing.T) {
 			name: "Test delete user not found",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.DeleteUserRequest{
+				&usersv1alpha3.DeleteUserRequest{
 					Name: strings.Join([]string{"sites", "mysites.site", "users", "notfound"}, "/"),
 				},
 			},
@@ -466,20 +466,20 @@ func TestServer_SearchUser(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *usersv1alpha2.SearchUserRequest
+		req *usersv1alpha3.SearchUserRequest
 	}
 	tests := []struct {
 		name               string
 		args               args
 		expectedSearchUser *gomock.Call
-		want               *usersv1alpha2.UserList
+		want               *usersv1alpha3.UserList
 		wantErr            bool
 	}{
 		{
 			name: "Test list users",
 			args: args{
 				context.Background(),
-				&usersv1alpha2.SearchUserRequest{
+				&usersv1alpha3.SearchUserRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site"}, "/"),
 					Query:  "whocares",
 				},

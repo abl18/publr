@@ -24,7 +24,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/protobuf/ptypes"
 
-	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
+	sitesv1alpha3 "github.com/prksu/publr/pkg/api/sites/v1alpha3"
 )
 
 func Test_datastore_Create(t *testing.T) {
@@ -34,7 +34,7 @@ func Test_datastore_Create(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	site := &sitesv1alpha2.Site{
+	site := &sitesv1alpha3.Site{
 		Title:  "My Sites",
 		Domain: "mysites.site",
 	}
@@ -43,7 +43,7 @@ func Test_datastore_Create(t *testing.T) {
 
 	type args struct {
 		context context.Context
-		site    *sitesv1alpha2.Site
+		site    *sitesv1alpha3.Site
 	}
 	tests := []struct {
 		name         string
@@ -83,7 +83,7 @@ func Test_datastore_Get(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	site := &sitesv1alpha2.Site{
+	site := &sitesv1alpha3.Site{
 		Title:      "My Sites",
 		Domain:     "mysites.site",
 		CreateTime: protoTimestamp,
@@ -101,7 +101,7 @@ func Test_datastore_Get(t *testing.T) {
 		name          string
 		args          args
 		expectedQuery *sqlmock.ExpectedQuery
-		want          *sitesv1alpha2.Site
+		want          *sitesv1alpha3.Site
 		wantErr       bool
 	}{
 		{

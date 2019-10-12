@@ -21,7 +21,7 @@ package mock_datastore
 import (
 	context "context"
 	gomock "github.com/golang/mock/gomock"
-	v1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	v1alpha3 "github.com/prksu/publr/pkg/api/users/v1alpha3"
 	reflect "reflect"
 )
 
@@ -49,10 +49,10 @@ func (m *MockUserDatastore) EXPECT() *MockUserDatastoreMockRecorder {
 }
 
 // List mocks base method
-func (m *MockUserDatastore) List(ctx context.Context, sitedomain string, start, offset int) ([]*v1alpha2.User, int, error) {
+func (m *MockUserDatastore) List(ctx context.Context, sitedomain string, start, offset int) ([]*v1alpha3.User, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", ctx, sitedomain, start, offset)
-	ret0, _ := ret[0].([]*v1alpha2.User)
+	ret0, _ := ret[0].([]*v1alpha3.User)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -65,7 +65,7 @@ func (mr *MockUserDatastoreMockRecorder) List(ctx, sitedomain, start, offset int
 }
 
 // Create mocks base method
-func (m *MockUserDatastore) Create(ctx context.Context, sitedomain string, user *v1alpha2.User) error {
+func (m *MockUserDatastore) Create(ctx context.Context, sitedomain string, user *v1alpha3.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, sitedomain, user)
 	ret0, _ := ret[0].(error)
@@ -79,10 +79,10 @@ func (mr *MockUserDatastoreMockRecorder) Create(ctx, sitedomain, user interface{
 }
 
 // Get mocks base method
-func (m *MockUserDatastore) Get(ctx context.Context, sitedomain, username string) (*v1alpha2.User, error) {
+func (m *MockUserDatastore) Get(ctx context.Context, sitedomain, username string) (*v1alpha3.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, sitedomain, username)
-	ret0, _ := ret[0].(*v1alpha2.User)
+	ret0, _ := ret[0].(*v1alpha3.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -94,7 +94,7 @@ func (mr *MockUserDatastoreMockRecorder) Get(ctx, sitedomain, username interface
 }
 
 // Update mocks base method
-func (m *MockUserDatastore) Update(ctx context.Context, sitedomain, username string, user *v1alpha2.User) error {
+func (m *MockUserDatastore) Update(ctx context.Context, sitedomain, username string, user *v1alpha3.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", ctx, sitedomain, username, user)
 	ret0, _ := ret[0].(error)
@@ -122,10 +122,10 @@ func (mr *MockUserDatastoreMockRecorder) Delete(ctx, sitedomain, username interf
 }
 
 // Search mocks base method
-func (m *MockUserDatastore) Search(ctx context.Context, query string) ([]*v1alpha2.User, error) {
+func (m *MockUserDatastore) Search(ctx context.Context, query string) ([]*v1alpha3.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, query)
-	ret0, _ := ret[0].([]*v1alpha2.User)
+	ret0, _ := ret[0].([]*v1alpha3.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

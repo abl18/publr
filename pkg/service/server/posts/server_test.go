@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
+	postsv1alpha3 "github.com/prksu/publr/pkg/api/posts/v1alpha3"
 	mock_datastore "github.com/prksu/publr/pkg/service/server/posts/datastore/mock"
 	"github.com/prksu/publr/pkg/service/util"
 )
@@ -36,8 +36,8 @@ func TestServer_ListPost(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockPostDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
-	testpostlist := &postsv1alpha2.PostList{
-		Posts: []*postsv1alpha2.Post{
+	testpostlist := &postsv1alpha3.PostList{
+		Posts: []*postsv1alpha3.Post{
 			{
 				Name:      strings.Join([]string{"sites", "mysites.site", "authors", "testauthor", "posts", "first-post"}, "/"),
 				Title:     "First Post",
@@ -72,20 +72,20 @@ func TestServer_ListPost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha2.ListPostRequest
+		req *postsv1alpha3.ListPostRequest
 	}
 	tests := []struct {
 		name              string
 		args              args
 		expectedListPosts *gomock.Call
-		want              *postsv1alpha2.PostList
+		want              *postsv1alpha3.PostList
 		wantErr           bool
 	}{
 		{
 			name: "Test list posts",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.ListPostRequest{
+				&postsv1alpha3.ListPostRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor"}, "/"),
 				},
 			},
@@ -96,13 +96,13 @@ func TestServer_ListPost(t *testing.T) {
 			name: "Test list posts with page_size",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.ListPostRequest{
+				&postsv1alpha3.ListPostRequest{
 					Parent:   strings.Join([]string{"sites", "mysites.site", "authors", "testauthor"}, "/"),
 					PageSize: 2,
 				},
 			},
 			expectedListPosts: mockDatastore.EXPECT().List(context.Background(), "mysites.site", "testauthor", 0, 2).Return(testpostlist.Posts[0:2], len(testpostlist.Posts), nil),
-			want: &postsv1alpha2.PostList{
+			want: &postsv1alpha3.PostList{
 				Posts:         testpostlist.Posts[0:2],
 				NextPageToken: pageToken.Generate(2),
 			},
@@ -111,14 +111,14 @@ func TestServer_ListPost(t *testing.T) {
 			name: "Test list posts with page_size and page_token",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.ListPostRequest{
+				&postsv1alpha3.ListPostRequest{
 					Parent:    strings.Join([]string{"sites", "mysites.site", "authors", "testauthor"}, "/"),
 					PageSize:  2,
 					PageToken: pageToken.Generate(2),
 				},
 			},
 			expectedListPosts: mockDatastore.EXPECT().List(context.Background(), "mysites.site", "testauthor", 2, 2).Return(testpostlist.Posts[2:4], len(testpostlist.Posts), nil),
-			want: &postsv1alpha2.PostList{
+			want: &postsv1alpha3.PostList{
 				Posts: testpostlist.Posts[2:4],
 			},
 		},
@@ -144,7 +144,7 @@ func TestServer_CreatePost(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockPostDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
-	testpost := &postsv1alpha2.Post{
+	testpost := &postsv1alpha3.Post{
 		Name:      strings.Join([]string{"sites", "mysites.site", "authors", "testauthor", "posts", "first-post"}, "/"),
 		Title:     "First Post",
 		Slug:      "first-post",
@@ -155,21 +155,21 @@ func TestServer_CreatePost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha2.CreatePostRequest
+		req *postsv1alpha3.CreatePostRequest
 	}
 	tests := []struct {
 		name               string
 		args               args
 		expectedCreatePost *gomock.Call
 		expectedGetPost    *gomock.Call
-		want               *postsv1alpha2.Post
+		want               *postsv1alpha3.Post
 		wantErr            bool
 	}{
 		{
 			name: "Test create post",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.CreatePostRequest{
+				&postsv1alpha3.CreatePostRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor"}, "/"),
 					Post:   testpost,
 				},
@@ -182,7 +182,7 @@ func TestServer_CreatePost(t *testing.T) {
 			name: "Test create post with nil request",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.CreatePostRequest{},
+				&postsv1alpha3.CreatePostRequest{},
 			},
 			wantErr: true,
 		},
@@ -190,9 +190,9 @@ func TestServer_CreatePost(t *testing.T) {
 			name: "Test create post with empty title",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.CreatePostRequest{
+				&postsv1alpha3.CreatePostRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor"}, "/"),
-					Post: &postsv1alpha2.Post{
+					Post: &postsv1alpha3.Post{
 						Slug:      "first-post",
 						Html:      "<p>First Post</p>",
 						Image:     "image.png",
@@ -206,9 +206,9 @@ func TestServer_CreatePost(t *testing.T) {
 			name: "Test create post with empty slug",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.CreatePostRequest{
+				&postsv1alpha3.CreatePostRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor"}, "/"),
-					Post: &postsv1alpha2.Post{
+					Post: &postsv1alpha3.Post{
 						Title:     "First Post",
 						Html:      "<p>First Post</p>",
 						Image:     "image.png",
@@ -222,9 +222,9 @@ func TestServer_CreatePost(t *testing.T) {
 			name: "Test create post with empty html body",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.CreatePostRequest{
+				&postsv1alpha3.CreatePostRequest{
 					Parent: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor"}, "/"),
-					Post: &postsv1alpha2.Post{
+					Post: &postsv1alpha3.Post{
 						Title:     "First Post",
 						Slug:      "first-post",
 						Image:     "image.png",
@@ -256,7 +256,7 @@ func TestServer_GetPost(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockPostDatastore(ctrl)
 	pageToken := util.NewPageToken()
 
-	testpost := &postsv1alpha2.Post{
+	testpost := &postsv1alpha3.Post{
 		Name:      strings.Join([]string{"sites", "mysites.site", "authors", "testauthor", "posts", "first-post"}, "/"),
 		Title:     "First Post",
 		Slug:      "first-post",
@@ -267,20 +267,20 @@ func TestServer_GetPost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha2.GetPostRequest
+		req *postsv1alpha3.GetPostRequest
 	}
 	tests := []struct {
 		name            string
 		args            args
 		expectedGetPost *gomock.Call
-		want            *postsv1alpha2.Post
+		want            *postsv1alpha3.Post
 		wantErr         bool
 	}{
 		{
 			name: "Test get post",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.GetPostRequest{
+				&postsv1alpha3.GetPostRequest{
 					Name: testpost.Name,
 				},
 			},
@@ -291,7 +291,7 @@ func TestServer_GetPost(t *testing.T) {
 			name: "Test get post not found",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.GetPostRequest{
+				&postsv1alpha3.GetPostRequest{
 					Name: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor", "posts", "notfound"}, "/"),
 				},
 			},
@@ -322,12 +322,12 @@ func TestServer_UpdatePost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha2.UpdatePostRequest
+		req *postsv1alpha3.UpdatePostRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *postsv1alpha2.Post
+		want    *postsv1alpha3.Post
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -355,7 +355,7 @@ func TestServer_DeletePost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha2.DeletePostRequest
+		req *postsv1alpha3.DeletePostRequest
 	}
 	tests := []struct {
 		name               string
@@ -368,7 +368,7 @@ func TestServer_DeletePost(t *testing.T) {
 			name: "Test delete post",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.DeletePostRequest{
+				&postsv1alpha3.DeletePostRequest{
 					Name: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor", "posts", "first-post"}, "/"),
 				},
 			},
@@ -379,7 +379,7 @@ func TestServer_DeletePost(t *testing.T) {
 			name: "Test delete post not found",
 			args: args{
 				context.Background(),
-				&postsv1alpha2.DeletePostRequest{
+				&postsv1alpha3.DeletePostRequest{
 					Name: strings.Join([]string{"sites", "mysites.site", "authors", "testauthor", "posts", "notfound"}, "/"),
 				},
 			},
@@ -410,12 +410,12 @@ func TestServer_SearchPost(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *postsv1alpha2.SearchPostRequest
+		req *postsv1alpha3.SearchPostRequest
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *postsv1alpha2.PostList
+		want    *postsv1alpha3.PostList
 		wantErr bool
 	}{
 		// TODO: Add test cases.

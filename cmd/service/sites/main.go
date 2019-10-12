@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
+	sitesv1alpha3 "github.com/prksu/publr/pkg/api/sites/v1alpha3"
 	"github.com/prksu/publr/pkg/service"
 	"github.com/prksu/publr/pkg/service/server/sites"
 )
@@ -30,7 +30,7 @@ func run() error {
 		return err
 	}
 
-	sitesv1alpha2.RegisterSiteServiceServer(s.GRPC(), sites.NewServiceServer())
+	sitesv1alpha3.RegisterSiteServiceServer(s.GRPC(), sites.NewServiceServer())
 	return s.ListenAndServe()
 }
 

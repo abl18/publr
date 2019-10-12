@@ -6,4 +6,5 @@ go_library(
     importmap = "github.com/prksu/publr/vendor/google.golang.org/grpc/resolver",
     importpath = "google.golang.org/grpc/resolver",
     visibility = ["//visibility:public"],
+    deps = ["//vendor/google.golang.org/grpc/serviceconfig:go_default_library"],
 )

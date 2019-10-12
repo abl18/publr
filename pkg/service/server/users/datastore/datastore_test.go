@@ -24,7 +24,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/protobuf/ptypes"
 
-	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	usersv1alpha3 "github.com/prksu/publr/pkg/api/users/v1alpha3"
 )
 
 func Test_datastore_List(t *testing.T) {
@@ -41,7 +41,7 @@ func Test_datastore_List(t *testing.T) {
 
 	ctx := context.Background()
 	sitedomain := "mysites.site"
-	users := []*usersv1alpha2.User{
+	users := []*usersv1alpha3.User{
 		{
 			Email:      "testuser@mysites.site",
 			Username:   "testuser",
@@ -105,7 +105,7 @@ func Test_datastore_List(t *testing.T) {
 		args               args
 		expectedQuery      *sqlmock.ExpectedQuery
 		expectedCountQuery *sqlmock.ExpectedQuery
-		want               []*usersv1alpha2.User
+		want               []*usersv1alpha3.User
 		want1              int
 		wantErr            bool
 	}{
@@ -150,7 +150,7 @@ func Test_datastore_Create(t *testing.T) {
 
 	ctx := context.Background()
 	sitedomain := "mysites.site"
-	user := &usersv1alpha2.User{
+	user := &usersv1alpha3.User{
 		Email:    "testuser@mysites.site",
 		Username: "testuser",
 		Fullname: "Test User",
@@ -164,7 +164,7 @@ func Test_datastore_Create(t *testing.T) {
 	type args struct {
 		context    context.Context
 		sitedomain string
-		user       *usersv1alpha2.User
+		user       *usersv1alpha3.User
 	}
 	tests := []struct {
 		name             string
@@ -219,7 +219,7 @@ func Test_datastore_Get(t *testing.T) {
 
 	ctx := context.Background()
 	sitedomain := "mysites.site"
-	user := &usersv1alpha2.User{
+	user := &usersv1alpha3.User{
 		Email:      "testuser@mysites.site",
 		Username:   "testuser",
 		Fullname:   "Test User",
@@ -240,7 +240,7 @@ func Test_datastore_Get(t *testing.T) {
 		name          string
 		args          args
 		expectedQuery *sqlmock.ExpectedQuery
-		want          *usersv1alpha2.User
+		want          *usersv1alpha3.User
 		wantErr       bool
 	}{
 		{
@@ -293,7 +293,7 @@ func Test_datastore_Update(t *testing.T) {
 
 	ctx := context.Background()
 	sitedomain := "mysites.site"
-	user := &usersv1alpha2.User{
+	user := &usersv1alpha3.User{
 		Email:      "testuser@mysites.site",
 		Username:   "testuser",
 		Fullname:   "Test User",
@@ -301,7 +301,7 @@ func Test_datastore_Update(t *testing.T) {
 		CreateTime: protoTimestamp,
 		UpdateTime: protoTimestamp,
 	}
-	updateuser := &usersv1alpha2.User{
+	updateuser := &usersv1alpha3.User{
 		Email:      "testupdateuser@mysites.site",
 		Username:   "testupdateuser",
 		Fullname:   "Test Update User",
@@ -318,7 +318,7 @@ func Test_datastore_Update(t *testing.T) {
 		context    context.Context
 		sitedomain string
 		username   string
-		user       *usersv1alpha2.User
+		user       *usersv1alpha3.User
 	}
 	tests := []struct {
 		name         string

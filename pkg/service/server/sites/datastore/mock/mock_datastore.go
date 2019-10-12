@@ -21,7 +21,7 @@ package mock_datastore
 import (
 	context "context"
 	gomock "github.com/golang/mock/gomock"
-	v1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
+	v1alpha3 "github.com/prksu/publr/pkg/api/sites/v1alpha3"
 	reflect "reflect"
 )
 
@@ -49,7 +49,7 @@ func (m *MockSiteDatastore) EXPECT() *MockSiteDatastoreMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockSiteDatastore) Create(ctx context.Context, site *v1alpha2.Site) error {
+func (m *MockSiteDatastore) Create(ctx context.Context, site *v1alpha3.Site) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, site)
 	ret0, _ := ret[0].(error)
@@ -63,10 +63,10 @@ func (mr *MockSiteDatastoreMockRecorder) Create(ctx, site interface{}) *gomock.C
 }
 
 // Get mocks base method
-func (m *MockSiteDatastore) Get(ctx context.Context, sitedomain string) (*v1alpha2.Site, error) {
+func (m *MockSiteDatastore) Get(ctx context.Context, sitedomain string) (*v1alpha3.Site, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, sitedomain)
-	ret0, _ := ret[0].(*v1alpha2.Site)
+	ret0, _ := ret[0].(*v1alpha3.Site)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -23,24 +23,24 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	usersv1alpha3 "github.com/prksu/publr/pkg/api/users/v1alpha3"
 	"github.com/prksu/publr/pkg/service/server/users/datastore"
 	"github.com/prksu/publr/pkg/service/util"
 )
 
-// Server implement usersv1alpha2.UserServiceServer.
+// Server implement usersv1alpha3.UserServiceServer.
 type Server struct {
 	User      datastore.UserDatastore
 	PageToken util.PageToken
 }
 
 // NewServiceServer create new users service server.
-// returns usersv1alpha2.SiteServiceServer
-func NewServiceServer() usersv1alpha2.UserServiceServer {
+// returns usersv1alpha3.SiteServiceServer
+func NewServiceServer() usersv1alpha3.UserServiceServer {
 	return newServiceServer(datastore.NewUserDatastore(), util.NewPageToken())
 }
 
-func newServiceServer(user datastore.UserDatastore, pageToken util.PageToken) usersv1alpha2.UserServiceServer {
+func newServiceServer(user datastore.UserDatastore, pageToken util.PageToken) usersv1alpha3.UserServiceServer {
 	server := new(Server)
 	server.User = user
 	server.PageToken = pageToken
@@ -48,7 +48,7 @@ func newServiceServer(user datastore.UserDatastore, pageToken util.PageToken) us
 }
 
 // ListUser handler method
-func (s *Server) ListUser(ctx context.Context, req *usersv1alpha2.ListUserRequest) (*usersv1alpha2.UserList, error) {
+func (s *Server) ListUser(ctx context.Context, req *usersv1alpha3.ListUserRequest) (*usersv1alpha3.UserList, error) {
 	parent := req.Parent
 
 	start, err := s.PageToken.Parse(req.PageToken)
@@ -76,14 +76,14 @@ func (s *Server) ListUser(ctx context.Context, req *usersv1alpha2.ListUserReques
 		nextPageToken = s.PageToken.Generate(start + limit)
 	}
 
-	res := new(usersv1alpha2.UserList)
+	res := new(usersv1alpha3.UserList)
 	res.Users = users
 	res.NextPageToken = nextPageToken
 	return res, nil
 }
 
 // CreateUser handler method
-func (s *Server) CreateUser(ctx context.Context, req *usersv1alpha2.CreateUserRequest) (*usersv1alpha2.User, error) {
+func (s *Server) CreateUser(ctx context.Context, req *usersv1alpha3.CreateUserRequest) (*usersv1alpha3.User, error) {
 	parent := req.Parent
 	user := req.User
 
@@ -122,7 +122,7 @@ func (s *Server) CreateUser(ctx context.Context, req *usersv1alpha2.CreateUserRe
 }
 
 // GetUser handler method
-func (s *Server) GetUser(ctx context.Context, req *usersv1alpha2.GetUserRequest) (*usersv1alpha2.User, error) {
+func (s *Server) GetUser(ctx context.Context, req *usersv1alpha3.GetUserRequest) (*usersv1alpha3.User, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
@@ -136,7 +136,7 @@ func (s *Server) GetUser(ctx context.Context, req *usersv1alpha2.GetUserRequest)
 }
 
 // UpdateUser handler method
-func (s *Server) UpdateUser(ctx context.Context, req *usersv1alpha2.UpdateUserRequest) (*usersv1alpha2.User, error) {
+func (s *Server) UpdateUser(ctx context.Context, req *usersv1alpha3.UpdateUserRequest) (*usersv1alpha3.User, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
@@ -169,7 +169,7 @@ func (s *Server) UpdateUser(ctx context.Context, req *usersv1alpha2.UpdateUserRe
 }
 
 // DeleteUser handler method
-func (s *Server) DeleteUser(ctx context.Context, req *usersv1alpha2.DeleteUserRequest) (*empty.Empty, error) {
+func (s *Server) DeleteUser(ctx context.Context, req *usersv1alpha3.DeleteUserRequest) (*empty.Empty, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	username := strings.Split(name, "/")[3]
@@ -182,6 +182,6 @@ func (s *Server) DeleteUser(ctx context.Context, req *usersv1alpha2.DeleteUserRe
 }
 
 // SearchUser handler method
-func (s *Server) SearchUser(ctx context.Context, req *usersv1alpha2.SearchUserRequest) (*usersv1alpha2.UserList, error) {
+func (s *Server) SearchUser(ctx context.Context, req *usersv1alpha3.SearchUserRequest) (*usersv1alpha3.UserList, error) {
 	return nil, status.Error(codes.Unimplemented, "not implement yet")
 }

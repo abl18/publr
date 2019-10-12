@@ -24,7 +24,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/golang/protobuf/ptypes"
 
-	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
+	postsv1alpha3 "github.com/prksu/publr/pkg/api/posts/v1alpha3"
 )
 
 func Test_datastore_List(t *testing.T) {
@@ -42,7 +42,7 @@ func Test_datastore_List(t *testing.T) {
 
 	sitedomain := "mysites.site"
 	author := "testauthor"
-	posts := []*postsv1alpha2.Post{
+	posts := []*postsv1alpha3.Post{
 		{
 			Title:       "First Post",
 			Slug:        "first-post",
@@ -114,7 +114,7 @@ func Test_datastore_List(t *testing.T) {
 		args               args
 		expectedQuery      *sqlmock.ExpectedQuery
 		expectedCountQuery *sqlmock.ExpectedQuery
-		want               []*postsv1alpha2.Post
+		want               []*postsv1alpha3.Post
 		want1              int
 		wantErr            bool
 	}{
@@ -161,7 +161,7 @@ func Test_datastore_Create(t *testing.T) {
 	sitedomain := "mysites.site"
 	author := "testauthor"
 
-	post := &postsv1alpha2.Post{
+	post := &postsv1alpha3.Post{
 		Title:     "First Post",
 		Slug:      "first-post",
 		Html:      "<p>First Post</p>",
@@ -173,7 +173,7 @@ func Test_datastore_Create(t *testing.T) {
 		context    context.Context
 		sitedomain string
 		author     string
-		post       *postsv1alpha2.Post
+		post       *postsv1alpha3.Post
 	}
 	tests := []struct {
 		name             string
@@ -224,7 +224,7 @@ func Test_datastore_Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	post := &postsv1alpha2.Post{
+	post := &postsv1alpha3.Post{
 		Title:       "First Post",
 		Slug:        "first-post",
 		Html:        "<p>First Post</p>",
@@ -259,7 +259,7 @@ func Test_datastore_Get(t *testing.T) {
 		name          string
 		args          args
 		expectedQuery *sqlmock.ExpectedQuery
-		want          *postsv1alpha2.Post
+		want          *postsv1alpha3.Post
 		wantErr       bool
 	}{
 		{
@@ -309,7 +309,7 @@ func Test_datastore_Update(t *testing.T) {
 		sitedomain string
 		author     string
 		slug       string
-		post       *postsv1alpha2.Post
+		post       *postsv1alpha3.Post
 	}
 	tests := []struct {
 		name    string
@@ -404,7 +404,7 @@ func Test_datastore_Search(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    []*postsv1alpha2.Post
+		want    []*postsv1alpha3.Post
 		wantErr bool
 	}{
 		// TODO: Add test cases.

@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/prksu/publr/pkg/service/server/sites/datastore",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/api/sites/v1alpha2:go_default_library",
+        "//pkg/api/sites/v1alpha3:go_default_library",
         "//pkg/storage/database:go_default_library",
         "//vendor/github.com/go-sql-driver/mysql:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes:go_default_library",
@@ -20,7 +20,7 @@ go_test(
     srcs = ["datastore_test.go"],
     embed = [":go_default_library"],
     deps = [
-        "//pkg/api/sites/v1alpha2:go_default_library",
+        "//pkg/api/sites/v1alpha3:go_default_library",
         "//vendor/github.com/DATA-DOG/go-sqlmock:go_default_library",
         "//vendor/github.com/golang/protobuf/ptypes:go_default_library",
     ],

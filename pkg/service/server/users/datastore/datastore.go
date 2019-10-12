@@ -23,18 +23,18 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	usersv1alpha3 "github.com/prksu/publr/pkg/api/users/v1alpha3"
 	"github.com/prksu/publr/pkg/storage/database"
 )
 
 // UserDatastore interface
 type UserDatastore interface {
-	List(ctx context.Context, sitedomain string, start, offset int) ([]*usersv1alpha2.User, int, error)
-	Create(ctx context.Context, sitedomain string, user *usersv1alpha2.User) error
-	Get(ctx context.Context, sitedomain, username string) (*usersv1alpha2.User, error)
-	Update(ctx context.Context, sitedomain, username string, user *usersv1alpha2.User) error
+	List(ctx context.Context, sitedomain string, start, offset int) ([]*usersv1alpha3.User, int, error)
+	Create(ctx context.Context, sitedomain string, user *usersv1alpha3.User) error
+	Get(ctx context.Context, sitedomain, username string) (*usersv1alpha3.User, error)
+	Update(ctx context.Context, sitedomain, username string, user *usersv1alpha3.User) error
 	Delete(ctx context.Context, sitedomain, username string) error
-	Search(ctx context.Context, query string) ([]*usersv1alpha2.User, error)
+	Search(ctx context.Context, query string) ([]*usersv1alpha3.User, error)
 }
 
 // datastore implement users service datastore
@@ -54,8 +54,8 @@ func NewUserDatastoreWithDB(database *sql.DB) UserDatastore {
 	return ds
 }
 
-func (ds *datastore) List(ctx context.Context, sitedomain string, start, limit int) ([]*usersv1alpha2.User, int, error) {
-	var users []*usersv1alpha2.User
+func (ds *datastore) List(ctx context.Context, sitedomain string, start, limit int) ([]*usersv1alpha3.User, int, error) {
+	var users []*usersv1alpha3.User
 	var foundRows int
 
 	sqlrows := `
@@ -80,7 +80,7 @@ func (ds *datastore) List(ctx context.Context, sitedomain string, start, limit i
 
 	defer rows.Close()
 	for rows.Next() {
-		var user usersv1alpha2.User
+		var user usersv1alpha3.User
 		var createTime mysql.NullTime
 		var updateTime mysql.NullTime
 		if err := rows.Scan(&user.Email, &user.Username, &user.Fullname, &user.Role, &createTime, &updateTime); err != nil {
@@ -98,7 +98,7 @@ func (ds *datastore) List(ctx context.Context, sitedomain string, start, limit i
 	return users, foundRows, nil
 }
 
-func (ds *datastore) Create(ctx context.Context, sitedomain string, user *usersv1alpha2.User) error {
+func (ds *datastore) Create(ctx context.Context, sitedomain string, user *usersv1alpha3.User) error {
 	tx, err := ds.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -134,8 +134,8 @@ func (ds *datastore) Create(ctx context.Context, sitedomain string, user *usersv
 	return tx.Commit()
 }
 
-func (ds *datastore) Get(ctx context.Context, sitedomain, username string) (*usersv1alpha2.User, error) {
-	user := new(usersv1alpha2.User)
+func (ds *datastore) Get(ctx context.Context, sitedomain, username string) (*usersv1alpha3.User, error) {
+	user := new(usersv1alpha3.User)
 	var createTime mysql.NullTime
 	var updateTime mysql.NullTime
 	var sqlquery = `
@@ -157,7 +157,7 @@ func (ds *datastore) Get(ctx context.Context, sitedomain, username string) (*use
 	return user, nil
 }
 
-func (ds *datastore) Update(ctx context.Context, sitedomain, username string, user *usersv1alpha2.User) error {
+func (ds *datastore) Update(ctx context.Context, sitedomain, username string, user *usersv1alpha3.User) error {
 	var sqlquery = `
 		UPDATE users AS u LEFT JOIN site_users AS su on u.username=su.user_username
 		SET u.username=?, u.fullname=?, su.role=?
@@ -198,6 +198,6 @@ func (ds *datastore) Delete(ctx context.Context, sitedomain, username string) er
 	return nil
 }
 
-func (ds *datastore) Search(ctx context.Context, query string) ([]*usersv1alpha2.User, error) {
+func (ds *datastore) Search(ctx context.Context, query string) ([]*usersv1alpha3.User, error) {
 	return nil, nil
 }

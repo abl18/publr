@@ -21,7 +21,7 @@ package mock_datastore
 import (
 	context "context"
 	gomock "github.com/golang/mock/gomock"
-	v1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
+	v1alpha3 "github.com/prksu/publr/pkg/api/posts/v1alpha3"
 	reflect "reflect"
 )
 
@@ -49,10 +49,10 @@ func (m *MockPostDatastore) EXPECT() *MockPostDatastoreMockRecorder {
 }
 
 // List mocks base method
-func (m *MockPostDatastore) List(ctx context.Context, sitedomain, author string, start, limit int) ([]*v1alpha2.Post, int, error) {
+func (m *MockPostDatastore) List(ctx context.Context, sitedomain, author string, start, limit int) ([]*v1alpha3.Post, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", ctx, sitedomain, author, start, limit)
-	ret0, _ := ret[0].([]*v1alpha2.Post)
+	ret0, _ := ret[0].([]*v1alpha3.Post)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
@@ -65,7 +65,7 @@ func (mr *MockPostDatastoreMockRecorder) List(ctx, sitedomain, author, start, li
 }
 
 // Create mocks base method
-func (m *MockPostDatastore) Create(ctx context.Context, sitedomain, author string, post *v1alpha2.Post) error {
+func (m *MockPostDatastore) Create(ctx context.Context, sitedomain, author string, post *v1alpha3.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", ctx, sitedomain, author, post)
 	ret0, _ := ret[0].(error)
@@ -79,10 +79,10 @@ func (mr *MockPostDatastoreMockRecorder) Create(ctx, sitedomain, author, post in
 }
 
 // Get mocks base method
-func (m *MockPostDatastore) Get(ctx context.Context, sitedomain, author, slug string) (*v1alpha2.Post, error) {
+func (m *MockPostDatastore) Get(ctx context.Context, sitedomain, author, slug string) (*v1alpha3.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", ctx, sitedomain, author, slug)
-	ret0, _ := ret[0].(*v1alpha2.Post)
+	ret0, _ := ret[0].(*v1alpha3.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -94,7 +94,7 @@ func (mr *MockPostDatastoreMockRecorder) Get(ctx, sitedomain, author, slug inter
 }
 
 // Update mocks base method
-func (m *MockPostDatastore) Update(ctx context.Context, sitedomain, author, slug string, post *v1alpha2.Post) error {
+func (m *MockPostDatastore) Update(ctx context.Context, sitedomain, author, slug string, post *v1alpha3.Post) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", ctx, sitedomain, author, slug, post)
 	ret0, _ := ret[0].(error)
@@ -122,10 +122,10 @@ func (mr *MockPostDatastoreMockRecorder) Delete(ctx, sitedomain, author, slug in
 }
 
 // Search mocks base method
-func (m *MockPostDatastore) Search(ctx context.Context, query string) ([]*v1alpha2.Post, error) {
+func (m *MockPostDatastore) Search(ctx context.Context, query string) ([]*v1alpha3.Post, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, query)
-	ret0, _ := ret[0].([]*v1alpha2.Post)
+	ret0, _ := ret[0].([]*v1alpha3.Post)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -29,9 +29,9 @@ import (
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials"
 
-	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
-	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
-	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	postsv1alpha3 "github.com/prksu/publr/pkg/api/posts/v1alpha3"
+	sitesv1alpha3 "github.com/prksu/publr/pkg/api/sites/v1alpha3"
+	usersv1alpha3 "github.com/prksu/publr/pkg/api/users/v1alpha3"
 	"github.com/prksu/publr/pkg/service"
 )
 
@@ -65,9 +65,9 @@ func run() error {
 		})))
 	}
 
-	postsv1alpha2.RegisterPostServiceHandlerFromEndpoint(context.Background(), mux, "dns:///posts:9000", opts)
-	sitesv1alpha2.RegisterSiteServiceHandlerFromEndpoint(context.Background(), mux, "dns:///sites:9000", opts)
-	usersv1alpha2.RegisterUserServiceHandlerFromEndpoint(context.Background(), mux, "dns:///users:9000", opts)
+	postsv1alpha3.RegisterPostServiceHandlerFromEndpoint(context.Background(), mux, "dns:///posts:9000", opts)
+	sitesv1alpha3.RegisterSiteServiceHandlerFromEndpoint(context.Background(), mux, "dns:///sites:9000", opts)
+	usersv1alpha3.RegisterUserServiceHandlerFromEndpoint(context.Background(), mux, "dns:///users:9000", opts)
 
 	return http.ListenAndServe(":8000", mux)
 }

@@ -22,25 +22,25 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
-	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	sitesv1alpha3 "github.com/prksu/publr/pkg/api/sites/v1alpha3"
+	usersv1alpha3 "github.com/prksu/publr/pkg/api/users/v1alpha3"
 	"github.com/prksu/publr/pkg/service/client/users"
 	"github.com/prksu/publr/pkg/service/server/sites/datastore"
 )
 
-// Server implement sitesv1alpha2.SiteServiceServer.
+// Server implement sitesv1alpha3.SiteServiceServer.
 type Server struct {
 	Site       datastore.SiteDatastore
-	UserClient usersv1alpha2.UserServiceClient
+	UserClient usersv1alpha3.UserServiceClient
 }
 
 // NewServiceServer create new sites service server.
-// returns sitesv1alpha2.SiteServiceServer.
-func NewServiceServer() sitesv1alpha2.SiteServiceServer {
+// returns sitesv1alpha3.SiteServiceServer.
+func NewServiceServer() sitesv1alpha3.SiteServiceServer {
 	return newServiceServer(datastore.NewSiteDatastore(), users.MustNewServiceClient())
 }
 
-func newServiceServer(site datastore.SiteDatastore, userClient usersv1alpha2.UserServiceClient) sitesv1alpha2.SiteServiceServer {
+func newServiceServer(site datastore.SiteDatastore, userClient usersv1alpha3.UserServiceClient) sitesv1alpha3.SiteServiceServer {
 	server := new(Server)
 	server.Site = site
 	server.UserClient = userClient
@@ -48,7 +48,7 @@ func newServiceServer(site datastore.SiteDatastore, userClient usersv1alpha2.Use
 }
 
 // CreateSite handler method.
-func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha2.CreateSiteRequest) (*sitesv1alpha2.Site, error) {
+func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha3.CreateSiteRequest) (*sitesv1alpha3.Site, error) {
 	site := req.Site
 
 	if site == nil {
@@ -74,12 +74,12 @@ func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha2.CreateSiteRe
 	}
 
 	owner.Role = 3
-	ownerres, err := s.UserClient.CreateUser(ctx, &usersv1alpha2.CreateUserRequest{Parent: strings.Join([]string{"sites", sitedomain}, "/"), User: owner})
+	ownerres, err := s.UserClient.CreateUser(ctx, &usersv1alpha3.CreateUserRequest{Parent: strings.Join([]string{"sites", sitedomain}, "/"), User: owner})
 	if err != nil {
 		return nil, s.Site.Delete(ctx, sitedomain)
 	}
 
-	res := new(sitesv1alpha2.Site)
+	res := new(sitesv1alpha3.Site)
 	res = req.Site
 	res.Name = strings.Join([]string{"sites", sitedomain}, "/")
 	res.Owner = ownerres
@@ -87,7 +87,7 @@ func (s *Server) CreateSite(ctx context.Context, req *sitesv1alpha2.CreateSiteRe
 }
 
 // GetSite handler method.
-func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha2.GetSiteRequest) (*sitesv1alpha2.Site, error) {
+func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha3.GetSiteRequest) (*sitesv1alpha3.Site, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 	res, err := s.Site.Get(ctx, sitedomain)
@@ -100,7 +100,7 @@ func (s *Server) GetSite(ctx context.Context, req *sitesv1alpha2.GetSiteRequest)
 }
 
 // DeleteSite handler method.
-func (s *Server) DeleteSite(ctx context.Context, req *sitesv1alpha2.DeleteSiteRequest) (*empty.Empty, error) {
+func (s *Server) DeleteSite(ctx context.Context, req *sitesv1alpha3.DeleteSiteRequest) (*empty.Empty, error) {
 	name := req.Name
 	sitedomain := strings.Split(name, "/")[1]
 

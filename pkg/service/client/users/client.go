@@ -19,14 +19,14 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 
-	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	usersv1alpha3 "github.com/prksu/publr/pkg/api/users/v1alpha3"
 )
 
 // DefaultAddress default users service server address
 var DefaultAddress = "dns:///users:9000"
 
 // MustNewServiceClient create new sites service client with panic if any errors.
-func MustNewServiceClient() usersv1alpha2.UserServiceClient {
+func MustNewServiceClient() usersv1alpha3.UserServiceClient {
 	client, err := NewServiceClient(DefaultAddress)
 	if err != nil {
 		panic(err)
@@ -35,7 +35,7 @@ func MustNewServiceClient() usersv1alpha2.UserServiceClient {
 }
 
 // NewServiceClient create new users service client.
-func NewServiceClient(address string) (usersv1alpha2.UserServiceClient, error) {
+func NewServiceClient(address string) (usersv1alpha3.UserServiceClient, error) {
 	// ca, err := ioutil.ReadFile(service.CA)
 	// if err != nil {
 	// 	return nil, err
@@ -58,7 +58,7 @@ func NewServiceClient(address string) (usersv1alpha2.UserServiceClient, error) {
 		return nil, err
 	}
 
-	client := usersv1alpha2.NewUserServiceClient(conn)
+	client := usersv1alpha3.NewUserServiceClient(conn)
 
 	return client, nil
 }

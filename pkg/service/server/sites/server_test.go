@@ -25,8 +25,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	sitesv1alpha2 "github.com/prksu/publr/pkg/api/sites/v1alpha2"
-	usersv1alpha2 "github.com/prksu/publr/pkg/api/users/v1alpha2"
+	sitesv1alpha3 "github.com/prksu/publr/pkg/api/sites/v1alpha3"
+	usersv1alpha3 "github.com/prksu/publr/pkg/api/users/v1alpha3"
 	"github.com/prksu/publr/pkg/service/mock/users"
 	mock_datastore "github.com/prksu/publr/pkg/service/server/sites/datastore/mock"
 )
@@ -38,10 +38,10 @@ func TestServer_CreateSite(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockSiteDatastore(ctrl)
 	mockUserClient := users.NewMockUserServiceClient(ctrl)
 
-	testsite := &sitesv1alpha2.Site{
+	testsite := &sitesv1alpha3.Site{
 		Title:  "My Sites",
 		Domain: "mysites.site",
-		Owner: &usersv1alpha2.User{
+		Owner: &usersv1alpha3.User{
 			Username: "testowner",
 			Email:    "testowner@mysites.site",
 			Password: "secret",
@@ -51,33 +51,33 @@ func TestServer_CreateSite(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *sitesv1alpha2.CreateSiteRequest
+		req *sitesv1alpha3.CreateSiteRequest
 	}
 	tests := []struct {
 		name                string
 		args                args
 		expectedCreateSite  *gomock.Call
 		expectedCreateOwner *gomock.Call
-		want                *sitesv1alpha2.Site
+		want                *sitesv1alpha3.Site
 		wantErr             bool
 	}{
 		{
 			name: "Test create site",
 			args: args{
 				context.Background(),
-				&sitesv1alpha2.CreateSiteRequest{
+				&sitesv1alpha3.CreateSiteRequest{
 					Site: testsite,
 				},
 			},
 			expectedCreateSite:  mockDatastore.EXPECT().Create(context.Background(), testsite).Return(nil),
-			expectedCreateOwner: mockUserClient.EXPECT().CreateUser(gomock.Any(), &usersv1alpha2.CreateUserRequest{Parent: strings.Join([]string{"sites", testsite.Domain}, "/"), User: testsite.Owner}).Return(testsite.Owner, nil),
+			expectedCreateOwner: mockUserClient.EXPECT().CreateUser(gomock.Any(), &usersv1alpha3.CreateUserRequest{Parent: strings.Join([]string{"sites", testsite.Domain}, "/"), User: testsite.Owner}).Return(testsite.Owner, nil),
 			want:                testsite,
 		},
 		{
 			name: "Test create site with null request",
 			args: args{
 				context.Background(),
-				&sitesv1alpha2.CreateSiteRequest{},
+				&sitesv1alpha3.CreateSiteRequest{},
 			},
 			wantErr: true,
 		},
@@ -85,10 +85,10 @@ func TestServer_CreateSite(t *testing.T) {
 			name: "Test create site with empty title",
 			args: args{
 				context.Background(),
-				&sitesv1alpha2.CreateSiteRequest{
-					Site: &sitesv1alpha2.Site{
+				&sitesv1alpha3.CreateSiteRequest{
+					Site: &sitesv1alpha3.Site{
 						Domain: "mysites.site",
-						Owner: &usersv1alpha2.User{
+						Owner: &usersv1alpha3.User{
 							Username: "testowner",
 							Email:    "testowner@mysites.site",
 							Password: "secret",
@@ -103,10 +103,10 @@ func TestServer_CreateSite(t *testing.T) {
 			name: "Test create site with empty domain",
 			args: args{
 				context.Background(),
-				&sitesv1alpha2.CreateSiteRequest{
-					Site: &sitesv1alpha2.Site{
+				&sitesv1alpha3.CreateSiteRequest{
+					Site: &sitesv1alpha3.Site{
 						Title: "My Sites",
-						Owner: &usersv1alpha2.User{
+						Owner: &usersv1alpha3.User{
 							Username: "testowner",
 							Email:    "testowner@mysites.site",
 							Password: "secret",
@@ -121,8 +121,8 @@ func TestServer_CreateSite(t *testing.T) {
 			name: "Test create site with empty owner",
 			args: args{
 				context.Background(),
-				&sitesv1alpha2.CreateSiteRequest{
-					Site: &sitesv1alpha2.Site{
+				&sitesv1alpha3.CreateSiteRequest{
+					Site: &sitesv1alpha3.Site{
 						Title:  "My Sites",
 						Domain: "mysites.site",
 					},
@@ -154,7 +154,7 @@ func TestServer_GetSite(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockSiteDatastore(ctrl)
 	mockUserClient := users.NewMockUserServiceClient(ctrl)
 
-	testsite := &sitesv1alpha2.Site{
+	testsite := &sitesv1alpha3.Site{
 		Name:   strings.Join([]string{"sites", "mysites.site"}, "/"),
 		Title:  "My Sites",
 		Domain: "mysites.site",
@@ -162,20 +162,20 @@ func TestServer_GetSite(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *sitesv1alpha2.GetSiteRequest
+		req *sitesv1alpha3.GetSiteRequest
 	}
 	tests := []struct {
 		name            string
 		args            args
 		expectedGetSite *gomock.Call
-		want            *sitesv1alpha2.Site
+		want            *sitesv1alpha3.Site
 		wantErr         bool
 	}{
 		{
 			name: "Test get site",
 			args: args{
 				context.Background(),
-				&sitesv1alpha2.GetSiteRequest{
+				&sitesv1alpha3.GetSiteRequest{
 					Name: testsite.Name,
 				},
 			},
@@ -186,7 +186,7 @@ func TestServer_GetSite(t *testing.T) {
 			name: "Test get site not found",
 			args: args{
 				context.Background(),
-				&sitesv1alpha2.GetSiteRequest{
+				&sitesv1alpha3.GetSiteRequest{
 					Name: strings.Join([]string{"sites", "notfound"}, "/"),
 				},
 			},
@@ -216,7 +216,7 @@ func TestServer_DeleteSite(t *testing.T) {
 	mockDatastore := mock_datastore.NewMockSiteDatastore(ctrl)
 	mockUserClient := users.NewMockUserServiceClient(ctrl)
 
-	testsite := &sitesv1alpha2.Site{
+	testsite := &sitesv1alpha3.Site{
 		Name:   strings.Join([]string{"sites", "mysites.site"}, "/"),
 		Title:  "My Sites",
 		Domain: "mysites.site",
@@ -224,7 +224,7 @@ func TestServer_DeleteSite(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		req *sitesv1alpha2.DeleteSiteRequest
+		req *sitesv1alpha3.DeleteSiteRequest
 	}
 	tests := []struct {
 		name               string
@@ -237,7 +237,7 @@ func TestServer_DeleteSite(t *testing.T) {
 			name: "Test delete site",
 			args: args{
 				context.Background(),
-				&sitesv1alpha2.DeleteSiteRequest{
+				&sitesv1alpha3.DeleteSiteRequest{
 					Name: testsite.Name,
 				},
 			},
@@ -248,7 +248,7 @@ func TestServer_DeleteSite(t *testing.T) {
 			name: "Test delete site not found",
 			args: args{
 				context.Background(),
-				&sitesv1alpha2.DeleteSiteRequest{
+				&sitesv1alpha3.DeleteSiteRequest{
 					Name: strings.Join([]string{"sites", "notfound"}, "/"),
 				},
 			},

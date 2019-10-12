@@ -21,23 +21,23 @@ spec:
   selector:
     matchLabels:
       app: publr-sites
-      version: v1alpha2
+      version: v1alpha3
   template:
     metadata:
       labels:
         app: publr-sites
-        version: v1alpha2
+        version: v1alpha3
     spec:
       containers:
       - name: sites
         image: sites
         args:
         - --service-name=sites
-        - --server-address=:443
-        - --server-tls=true
-        - --server-cert=/etc/certs/tls.crt
-        - --server-key=/etc/certs/tls.key
-        - --ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        - --server-address=:9443
+        # - --server-tls=true
+        # - --server-cert=/etc/certs/tls.crt
+        # - --server-key=/etc/certs/tls.key
+        # - --ca=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
         - --jaeger-agent-endpoint=jaeger-agent.jaeger:6831
         - --jaeger-collector-hostport=jaeger-collector.jaeger:14268
         - --database-host=database
@@ -46,11 +46,11 @@ spec:
         - --database-name=publr
         ports:
         - name: grpc
-          containerPort: 443
-        volumeMounts:
-        - name: tls
-          mountPath: /etc/certs
-      volumes:
-      - name: tls
-        secret:
-          secretName: publr-tls
+          containerPort: 9443
+      #   volumeMounts:
+      #   - name: tls
+      #     mountPath: /etc/certs
+      # volumes:
+      # - name: tls
+      #   secret:
+      #     secretName: publr-tls

@@ -19,14 +19,14 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 
-	postsv1alpha2 "github.com/prksu/publr/pkg/api/posts/v1alpha2"
+	postsv1alpha3 "github.com/prksu/publr/pkg/api/posts/v1alpha3"
 )
 
 // DefaultAddress default posts service server address
 var DefaultAddress = "dns:///posts:9000"
 
 // MustNewServiceClient create new sites service client with panic if any errors.
-func MustNewServiceClient() postsv1alpha2.PostServiceClient {
+func MustNewServiceClient() postsv1alpha3.PostServiceClient {
 	client, err := NewServiceClient(DefaultAddress)
 	if err != nil {
 		panic(err)
@@ -35,7 +35,7 @@ func MustNewServiceClient() postsv1alpha2.PostServiceClient {
 }
 
 // NewServiceClient create new posts service client.
-func NewServiceClient(address string) (postsv1alpha2.PostServiceClient, error) {
+func NewServiceClient(address string) (postsv1alpha3.PostServiceClient, error) {
 	// ca, err := ioutil.ReadFile(service.CA)
 	// if err != nil {
 	// 	return nil, err
@@ -58,7 +58,7 @@ func NewServiceClient(address string) (postsv1alpha2.PostServiceClient, error) {
 		return nil, err
 	}
 
-	client := postsv1alpha2.NewPostServiceClient(conn)
+	client := postsv1alpha3.NewPostServiceClient(conn)
 
 	return client, nil
 }

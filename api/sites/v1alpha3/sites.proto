@@ -1,0 +1,64 @@
+// Copyright 2019 Publr Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package publr.sites.v1alpha3;
+
+import "api/users/v1alpha3/users.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/prksu/publr/pkg/api/sites/v1alpha3;sites";
+
+service SiteService {
+  rpc CreateSite(CreateSiteRequest) returns (Site) {
+    option (google.api.http) = {
+      post: "/v1alpha3/sites"
+      body: "site"
+    };
+  }
+  rpc GetSite(GetSiteRequest) returns (Site) {
+    option (google.api.http) = {
+      get: "/v1alpha3/{name=sites/*}"
+    };
+  }
+  rpc DeleteSite(DeleteSiteRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1alpha3/{name=sites/*}"
+    };
+  }
+}
+
+message Site {
+  string name = 1;
+  string title = 2;
+  string domain = 3;
+  publr.users.v1alpha3.User owner = 4;
+  google.protobuf.Timestamp create_time = 5;
+  google.protobuf.Timestamp update_time = 6;
+}
+
+message CreateSiteRequest {
+  Site site = 1;
+}
+
+message GetSiteRequest {
+  string name = 1;
+}
+
+message DeleteSiteRequest {
+  string name = 1;
+}

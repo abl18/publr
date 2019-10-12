@@ -6,7 +6,7 @@ go_library(
     importpath = "github.com/prksu/publr/pkg/service/client/posts",
     visibility = ["//visibility:public"],
     deps = [
-        "//pkg/api/posts/v1alpha2:go_default_library",
+        "//pkg/api/posts/v1alpha3:go_default_library",
         "//vendor/go.opencensus.io/plugin/ocgrpc:go_default_library",
         "//vendor/google.golang.org/grpc:go_default_library",
         "//vendor/google.golang.org/grpc/balancer/roundrobin:go_default_library",
