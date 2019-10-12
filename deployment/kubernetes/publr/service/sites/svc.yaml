@@ -21,5 +21,5 @@ spec:
   selector:
     app: publr-sites
   ports:
-  - port: 443
+  - port: 9000
     name: grpc

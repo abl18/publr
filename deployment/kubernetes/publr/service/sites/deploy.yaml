@@ -33,7 +33,7 @@ spec:
         image: sites
         args:
         - --service-name=sites
-        - --server-address=:9443
+        - --server-address=:9000
         # - --server-tls=true
         # - --server-cert=/etc/certs/tls.crt
         # - --server-key=/etc/certs/tls.key
@@ -46,7 +46,7 @@ spec:
         - --database-name=publr
         ports:
         - name: grpc
-          containerPort: 9443
+          containerPort: 9000
       #   volumeMounts:
       #   - name: tls
       #     mountPath: /etc/certs

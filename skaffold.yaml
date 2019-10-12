@@ -25,17 +25,17 @@ build:
       - "--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
   - image: posts
     bazel:
-      target: //cmd/service/posts:image.tar
+      target: //cmd/posts:image.tar
       args:
       - "--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
   - image: sites
     bazel:
-      target: //cmd/service/sites:image.tar
+      target: //cmd/sites:image.tar
       args:
       - "--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
   - image: users
     bazel:
-      target: //cmd/service/users:image.tar
+      target: //cmd/users:image.tar
       args:
       - "--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64"
 deploy:

@@ -1,24 +1,24 @@
 version: '3.7'
 services:
   http-proxy:
-    build:
-      context: .
-      dockerfile: build/docker/http-proxy/Dockerfile
-    image: http-proxy:latest
-    restart: on-failure
-    networks:
-      - default
+    image: publr/http-proxy:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     command: [
       "--insecure-server", "true"
     ]
+    networks:
+      - default
     ports:
       - 8000:8000
   posts:
-    build:
-      context: .
-      dockerfile: build/docker/service/posts/Dockerfile
-    image: posts:latest
-    restart: on-failure
+    image: publr/posts:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     command: [
       "--service-name", "posts",
       "--server-address", ":9000",
@@ -30,11 +30,11 @@ services:
     networks:
       - default
   sites:
-    build:
-      context: .
-      dockerfile: build/docker/service/sites/Dockerfile
-    image: sites:latest
-    restart: on-failure
+    image: publr/sites:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     command: [
       "--service-name", "sites",
       "--server-address", ":9000",
@@ -46,11 +46,11 @@ services:
     networks:
       - default
   users:
-    build:
-      context: .
-      dockerfile: build/docker/service/users/Dockerfile
-    image: users:latest
-    restart: on-failure
+    image: publr/users:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     command: [
       "--service-name", "users",
       "--server-address", ":9000",
@@ -63,7 +63,10 @@ services:
       - default
   database:
     image: mysql:8.0
-    restart: on-failure
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     volumes:
       - ./data/schema:/docker-entrypoint-initdb.d
       - database_data:/var/lib/mysql
